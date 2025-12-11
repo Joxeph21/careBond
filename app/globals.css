@@ -2,21 +2,18 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #0A1B39;
-  
-  --primary: #3F8EF3;
+  --foreground: #0a1b39;
+  --primary: #3f8ef3;
 }
-
-
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-grey-dark: #6C7688;
-  --color-grey: #E7E8EB;
-  --color-placeholder: #9DA4B0;
+  --color-grey-dark: #6c7688;
+  --color-grey: #e7e8eb;
+  --color-placeholder: #9da4b0;
   --color-primary: var(--primary);
-  --color-danger: #EF1E1E;
+  --color-danger: #ef1e1e;
   --font-sans: var(--font-outfit);
   --font-ut: var(--font-utendo);
 }
@@ -29,17 +26,15 @@
 } */
 
 body {
-@apply text-sm bg-background font-sans
+  @apply text-sm bg-background font-sans;
 }
 
-@utility flex-center{
-@apply flex items-center justify-center
+@utility flex-center {
+  @apply flex items-center justify-center;
 }
-@utility col-center{
-@apply flex flex-col items-center justify-center
+@utility col-center {
+  @apply flex flex-col items-center justify-center;
 }
-@utility flex-between{
-@apply flex items-center justify-between
+@utility flex-between {
+  @apply flex items-center justify-between;
 }
-
-
