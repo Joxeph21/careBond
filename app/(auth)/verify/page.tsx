@@ -31,7 +31,7 @@ export default function Page() {
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     onKeyUp={(e) => handleKeyUp(e, index)}
                     value={values[index] || ""}
-                    className='size-15 rounded-md ring focus:ring-[#3F8EF3] flex-center text-center font-bold text-lg ring-grey' type='text'
+                    className='size-15 outline-none rounded-md ring focus:ring-[#3F8EF3] flex-center text-center font-bold text-lg ring-grey' type='text'
 
 
                 />)}
