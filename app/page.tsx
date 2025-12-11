@@ -1,7 +1,10 @@
-import Image from "next/image";
+import Button from "@/components/common/Button";
 
 export default function Home() {
   return (
- <div></div>
+ <div className="col-center px-4 max-w-lg min-h-screen gap-3">
+  <Button size="full" link href="/login">Login</Button>
+  <Button size="full" link href="/register">Register</Button>
+ </div>
   );
 }

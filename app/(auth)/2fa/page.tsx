@@ -28,7 +28,7 @@ export default function Page() {
 
       </div>
 
-      <div className='w-full max-w-[80%] flex-between'>
+      <div className='w-full md:max-w-[80%] flex-between'>
         {Array.from({ length: 4 }).map((_, index) => <input key={index} inputMode="numeric"
           maxLength={1}
           ref={(el) => setInputRef(el, index)}
