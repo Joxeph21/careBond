@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${Utendo.variable} ${outfit.variable} antialiased`}
+        className={`text-pretty ${Utendo.variable} ${outfit.variable} antialiased`}
       >
         {children}
       </body>
