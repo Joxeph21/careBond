@@ -15,7 +15,7 @@
   --color-primary: var(--primary);
   --color-danger: #ef1e1e;
   --font-sans: var(--font-outfit);
-  --font-ut: var(--font-utendo);
+  /* --font-ut: var(--font-utendo); */
 }
 
 /* @media (prefers-color-scheme: dark) {

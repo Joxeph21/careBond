@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Utendo } from "@/utils/fonts";
+// import { Utendo } from "@/utils/fonts";
 import { Outfit } from "next/font/google"
 
 
@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`text-pretty ${Utendo.variable} ${outfit.variable} antialiased`}
+        className={`text-pretty  ${outfit.variable} antialiased`}
       >
         {children}
       </body>
