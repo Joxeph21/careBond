@@ -1,6 +1,6 @@
 "use client"
 
-import { InputHTMLAttributes, useState } from "react"
+import { InputHTMLAttributes, useState, forwardRef } from "react"
 import { Icon } from "@iconify/react"
 import { ICON } from "@/utils/icon-exports"
 
@@ -13,48 +13,84 @@ type InputProps = {
     suffix?: string,
 }
 
-export default function InputText({ label, config, error, errorMessage, prefix, suffix }: InputProps) {
-    const [isVisible, setisVisible] = useState<boolean>(false)
+const InputText = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, config, error, errorMessage, prefix, suffix }, ref) => {
+    const [isVisible, setIsVisible] = useState(false)
+
     if (config?.type === "password") {
-        return (
-            <div className="w-full flex flex-col">
-                {label && <label htmlFor={config?.name}>{label}</label>}
-                <div className="w-full ring gap-2 py-1.5 p-3 ring-grey rounded-md flex-between">
-                    {prefix && <span className="size-4 flex-center">
-                        <Icon icon={prefix} fontSize={20} />
-
-                    </span>}
-                    <input {...config}
-                        type={isVisible ? "text" : "password"}
-                        placeholder="************"
-                        className={` h-fit w-full   placeholder:text-placeholder outline-none ${config?.className}`}
-
-                    />
-                    <button type="button" onClick={() => setisVisible(!isVisible)} role="switch" aria-checked={isVisible} className="size-4 cursor-pointer flex-center">
-                        <Icon icon={isVisible ? ICON.EYE_OFF : ICON.EYE} fontSize={20} />
-                    </button>
-                </div>
-                {error && <p className="font-medium text-xs text-danger">{errorMessage}</p>}
-            </div>)
-    }
-    return (
+      return (
         <div className="w-full flex flex-col">
-            {label && <label htmlFor={config?.name}>{label}</label>}
-            <div className="w-full ring py-1.5 p-3 gap-2 ring-grey rounded-md flex-between">
-                {prefix && <span className="size-4 flex-center">
-                    <Icon icon={prefix} fontSize={20} />
+          {label && <label htmlFor={config?.name}>{label}</label>}
 
-                </span>}
-                <input {...config}
-                    className={` w-full   p-px placeholder:text-placeholder outline-none ${config?.className}`}
+          <div className="w-full ring gap-2 py-1.5 p-3 ring-grey rounded-md flex-between">
+            {prefix && (
+              <span className="size-4 flex-center">
+                <Icon icon={prefix} fontSize={20} />
+              </span>
+            )}
 
-                />
-                {suffix && <span className="size-4 flex-center">
-                    <Icon icon={suffix} fontSize={20} />
+            <input
+              {...config}
+              ref={ref}
+              type={isVisible ? "text" : "password"}
+              placeholder="************"
+              className={`w-full h-fit placeholder:text-placeholder outline-none ${config?.className}`}
+            />
 
-                </span>}
-            </div>
-            {error && <p className="font-medium text-xs text-danger">{errorMessage}</p>}
+            <button
+              type="button"
+              onClick={() => setIsVisible(!isVisible)}
+              role="switch"
+              aria-checked={isVisible}
+              className="size-4 cursor-pointer flex-center"
+            >
+              <Icon icon={isVisible ? ICON.EYE_OFF : ICON.EYE} fontSize={20} />
+            </button>
+          </div>
+
+          {error && (
+            <p className="font-medium text-xs text-danger">
+              {errorMessage}
+            </p>
+          )}
         </div>
+      )
+    }
+
+    return (
+      <div className="w-full flex flex-col">
+        {label && <label htmlFor={config?.name}>{label}</label>}
+
+        <div className="w-full ring py-1.5 p-3 gap-2 ring-grey rounded-md flex-between">
+          {prefix && (
+            <span className="size-4 flex-center">
+              <Icon icon={prefix} fontSize={20} />
+            </span>
+          )}
+
+          <input
+            {...config}
+            ref={ref}
+            className={`w-full p-px placeholder:text-placeholder outline-none ${config?.className}`}
+          />
+
+          {suffix && (
+            <span className="size-4 flex-center">
+              <Icon icon={suffix} fontSize={20} />
+            </span>
+          )}
+        </div>
+
+        {error && (
+          <p className="font-medium text-xs text-danger">
+            {errorMessage}
+          </p>
+        )}
+      </div>
     )
-}
+  }
+)
+
+InputText.displayName = "InputText"
+
+export default InputText

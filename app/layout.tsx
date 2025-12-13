@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 // import { Utendo } from "@/utils/fonts";
 import { Outfit } from "next/font/google"
+import QueryProvider from "@/providers/QueryProvider";
+import { Toaster } from "react-hot-toast";
+import NextTopLoader from "nextjs-toploader";
 
 
 const outfit = Outfit({
@@ -26,7 +29,36 @@ export default function RootLayout({
       <body
         className={`text-pretty  ${outfit.variable} antialiased`}
       >
-        {children}
+        <NextTopLoader color="#3f8ef3" showSpinner={false} />
+        <QueryProvider>
+
+          {children}
+          <Toaster
+            gutter={12}
+            containerStyle={{ margin: "2px" }}
+            toastOptions={{
+              success: {
+                duration: 3000,
+                style: {
+                  background: "#4caf50",
+                  color: "white",
+                },
+              },
+              error: {
+                duration: 5000,
+                style: {
+                  background: "#ef4444",
+                  color: "white",
+                },
+              },
+              style: {
+                fontSize: "12px",
+                maxWidth: "500px",
+                padding: "16px 24px",
+              },
+            }}
+          />
+        </QueryProvider>
       </body>
     </html>
   );
