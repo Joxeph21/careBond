@@ -6,16 +6,36 @@ import InputText from '@/components/common/InputText'
 import { ICON } from '@/utils/icon-exports'
 import Link from 'next/link'
 import { Icon } from '@iconify/react'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { ForgotPasswordRequestSchema } from '@/schema/auth-schema'
+import { useRequestForgotPassword } from '@/hooks/auth/useAuth'
 
 
 export default function ForgotPasswordContent() {
+    const { requestForgotPassword, isPending } = useRequestForgotPassword()
     const [emailSent, setEmailSent] = useState(false)
+    const { register, formState: { errors, isValid }, handleSubmit, getValues } = useForm<{ email: string }>({
+        mode: "all",
+        resolver: yupResolver(ForgotPasswordRequestSchema),
+        defaultValues: {
+            email: ""
+        }
+    })
 
-    const handleEmailSend = () => {
-        setEmailSent(true)
+
+    const email = getValues("email")
+
+    const handleEmailSend = (data: { email: string }) => {
+        requestForgotPassword(data, {
+            onSuccess: () => {
+
+                setEmailSent(true)
+            }
+        })
     }
 
-    // #27AE60
+
 
     if (emailSent) return <div className='w-full  col-center gap-5'>
 
@@ -29,9 +49,12 @@ export default function ForgotPasswordContent() {
 
 
         </div>
-        <Button link href='/verify' size='full'>Reset Password</Button>
+        <Button link href={`/verify?email=${encodeURIComponent(email)}`} size='full'>Reset Password</Button>
 
     </div>
+
+
+
 
     return (
         <div className='w-full  col-center gap-5'>
@@ -41,19 +64,28 @@ export default function ForgotPasswordContent() {
                 <p className='text-grey-dark'>No worries, we&apos;ll send you reset instructions</p>
 
             </div>
-            <FormInput>
+            <FormInput
+                config={{
+                    onSubmit: handleSubmit(handleEmailSend)
+                }}
+            >
                 <InputText
                     label='Email Address'
                     prefix={ICON.MAIL}
+                    error={!!errors.email}
+                    errorMessage={errors.email?.message}
                     config={{
                         type: "email",
-                        placeholder: "Enter Email Address"
+                        placeholder: "Enter Email Address",
+                        ...register("email")
                     }} />
 
                 <Button
                     config={{
-                        onClick: handleEmailSend
+                        type: "submit",
+                        disabled: !isValid
                     }}
+                    isLoading={isPending}
                     size='full'>Submit</Button>
 
                 <p>Return to <Link className='text-primary hover:underline' href={"/login"}>Login</Link></p>

@@ -1,14 +1,15 @@
 "use client";
 import { CONFIG } from "@/utils/config";
 import axios, { InternalAxiosRequestConfig, type AxiosError } from "axios";
-import { access_token_retrieve, auth_logout } from "./utils";
+import { access_token_retrieve,  } from "./utils";
+import { auth_logout_action } from "@/actions/auth";
 
 export const PUBLIC_ROUTES = [
-  "/auth/login",
-  "/auth/logout",
-  "/auth/change-password",
-  "/auth/forgot-password",
-  "/auth/logout",
+  "/auth/login/",
+  "/auth/logout/",
+  "/auth/change-password/",
+  "/auth/forgot-password/",
+  "/auth/logout/",
 ];
 
 const HttpClient = axios.create({
@@ -24,7 +25,7 @@ const authInterceptor = async (config: InternalAxiosRequestConfig) => {
     const access_token = await access_token_retrieve();
 
     if (!access_token) {
-      await auth_logout();
+      await auth_logout_action();
     }
 
     if (access_token) {
@@ -52,6 +53,8 @@ const authErrorInterceptor = async (error: AxiosError) => {
         return HttpClient(originalRequest);
       }
     }
+
+    // console.log(error)
     return Promise.reject(error);
   }
 

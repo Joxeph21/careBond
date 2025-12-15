@@ -5,38 +5,44 @@ import { Icon } from "@iconify/react"
 import { ICON } from "@/utils/icon-exports"
 
 type InputProps = {
-    config?: InputHTMLAttributes<HTMLInputElement>
-    label?: string,
-    error?: boolean,
-    errorMessage?: string
-    prefix?: string,
-    suffix?: string,
+  config?: InputHTMLAttributes<HTMLInputElement>
+  label?: string
+  error?: boolean
+  errorMessage?: string
+  prefix?: string
+  suffix?: string
 }
 
 const InputText = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, config, error, errorMessage, prefix, suffix }, ref) => {
+  ({ label, config = {}, error, errorMessage, prefix, suffix }, ref) => {
     const [isVisible, setIsVisible] = useState(false)
 
-    if (config?.type === "password") {
-      return (
-        <div className="w-full flex flex-col">
-          {label && <label htmlFor={config?.name}>{label}</label>}
+    const baseClass = `w-full ring py-1.5 p-3 gap-2 rounded-md flex-between ${
+      error ? "ring-danger" : "ring-grey"
+    }`
 
-          <div className="w-full ring gap-2 py-1.5 p-3 ring-grey rounded-md flex-between">
-            {prefix && (
-              <span className="size-4 flex-center">
-                <Icon icon={prefix} fontSize={20} />
-              </span>
-            )}
+    const inputProps = {
+      ref,
+      ...config,
+      className: `w-full placeholder:text-placeholder outline-none ${config.className ?? ""}`,
+      type: config.type === "password" ? (isVisible ? "text" : "password") : config.type,
+      placeholder: config?.type === "password" ? "********": config.placeholder
+    }
 
-            <input
-              {...config}
-              ref={ref}
-              type={isVisible ? "text" : "password"}
-              placeholder="************"
-              className={`w-full h-fit placeholder:text-placeholder outline-none ${config?.className}`}
-            />
+    return (
+      <div className="w-full flex flex-col gap-1">
+        {label && <label htmlFor={config.name}>{label}</label>}
 
+        <div className={baseClass}>
+          {prefix && (
+            <span className="size-4 flex-center">
+              <Icon icon={prefix} fontSize={20} />
+            </span>
+          )}
+
+          <input {...inputProps} />
+
+          {config.type === "password" && (
             <button
               type="button"
               onClick={() => setIsVisible(!isVisible)}
@@ -46,46 +52,16 @@ const InputText = forwardRef<HTMLInputElement, InputProps>(
             >
               <Icon icon={isVisible ? ICON.EYE_OFF : ICON.EYE} fontSize={20} />
             </button>
-          </div>
-
-          {error && (
-            <p className="font-medium text-xs text-danger">
-              {errorMessage}
-            </p>
-          )}
-        </div>
-      )
-    }
-
-    return (
-      <div className="w-full flex flex-col">
-        {label && <label htmlFor={config?.name}>{label}</label>}
-
-        <div className="w-full ring py-1.5 p-3 gap-2 ring-grey rounded-md flex-between">
-          {prefix && (
-            <span className="size-4 flex-center">
-              <Icon icon={prefix} fontSize={20} />
-            </span>
           )}
 
-          <input
-            {...config}
-            ref={ref}
-            className={`w-full p-px placeholder:text-placeholder outline-none ${config?.className}`}
-          />
-
-          {suffix && (
+          {suffix && config.type !== "password" && (
             <span className="size-4 flex-center">
               <Icon icon={suffix} fontSize={20} />
             </span>
           )}
         </div>
 
-        {error && (
-          <p className="font-medium text-xs text-danger">
-            {errorMessage}
-          </p>
-        )}
+        {error && <p className="font-medium text-xs text-danger">{errorMessage}</p>}
       </div>
     )
   }

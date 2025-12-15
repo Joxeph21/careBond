@@ -1,6 +1,7 @@
+"use client";
 import {
   RefreshActionResponse,
-  auth_logout_action,
+  
   auth_refresh_token_action,
   auth_update_refresh_token,
 } from "@/actions/auth";
@@ -28,7 +29,7 @@ export const access_token_retrieve = async (): Promise<string | null> => {
           }
         })
         .finally(() => {
-          refreshPromise = null; 
+          refreshPromise = null;
         });
     }
 
@@ -38,17 +39,13 @@ export const access_token_retrieve = async (): Promise<string | null> => {
   return token;
 };
 
-export const auth_logout = async () => {
-  try {
-    await auth_logout_action();
-
-    sessionStorage.removeItem(CONFIG.ACCESS_TOKEN_IDENTIFIER);
-
-    window.location.replace("/login");
-  } catch (err) {
-    console.log("LOGOUT FAILED:", err);
-  }
-};
+// export const auth_logout = async () => {
+//   try {
+//     await auth_logout_action();
+//   } catch (err) {
+//     console.log("LOGOUT FAILED:", err);
+//   }
+// };
 
 export const auth_login = async (
   access: string,

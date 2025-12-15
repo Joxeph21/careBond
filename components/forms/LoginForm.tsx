@@ -2,16 +2,17 @@
 import Button from '@/components/common/Button'
 import FormInput from '@/components/common/FormInput'
 import InputText from '@/components/common/InputText'
+import { useLogin } from '@/hooks/auth/useAuth'
 import { LoginSchema } from '@/schema/auth-schema'
 import { ICON } from '@/utils/icon-exports'
 import { yupResolver } from "@hookform/resolvers/yup"
 // import { Icon } from '@iconify/react'
 import Link from 'next/link'
-import React from 'react'
 import { useForm } from 'react-hook-form'
 
 export default function LoginForm() {
-    const { register, formState: { errors }, getValues, handleSubmit } = useForm<AuthLoginData>({
+    const { isPending, login } = useLogin()
+    const { register, formState: { errors, isValid }, handleSubmit } = useForm<AuthLoginData>({
         mode: "all",
         resolver: yupResolver(LoginSchema),
         defaultValues: {
@@ -22,15 +23,14 @@ export default function LoginForm() {
     })
 
     const onSubmit = (data: AuthLoginData) => {
-
+        login(data)
     }
 
     return (
         <FormInput config={{
-            onSubmit: () => handleSubmit(onSubmit)
+            onSubmit: handleSubmit(onSubmit)
         }}>
             <InputText
-                {...register("email")}
                 label='Email Address'
                 prefix={ICON.USER}
                 error={!!errors.email}
@@ -38,24 +38,30 @@ export default function LoginForm() {
                 config={{
                     type: "email",
                     placeholder: "Enter Email Address",
-                    name: "email"
+                    ...register("email")
                 }} />
             <InputText
                 prefix={ICON.LOCK}
+                error={!!errors.password}
+                errorMessage={errors.password?.message}
                 label='Password'
                 config={{
                     type: "password",
+                    ...register("password")
                 }} />
             <div className='flex-between w-full gap-2 '>
                 <div className='inline-flex items-center gap-2'>
                     <label htmlFor="rememberMe">Remember Me</label>
-                    <input type="checkbox" aria-label='Remember me' name='rememberMe' className='-order-1 cursor-pointer accent-primary' />
+                    <input {...register("persist")} type="checkbox" aria-label='Remember me' id='rememberMe' className='-order-1 cursor-pointer accent-primary' />
                 </div>
 
                 <Link href={"/forgot-password"} className='hover:underline text-danger'>Forgot Password?</Link>
             </div>
 
-            <Button link href='/2fa' size='full'>Login</Button>
+            <Button config={{
+                type: "submit",
+                disabled: !isValid
+            }} isLoading={isPending} size='full'>Login</Button>
 
             {/* <div className='w-full flex-center relative'>
                     <p className='bg-white z-1 px-5'>OR</p>
