@@ -7,5 +7,6 @@ export const ICON = {
   GOOGLE: "material-icon-theme:google",
   FACEBOOK: "ic:round-facebook",
   APPLE: "devicon:apple",
-  CHECKED_FILLED: "iconoir:check-circle-solid"
+  CHECKED_FILLED: "iconoir:check-circle-solid",
+  SPINNER: "ph:spinner"
 } as const;
