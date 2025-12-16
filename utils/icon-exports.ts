@@ -8,5 +8,8 @@ export const ICON = {
   FACEBOOK: "ic:round-facebook",
   APPLE: "devicon:apple",
   CHECKED_FILLED: "iconoir:check-circle-solid",
-  SPINNER: "ph:spinner"
+  SPINNER: "ph:spinner",
+  DASHBOARD: "mage:dashboard-fill",
+  FIRST_AID: "tabler:first-aid-kit",
+  PLAN: "stash:plan"
 } as const;

@@ -35,6 +35,9 @@ body {
 @utility col-center {
   @apply flex flex-col items-center justify-center;
 }
+@utility col-start {
+  @apply flex flex-col items-center justify-start;
+}
 @utility flex-between {
   @apply flex items-center justify-between;
 }
