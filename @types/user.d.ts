@@ -10,3 +10,5 @@ declare interface IUser {
   created_at: string;
   last_login: string | null;
 }
+
+declare type STATUS_TYPE = "active" | "inactive" | "closed" | "suspended" | "reopened";

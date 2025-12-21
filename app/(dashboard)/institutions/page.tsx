@@ -1,7 +1,11 @@
-import React from 'react'
+
+import React from "react";
+import InstitutionContent from "./content";
 
 export default function Page() {
   return (
-    <div>page</div>
-  )
+    <section className="section-container bg-white">
+      <InstitutionContent />
+    </section>
+  );
 }

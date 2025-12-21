@@ -11,5 +11,19 @@ export const ICON = {
   SPINNER: "ph:spinner",
   DASHBOARD: "mage:dashboard-fill",
   FIRST_AID: "tabler:first-aid-kit",
-  PLAN: "stash:plan"
+  PLAN: "stash:plan",
+  SEARCH: "iconoir:search",
+  BELL: "cuida:notification-bell-outline",
+  PLUS: "tabler:plus",
+  ELIPSIS: "solar:menu-dots-outline",
+  CARET_UP: "carbon:caret-up",
+  CARET_DOWN: "carbon:caret-down",
+  CHECKMARK: "tabler:check",
+  STARS: "solar:stars-bold-duotone",
+  GIFT: "mdi:gift",
+  CANCEL: "basil:cancel-outline",
+  CARET_LEFT: "basil:caret-left-solid",
+  FILTER: "cil:filter",
+  MENU: "iconamoon:menu-kebab-vertical",
+  DOT: "radix-icons:dot-filled"
 } as const;

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-// import { Utendo } from "@/utils/fonts";
+import { Utendo } from "./fonts";
 import { Outfit } from "next/font/google"
 import QueryProvider from "@/providers/QueryProvider";
 import { Toaster } from "react-hot-toast";
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`text-pretty  ${outfit.variable} antialiased`}
+        className={`text-pretty ${Utendo.variable} ${outfit.variable} antialiased`}
       >
         <NextTopLoader color="#3f8ef3" showSpinner={false} />
         <QueryProvider>

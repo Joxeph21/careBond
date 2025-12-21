@@ -1,33 +1,41 @@
-"use client"
+"use client";
 
-import { InputHTMLAttributes, useState, forwardRef } from "react"
-import { Icon } from "@iconify/react"
-import { ICON } from "@/utils/icon-exports"
+import { InputHTMLAttributes, useState, forwardRef } from "react";
+import { Icon } from "@iconify/react";
+import { ICON } from "@/utils/icon-exports";
 
 type InputProps = {
-  config?: InputHTMLAttributes<HTMLInputElement>
-  label?: string
-  error?: boolean
-  errorMessage?: string
-  prefix?: string
-  suffix?: string
-}
+  config?: InputHTMLAttributes<HTMLInputElement>;
+  label?: string;
+  error?: boolean;
+  errorMessage?: string;
+  prefix?: string;
+  suffix?: string;
+};
 
 const InputText = forwardRef<HTMLInputElement, InputProps>(
   ({ label, config = {}, error, errorMessage, prefix, suffix }, ref) => {
-    const [isVisible, setIsVisible] = useState(false)
+    const [isVisible, setIsVisible] = useState(false);
 
     const baseClass = `w-full ring py-1.5 p-3 gap-2 rounded-md flex-between ${
       error ? "ring-danger" : "ring-grey"
-    }`
+    }
+    ${config.className ?? ""}  
+    `;
 
     const inputProps = {
       ref,
       ...config,
-      className: `w-full placeholder:text-placeholder outline-none ${config.className ?? ""}`,
-      type: config.type === "password" ? (isVisible ? "text" : "password") : config.type,
-      placeholder: config?.type === "password" ? "********": config.placeholder
-    }
+      className: `w-full placeholder:text-placeholder outline-none `,
+      type:
+        config.type === "password"
+          ? isVisible
+            ? "text"
+            : "password"
+          : config.type,
+      placeholder:
+        config?.type === "password" ? "********" : config.placeholder,
+    };
 
     return (
       <div className="w-full flex flex-col gap-1">
@@ -61,12 +69,14 @@ const InputText = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
 
-        {error && <p className="font-medium text-xs text-danger">{errorMessage}</p>}
+        {error && (
+          <p className="font-medium text-xs text-danger">{errorMessage}</p>
+        )}
       </div>
-    )
+    );
   }
-)
+);
 
-InputText.displayName = "InputText"
+InputText.displayName = "InputText";
 
-export default InputText
+export default InputText;

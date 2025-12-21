@@ -1,15 +1,64 @@
-"use client";
-import Button from "@/components/common/Button";
-import { useLogout } from "@/hooks/auth/useAuth";
-import { CONFIG } from "@/utils/config";
-import { useRouter } from "next/navigation";
+import DashTitle from "@/components/common/DashTitle";
+import StatCard, { DataProps } from "@/components/common/StatCard";
+import BagIcon from "@/components/icons/BagIcon";
+import MMRIcon from "@/components/icons/MMRIcon";
+import UsersIcon from "@/components/icons/UsersIcon";
+import SuperAdminTab from "@/components/superadmin/SuperAdminTab";
+
+const dashboardStats: DataProps[] = [
+  {
+    title: "MMR",
+    icon: <MMRIcon />,
+    type: "currency",
+    value: 10000,
+    trend: "positive",
+    trendValue: 210,
+  },
+  {
+    title: "Total Users",
+    icon: <UsersIcon />,
+    type: "number",
+    value: 1700,
+    trend: "positive",
+    trendValue: 210,
+  },
+  {
+    title: "Active Institutions",
+    icon: <BagIcon />,
+    type: "number",
+    value: 100,
+    trend: "positive",
+    trendValue: 210,
+  },
+];
 
 export default function Home() {
   return (
-    <div className="col-center mx-auto px-4 max-w-lg h-full  gap-3">
-      <Button config={{}} size="full" variants="danger">
-        Logout
-      </Button>
+    <div className="flex-between mx-auto relative pl-4 w-full h-full  gap-3">
+      <section className="section-container overflow-y-auto">
+        <DashTitle title="Dashboard" />
+
+        <ul className="flex-between w-full pt-8 px-4">
+          {dashboardStats.map((el) => (
+            <StatCard key={el.title} {...el} />
+          ))}
+        </ul>
+
+        <section className="col-center w-full gap-8 px-4 pt-8">
+          {/* Chart */}
+
+          <section className="w-full bg-white rounded-lg min-h-96 ring ring-grey">
+            {" "}
+          </section>
+
+          {/* Institution Tab */}
+          <section className="w-full bg-white rounded-lg min-h-96 ring ring-grey">
+            {" "}
+          </section>
+        </section>
+      </section>
+
+      <SuperAdminTab />
     </div>
   );
 }
