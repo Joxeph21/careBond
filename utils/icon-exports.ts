@@ -23,6 +23,7 @@ export const ICON = {
   GIFT: "mdi:gift",
   CANCEL: "basil:cancel-outline",
   CARET_LEFT: "basil:caret-left-solid",
+  CARER_DOWN2: "tabler:caret-down-filled",
   FILTER: "cil:filter",
   MENU: "iconamoon:menu-kebab-vertical",
   DOT: "radix-icons:dot-filled"

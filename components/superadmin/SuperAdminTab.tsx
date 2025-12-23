@@ -1,11 +1,15 @@
 "use client";
-import { KFormatter, formatDuration } from "@/utils/helper-functions";
+import { useAmChart } from "@/hooks/useAMCharts";
+import {
+  KFormatter,
+  formatDuration,
+  getStatusByColor,
+} from "@/utils/helper-functions";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { Legend, Pie, PieChart, Tooltip, ResponsiveContainer } from "recharts";
 
 const stats = [
   {
@@ -25,12 +29,19 @@ const stats = [
 ];
 
 const data = [
-  { name: "Group A", value: 20, fill: "#FF8E26" },
-  { name: "Group B", value: 50, fill: "#3F8EF3" },
-  { name: "Group C", value: 30, fill: "#14CC26" },
+  { name: "Group A", value: 200, fill: "#FF8E26" },
+  { name: "Group B", value: 500, fill: "#3F8EF3" },
+  { name: "Group C", value: 300, fill: "#14CC26" },
 ];
 
 export default function SuperAdminTab() {
+  const totalDuration = formatDuration(
+    data.reduce((acc, el) => acc + el.value, 0)
+  );
+
+
+
+  useAmChart<(typeof data)[0]>("uptime-donut", "donut", data);
   const returnValue = (val: number, type?: "duration" | "decimal" | string) => {
     switch (type) {
       case "duration":
@@ -103,33 +114,35 @@ export default function SuperAdminTab() {
           <p className="text-[#999999]">Last 90 days</p>
         </div>
 
-        <div className="flex-between w-full pb-5">
-          <ResponsiveContainer width={"100%"} height={250}>
-            <PieChart>
-              <Pie
-                data={data}
-                innerRadius="75%"
-                outerRadius="100%"
-                cornerRadius={10}
-                paddingAngle={5}
-                dataKey="value"
-                isAnimationActive
-              />
+        {/* Pie chart on the left label on the right */}
+        <div className="flex items-center justify-between px-0  w-full pb-5">
 
-              <Tooltip />
-              {/* <Legend
-              
-                verticalAlign="middle"
-                align="right"
-                width={160}
-                iconSize={15}
-                iconType="circle"
-                layout="vertical"
-              /> */}
-            </PieChart>
-          </ResponsiveContainer>
+          {/* Donut Chart */}
+          <div className="relative w-[60%] aspect-square">
+            <div id="uptime-donut" className="w-full cursor-pointer h-full" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-xs text-[#676767]">Total</span>
+              <span className="text-base font-medium text-primary">
+                {totalDuration}
+              </span>
+            </div>
+          </div>
+         
 
-
+         {/* Label */}
+          <ul className="flex flex-col w-[35%] gap-3">
+            {data.map((item) => (
+              <li key={item.name} className="flex items-center gap-3">
+                <span
+                  className="size-2.5 rounded-sm"
+                  style={{ backgroundColor: item.fill }}
+                />
+                <span className="text-[#676767] text-sm ">
+                  {getStatusByColor(item.fill)}
+                </span>
+              </li>
+            ))}
+          </ul>
           <div className="size-6"></div>
         </div>
       </footer>

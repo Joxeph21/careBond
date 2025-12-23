@@ -10,18 +10,25 @@ import SearchAndFilter from "@/ui/SearchAndFilter";
 import Table from "@/ui/Table";
 import { useSearchParams } from "next/navigation";
 import { institutionData } from "@/utils/dummy";
-import { formatDate, formatTime24h, getStatusStyle } from "@/utils/helper-functions";
+import {
+  formatDate,
+  formatTime24h,
+  getStatusStyle,
+} from "@/utils/helper-functions";
 import { Icon } from "@iconify/react";
 
-
+const FILTER_OPTIONS = [
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+  { label: "A-Z", value: "a-z" },
+  { label: "Z-A", value: "z-a" },
+];
 
 export default function InstitutionContent() {
   const searchParams = useSearchParams();
   const [selectedInstitutions, setSelectedInstitutions] = useState<number[]>(
     []
   );
-
- 
 
   const handleSelectRow = (id: number) => {
     setSelectedInstitutions((prev) =>
@@ -39,8 +46,9 @@ export default function InstitutionContent() {
     });
   }, [searchParams]);
 
- const isAllSelected =
-    institutions.length > 0 && selectedInstitutions.length === institutions.length;
+  const isAllSelected =
+    institutions.length > 0 &&
+    selectedInstitutions.length === institutions.length;
 
   const handleSelectAll = () => {
     if (isAllSelected) {
@@ -49,7 +57,6 @@ export default function InstitutionContent() {
       setSelectedInstitutions(institutions.map((row) => row.id));
     }
   };
-
 
   return (
     <Modal>
@@ -67,17 +74,12 @@ export default function InstitutionContent() {
       <SearchAndFilter
         searchPlaceholder="Search Institutions..."
         hasFilter={true}
-        filterOptions={[
-          { label: "Newest", value: "newest" },
-          { label: "Oldest", value: "oldest" },
-          { label: "A-Z", value: "a-z" },
-          { label: "Z-A", value: "z-a" },
-        ]}
+        filterOptions={FILTER_OPTIONS}
       />
 
       <section className="w-full px-6">
         <Table columns="40px 1.5fr 1.2fr .7fr .7fr 1.5fr .6fr 0.6fr 20px">
-          <Table.Header className="text-center" >
+          <Table.Header className="text-center">
             <p className="text-left">
               <input
                 type="checkbox"
@@ -117,16 +119,24 @@ export default function InstitutionContent() {
                 </p>
                 <p>{item.name}</p>
                 <p>{item.description}</p>
-                <span className={`${getStatusStyle(item.planStatus as STATUS_TYPE)}
+                <span
+                  className={`${getStatusStyle(item.planStatus as STATUS_TYPE)}
                   flex-center  rounded-full px-2 py-1
-                  `}>
-                    <Icon icon={ICON.DOT} fontSize={20} />
-                    {item.planStatus}</span>
-                <span className={`${getStatusStyle(item.activeStatus as STATUS_TYPE)}
+                  `}
+                >
+                  <Icon icon={ICON.DOT} fontSize={20} />
+                  {item.planStatus}
+                </span>
+                <span
+                  className={`${getStatusStyle(
+                    item.activeStatus as STATUS_TYPE
+                  )}
                   flex-center  rounded-full px-2 py-1
-                  `}>
-                    <Icon icon={ICON.DOT} fontSize={20} />
-                    {item.activeStatus}</span>
+                  `}
+                >
+                  <Icon icon={ICON.DOT} fontSize={20} />
+                  {item.activeStatus}
+                </span>
                 <p>{item.contactEmail}</p>
                 <p>{formatDate(item.lastBilled)}</p>
                 <p>{formatTime24h(item.billedTime)}</p>

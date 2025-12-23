@@ -1,16 +1,12 @@
 "use client";
 import SearchBox from "@/components/common/SearchBox";
+import { useFilter, FilterOption } from "@/hooks/useFilter";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import React, { useCallback, useState, useMemo } from "react";
 import Popover from "./Popover";
 
 interface SearchAndFilterProps {
-  filterOptions: {
-    label: string;
-    value: string;
-  }[];
+  filterOptions: FilterOption[];
   searchPlaceholder?: string;
   hasFilter?: boolean;
 }
@@ -20,32 +16,9 @@ export default function SearchAndFilter({
   searchPlaceholder,
   hasFilter,
 }: SearchAndFilterProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [filterKey, setFilterKey] = useState(
-    searchParams.get("filterBy") || "filter"
-  );
-
-  const handleFilter = useCallback(
-    (value: string) => {
-      const params = new URLSearchParams(searchParams?.toString());
-
-      if (value) {
-        params.set("filterBy", value);
-      } else {
-        params.delete("filterBy");
-      }
-
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [router, pathname, searchParams]
-  );
-
-  const options = useMemo(
-    () => [{ label: "Filter", value: "" }, ...filterOptions],
-    [filterOptions]
-  );
+  const { filterKey,  handleFilter, options } = useFilter({
+    filterOptions,
+  });
 
   return (
     <Popover>
@@ -59,7 +32,7 @@ export default function SearchAndFilter({
                 type="button"
                 className="flex-center cursor-pointer font-semibold capitalize p-3 rounded-md border-[1.4px] border-grey bg-white gap-3"
               >
-                <p className="text-[#534D59] ">{filterKey}</p>
+                <p className="text-[#534D59] ">{filterKey === "Reset Filter" ? "Filter": filterKey}</p>
                 <Icon icon={ICON.FILTER} fontSize={20} />
               </button>
             </Popover.Trigger>
@@ -72,7 +45,7 @@ export default function SearchAndFilter({
                       key={option.value ?? i}
                       className="text-sm w-full p-1 hover:bg-gray-100 text-grey-500 cursor-pointer"
                       onClick={() => {
-                        setFilterKey(option.label);
+                        // setFilterKey(option.label);
                         handleFilter(option.value);
                         closepopover();
                       }}

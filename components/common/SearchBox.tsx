@@ -5,19 +5,20 @@ import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { debounce } from "lodash";
 
-
 type SearchBoxProps = {
-    placeholder?: string;
-    searchKey?: string;
-}
+  placeholder?: string;
+  searchKey?: string;
+};
 
-export default function SearchBox({placeholder = "Global Search", searchKey = "q"}: SearchBoxProps) {
+export default function SearchBox({
+  placeholder = "Global Search",
+  searchKey = "q",
+}: SearchBoxProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams?.get(searchKey) ?? "");
 
-  // Params Updater
   const updateQueryParam = useCallback(
     (value: string) => {
       const params = new URLSearchParams(searchParams?.toString());
@@ -27,6 +28,8 @@ export default function SearchBox({placeholder = "Global Search", searchKey = "q
       } else {
         params.delete(searchKey);
       }
+
+      if (params.toString() === searchParams?.toString()) return;
 
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
@@ -47,8 +50,6 @@ export default function SearchBox({placeholder = "Global Search", searchKey = "q
       debouncedUpdate.cancel();
     };
   }, [query, debouncedUpdate]);
-
-
 
   //   Doing this so the users can press enter anythime to trigger the search
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

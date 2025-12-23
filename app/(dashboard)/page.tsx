@@ -1,8 +1,11 @@
+"use client";
 import DashTitle from "@/components/common/DashTitle";
 import StatCard, { DataProps } from "@/components/common/StatCard";
 import BagIcon from "@/components/icons/BagIcon";
 import MMRIcon from "@/components/icons/MMRIcon";
 import UsersIcon from "@/components/icons/UsersIcon";
+import OverviewChart from "@/components/superadmin/OverviewChart";
+import RecentPlanTransaction from "@/components/superadmin/RecentPlanTransaction";
 import SuperAdminTab from "@/components/superadmin/SuperAdminTab";
 
 const dashboardStats: DataProps[] = [
@@ -47,14 +50,10 @@ export default function Home() {
         <section className="col-center w-full gap-8 px-4 pt-8">
           {/* Chart */}
 
-          <section className="w-full bg-white rounded-lg min-h-96 ring ring-grey">
-            {" "}
-          </section>
+          <OverviewChart />
 
           {/* Institution Tab */}
-          <section className="w-full bg-white rounded-lg min-h-96 ring ring-grey">
-            {" "}
-          </section>
+        <RecentPlanTransaction />
         </section>
       </section>
 

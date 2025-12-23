@@ -1,4 +1,13 @@
 import { format, parseISO } from "date-fns";
+import { RawMetricData } from "./dummy";
+
+export const filterMetricsData = (
+  data: RawMetricData[],
+): RawMetricData[] => {
+  return [...data].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+};
 
 export function formatDuration(seconds: number): string {
   if (seconds < 60) {
@@ -94,4 +103,14 @@ export const getStatusStyle = (status: STATUS_TYPE) => {
     default:
       return "text-blue-500";
   }
+};
+
+export const getStatusByColor = (hex: string): string => {
+  const colorMap: Record<string, string> = {
+    "#3F8EF3": "Excellent",
+    "#FF8E26": "Good",
+    "#14CC26": "Offline",
+  };
+
+  return colorMap[hex.toUpperCase()] || "Unknown";
 };

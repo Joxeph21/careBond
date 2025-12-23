@@ -21,6 +21,9 @@ export default async function proxy(req: NextRequest) {
 
   const refresh = serverCookies.get(CONFIG.REFRESH_TOKEN_IDENTIFIER)?.value;
 
+  
+
+
   if (!refresh && !isPublicRoute) {
     console.log("Middleware: ⛔No refresh token found, redirecting to login");
     return NextResponse.redirect(new URL("/login", req.nextUrl.origin));

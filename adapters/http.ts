@@ -63,7 +63,7 @@ const authErrorInterceptor = async (error: AxiosError) => {
 
 HttpClient.interceptors.request.use(authInterceptor);
 
-HttpClient.interceptors.response.use(
-  (response) => response,
-  (error) => authErrorInterceptor(error)
-);
+  HttpClient.interceptors.response.use(
+    (response) => response,
+    (error) => authErrorInterceptor(error)
+  );

@@ -159,7 +159,7 @@ Popover.Content = function Content({
           width: "auto",
           minWidth: size.width,
         }}
-        className={`rounded-lg right-0 flex flex-col gap-5 shadow-card-shadow z-30 absolute min-h-4 bg-white py-4 px-3 ${className}`}
+        className={`rounded-lg ring ring-grey left-0 flex flex-col gap-5 shadow-card-shadow z-30 absolute min-h-4 bg-white py-4 px-3 ${className}`}
       >
         {children(closePopOver)}
       </motion.ul>
