@@ -1,7 +1,7 @@
 "use client";
 import SearchAndFilter from "@/ui/SearchAndFilter";
 import { ICON } from "@/utils/icon-exports";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Button from "../common/Button";
 import Table from "@/ui/Table";
 import useTableSelect from "@/hooks/useTableSelect";
@@ -18,6 +18,22 @@ export default function UsersTable() {
     width: 0,
     left: 0,
   });
+
+  const data = useMemo(() => {
+    if (tab === "all-users") return dummy_users;
+
+    if (tab === "proffesionals")
+      return dummy_users.filter((el) => el.role === "proffessional");
+
+    if (tab === "patients")
+      return dummy_users.filter((el) => el.role === "patient");
+
+    if (tab === "families")
+      return dummy_users.filter((el) => el.role === "family");
+
+    return [];
+  }, [tab]);
+
   const {
     isAllSelected,
     selected,
@@ -25,7 +41,7 @@ export default function UsersTable() {
     handleSelectAll,
     filteredData,
   } = useTableSelect({
-    data: dummy_users,
+    data,
   });
 
   useEffect(() => {

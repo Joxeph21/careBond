@@ -61,7 +61,7 @@ export default function Select<Z>({
   return (
     <Popover>
       <Popover.Menu>
-        <div className={`${sizes[size]} flex flex-col gap-1`}>
+        <div className={`${sizes[size]} flex flex-col gap-2`}>
           {label && <p className="flex items-center gap-1">{label}
             {required && <span className="text-danger">*</span>}
             </p>}

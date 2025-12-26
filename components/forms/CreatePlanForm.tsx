@@ -97,7 +97,7 @@ export default function CreatePlanForm() {
         </section>
 
         <section className="flex-center w-full justify-end! gap-4 pb-5">
-            <Button variants="outlined">Cancel</Button>
+            <Button link href="/plans" variants="outlined">Cancel</Button>
             <Button>Submit</Button>
         </section>
       </FormInput>
