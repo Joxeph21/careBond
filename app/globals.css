@@ -52,7 +52,7 @@ body {
 }
 
 .section-container {
-  @apply w-full h-full col-start
+  @apply w-full min-h-full col-start
 }
 
 .icon-btn {

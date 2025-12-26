@@ -37,8 +37,8 @@ const dashboardStats: DataProps[] = [
 
 export default function Home() {
   return (
-    <div className="flex-between mx-auto relative pl-4 w-full h-full  gap-3">
-      <section className="section-container overflow-y-auto">
+    <div className="flex-between mx-auto relative pl-4 w-full h-full!  gap-3">
+      <section className="section-container h-full overflow-y-auto">
         <DashTitle title="Dashboard" />
 
         <ul className="flex-between w-full pt-8 px-4">

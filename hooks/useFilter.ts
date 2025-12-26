@@ -30,7 +30,7 @@ export function useFilter({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const currentFilterValue = searchParams.get(paramKey);
+  const currentFilterValue = searchParams.get(paramKey) ?? "";
 
   const filterKey = currentFilterValue ?? "filter";
 

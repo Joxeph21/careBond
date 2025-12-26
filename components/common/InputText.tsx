@@ -39,7 +39,9 @@ const InputText = forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className="w-full flex flex-col gap-1">
-        {label && <label htmlFor={config.name}>{label}</label>}
+        {label && <label className="flex items-center gap-1" htmlFor={config.name}>{label}
+           {config?.required && <span className="text-danger">*</span>}
+          </label>}
 
         <div className={baseClass}>
           {prefix && (

@@ -12,3 +12,19 @@ declare interface IUser {
 }
 
 declare type STATUS_TYPE = "active" | "inactive" | "closed" | "suspended" | "reopened";
+
+declare type USER_ROLE = "proffessional" | "patient" | "family";
+
+
+declare type User = {
+  avatar: string;
+  name: string;
+  id: string;
+  role: USER_ROLE,
+  associated_user: number,
+  all_devices: number,
+  createdAt: string,
+  email: string
+}
+
+declare type Family = Pick<User, "name" | "id" | "email", "role['family']">

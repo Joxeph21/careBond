@@ -68,3 +68,231 @@ export const RAW_MMR_DATA: RawMetricData[] = [
   { id: "t7", date: "2025-02-01T00:00:00Z", value: 3200 },
   { id: "t8", date: "2025-02-15T00:00:00Z", value: 3500 },
 ];
+export const dummy_activities: Activity[] = [
+  {
+    title: "New Patient Admission",
+    activity: "Patient John Doe admitted to Ward A",
+    createdAt: "2024-02-19T09:00:00Z",
+  },
+  {
+    title: "Staff Schedule Update",
+    activity: "Nurse shift schedule updated for March",
+    createdAt: "2024-02-18T14:30:00Z",
+  },
+  {
+    title: "Equipment Maintenance",
+    activity: "MRI Machine scheduled for maintenance",
+    createdAt: "2024-02-18T10:00:00Z",
+  },
+  {
+    title: "Discharge Summary",
+    activity: "Discharge summary completed for Jane Smith",
+    createdAt: "2024-02-17T16:45:00Z",
+  },
+  {
+    title: "Inventory Restock",
+    activity: "Medical supplies restocked in ICU",
+    createdAt: "2024-02-17T11:20:00Z",
+  },
+];
+
+export const dummy_alerts: Alert[] = [
+  {
+    title: "Low Oxygen Supply",
+    createdAt: "2024-02-20T08:00:00Z",
+    description: "Oxygen tank levels in Ward B are below 20%.",
+    type: "error",
+  },
+  {
+    title: "Shift Coverage Gaps",
+    createdAt: "2024-02-19T15:00:00Z",
+    description: "Pending shift coverage for weekend night shift.",
+    type: "warning",
+  },
+  {
+    title: "System Update",
+    createdAt: "2024-02-18T23:00:00Z",
+    description: "System maintenance completed successfully.",
+    type: "success",
+  },
+  {
+    title: "Patient Vitals Alert",
+    createdAt: "2024-02-20T10:30:00Z",
+    description: "Abnormal vitals detected for Patient ID #4021.",
+    type: "error",
+  },
+];
+
+export const dummy_users: User[] = [
+  {
+    avatar: "/user.png",
+    name: "John Doe",
+    id: "#23454GH6J7YT6",
+    role: "proffessional",
+    associated_user: 5,
+    all_devices: 3,
+    createdAt: "2023-01-15T09:00:00Z",
+    email: "john.doe@example.com",
+  },
+  {
+    avatar: "/user2.png",
+    name: "Jane Smith",
+    id: "#89234KL1M7XQ9",
+    role: "patient",
+    associated_user: 2,
+    all_devices: 1,
+    createdAt: "2024-03-10T14:30:00Z",
+    email: "jane.smith@example.com",
+  },
+  {
+    avatar: "/user.png",
+    name: "Michael Brown",
+    id: "#12874PO9L3KA1",
+    role: "family",
+    associated_user: 1,
+    all_devices: 2,
+    createdAt: "2023-11-22T10:15:00Z",
+    email: "m.brown@example.com",
+  },
+  {
+    avatar: "/user2.png",
+    name: "Emily Davis",
+    id: "#76345UY2T8RE4",
+    role: "proffessional",
+    associated_user: 8,
+    all_devices: 5,
+    createdAt: "2024-01-05T08:45:00Z",
+    email: "emily.davis@example.com",
+  },
+];
+
+export const dummy_family: Family[] = [
+  {
+    id: "#98765FD4S3A21",
+    name: "Alice Johnson",
+    email: "alice.j@example.com",
+    role: "family",
+  },
+  {
+    id: "#12345GH6J7K89",
+    name: "Robert Smith",
+    email: "robert.smith@example.com",
+    role: "family",
+  },
+  {
+    id: "#56473UY8I9O0P",
+    name: "Maria Garcia",
+    email: "m.garcia@example.com",
+    role: "family",
+  },
+];
+
+export const dummy_devices: Devices[] = [
+  {
+    id: "#DEV192837465",
+    device_name: "Heart Rate Monitor",
+    device_status: "connected",
+  },
+  {
+    id: "#DEV987654321",
+    device_name: "Blood Pressure Cuff",
+    device_status: "syncing",
+  },
+  {
+    id: "#DEV112233445",
+    device_name: "Pulse Oximeter",
+    device_status: "failed",
+  },
+  {
+    id: "#DEV556677889",
+    device_name: "Glucose Monitor",
+    device_status: "connected",
+  },
+];
+
+
+export const dummy_events: SecurityEventLog[] = [
+  {
+    id: "evt_1",
+
+    summary: {
+      date: "2025-12-20T11:48:41Z",
+      action: "New Login Action",
+      country: "Indonesia",
+      ipAddress: "180.242.130.27",
+      service: "Custom rules",
+    },
+
+    matchedService: {
+      service: "Custom rules",
+      actionTaken: "Login Action",
+      ruleset: {
+        name: "default",
+        id: "2e09703b",
+      },
+      rule: {
+        name: "Global Rate Limit – 8 Requests in 10s",
+        id: "3c484c2f",
+      },
+    },
+
+    requestDetails: {
+      rayId: "9b0e919b8d8bfc7",
+      ipAddress: "180.242.130.27",
+      asn: {
+        id: "AS7713",
+        organization: "Telekomunikasi Indonesia",
+      },
+      country: "Indonesia",
+      userAgent: "Mozilla/5.0",
+      httpVersion: "HTTP/1.1",
+      referrer: null,
+      method: "GET",
+      host: "app.flowoptix.me",
+      path: "/wp-content/plugins/wps-hide-login/wps-hide-login.php",
+      queryString: "",
+    },
+  },
+
+  {
+    id: "evt_2",
+
+    summary: {
+      date: "2025-12-20T07:04:21Z",
+      action: "Login Action",
+      country: "Malaysia",
+      ipAddress: "142.111.146.31",
+      service: "Custom rules",
+    },
+
+    matchedService: {
+      service: "Custom rules",
+      actionTaken: "Login Action",
+      ruleset: {
+        name: "default",
+        id: "5ab901cc",
+      },
+      rule: {
+        name: "Suspicious Login Protection",
+        id: "1d9a33ff",
+      },
+    },
+
+    requestDetails: {
+      rayId: "1af2399c1a9ef12",
+      ipAddress: "142.111.146.31",
+      asn: {
+        id: "AS4788",
+        organization: "Malaysia Telecom",
+      },
+      country: "Malaysia",
+      userAgent: "Mozilla/5.0",
+      httpVersion: "HTTP/1.1",
+      referrer: "None (direct)",
+      method: "GET",
+      host: "app.flowoptix.me",
+      path: "/login",
+      queryString: "",
+    },
+  },
+];

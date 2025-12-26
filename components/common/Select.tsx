@@ -2,7 +2,7 @@
 import Popover from "@/ui/Popover";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
-import React, { useState } from "react";
+import React, { PropsWithChildren, useState } from "react";
 
 type SIZE = "small" | "regular" | "full";
 
@@ -19,6 +19,7 @@ type SelectProps<Z> = {
   variant: VARIANT;
   onChange?: (val?: Z | string, obj?: OptionsType<Z>) => void;
   themedClass?: string;
+  required?: boolean;
 };
 
 export default function Select<Z>({
@@ -31,9 +32,11 @@ export default function Select<Z>({
   onChange,
   icon,
   variant,
+  required,
   themedClass,
-}: SelectProps<Z>) {
-  const [selected, setSelected] = useState(data[0].label ?? placeholder);
+  children
+}: PropsWithChildren  & SelectProps<Z>) {
+  const [selected, setSelected] = useState(data?.at(0)?.label ?? placeholder);
 
   const sizes: Record<NonNullable<SIZE>, string> = {
     small: "w-32",
@@ -58,16 +61,19 @@ export default function Select<Z>({
   return (
     <Popover>
       <Popover.Menu>
-        <div className={`${sizes[size]} flex flex-col gap-3`}>
-          {label && <p>{label}</p>}
+        <div className={`${sizes[size]} flex flex-col gap-1`}>
+          {label && <p className="flex items-center gap-1">{label}
+            {required && <span className="text-danger">*</span>}
+            </p>}
           <Popover.Trigger>
             <button
-              className={`${variants[variant]} py-2 group px-3 rounded-md  w-fit flex-center gap-2 cursor-pointer`}
+              className={`${variants[variant]} py-2 group px-3 rounded-md  w-full flex-between gap-2 cursor-pointer`}
               type="button"
             >
+              {children}
               {selected}
               <span className="shrink group-focus:rotate-180 ease-in transition-all duration-200">
-                <Icon icon={icon ?? ICON.CARER_DOWN2} fontSize={20} />
+                <Icon icon={icon ?? ICON.CARET_DOWN2} fontSize={20} />
               </span>
             </button>
           </Popover.Trigger>

@@ -4,7 +4,7 @@ import InstitutionContent from "./content";
 
 export default function Page() {
   return (
-    <section className="section-container bg-white">
+    <section className="section-container h-full bg-white">
       <InstitutionContent />
     </section>
   );

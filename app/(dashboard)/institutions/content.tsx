@@ -1,5 +1,4 @@
 "use client";
-import React, { useMemo, useState } from "react";
 import Button from "@/components/common/Button";
 import DashTitle from "@/components/common/DashTitle";
 import FilmIcon from "@/components/icons/FilmIcon";
@@ -8,7 +7,6 @@ import { Modal } from "@/ui/Modal";
 import CreateInstitutionForm from "@/components/forms/CreateInstitutionForm";
 import SearchAndFilter from "@/ui/SearchAndFilter";
 import Table from "@/ui/Table";
-import { useSearchParams } from "next/navigation";
 import { institutionData } from "@/utils/dummy";
 import {
   formatDate,
@@ -16,6 +14,8 @@ import {
   getStatusStyle,
 } from "@/utils/helper-functions";
 import { Icon } from "@iconify/react";
+import Link from "next/link"
+import useTableSelect from "@/hooks/useTableSelect";
 
 const FILTER_OPTIONS = [
   { label: "Newest", value: "newest" },
@@ -25,38 +25,42 @@ const FILTER_OPTIONS = [
 ];
 
 export default function InstitutionContent() {
-  const searchParams = useSearchParams();
-  const [selectedInstitutions, setSelectedInstitutions] = useState<number[]>(
-    []
-  );
+  // const searchParams = useSearchParams();
+  // const [selectedInstitutions, setSelectedInstitutions] = useState<number[]>(
+  //   []
+  // );
 
-  const handleSelectRow = (id: number) => {
-    setSelectedInstitutions((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
+  // const handleSelectRow = (id: number) => {
+  //   setSelectedInstitutions((prev) =>
+  //     prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  //   );
+  // };
 
-  const institutions = useMemo(() => {
-    const query = searchParams.get("table-q");
+  // const institutions = useMemo(() => {
+  //   const query = searchParams.get("table-q");
 
-    if (!query) return institutionData;
+  //   if (!query) return institutionData;
 
-    return institutionData.filter((institution) => {
-      return institution.name.toLowerCase().includes(query.toLowerCase());
-    });
-  }, [searchParams]);
+  //   return institutionData.filter((institution) => {
+  //     return institution.name.toLowerCase().includes(query.toLowerCase());
+  //   });
+  // }, [searchParams]);
 
-  const isAllSelected =
-    institutions.length > 0 &&
-    selectedInstitutions.length === institutions.length;
+  // const isAllSelected =
+  //   institutions.length > 0 &&
+  //   selectedInstitutions.length === institutions.length;
 
-  const handleSelectAll = () => {
-    if (isAllSelected) {
-      setSelectedInstitutions([]);
-    } else {
-      setSelectedInstitutions(institutions.map((row) => row.id));
-    }
-  };
+  // const handleSelectAll = () => {
+  //   if (isAllSelected) {
+  //     setSelectedInstitutions([]);
+  //   } else {
+  //     setSelectedInstitutions(institutions.map((row) => row.id));
+  //   }
+  // };
+
+  const {filteredData, selected, handleRowSelect, handleSelectAll, isAllSelected} = useTableSelect({
+    data: institutionData
+  })
 
   return (
     <Modal>
@@ -101,10 +105,10 @@ export default function InstitutionContent() {
           </Table.Header>
 
           <Table.Body
-            data={institutions}
+            data={filteredData}
             render={(item) => (
               <Table.Row
-                isHighlighted={selectedInstitutions.includes(item.id)}
+                isHighlighted={selected.includes(item.id)}
                 key={item.id}
               >
                 <p>
@@ -113,11 +117,11 @@ export default function InstitutionContent() {
                     className="cursor-pointer"
                     name="select-row"
                     id="select-row"
-                    checked={selectedInstitutions.includes(item.id)}
-                    onChange={() => handleSelectRow(item.id)}
+                    checked={selected.includes(item.id)}
+                    onChange={() => handleRowSelect(item.id)}
                   />
                 </p>
-                <p>{item.name}</p>
+                <Link href={`institutions/${item.id}`} className="font-medium text-primary underline cursor-pointer">{item.name}</Link>
                 <p>{item.description}</p>
                 <span
                   className={`${getStatusStyle(item.planStatus as STATUS_TYPE)}

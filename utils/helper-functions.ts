@@ -1,9 +1,7 @@
 import { format, parseISO } from "date-fns";
 import { RawMetricData } from "./dummy";
 
-export const filterMetricsData = (
-  data: RawMetricData[],
-): RawMetricData[] => {
+export const filterMetricsData = (data: RawMetricData[]): RawMetricData[] => {
   return [...data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
@@ -42,6 +40,34 @@ type FormatOptions = {
   currency?: string;
 };
 
+// export function formatValue(
+//   amount: number,
+//   {
+//     locale = "en-US",
+//     maxDecimals = 2,
+//     type = "currency",
+//     currency = "USD",
+//   }: FormatOptions = {}
+// ): string {
+//   const factor = Math.pow(10, maxDecimals);
+//   const flooredAmount = Math.floor(amount * factor) / factor;
+
+//   const options: Intl.NumberFormatOptions = {
+//     minimumFractionDigits: 0,
+//     maximumFractionDigits: maxDecimals,
+//     useGrouping: true,
+//   };
+
+//   if (type === "currency") {
+//     options.style = "currency";
+//     options.currency = currency;
+//   } else {
+//     options.style = "decimal";
+//   }
+
+//   return new Intl.NumberFormat(locale, options).format(flooredAmount);
+// }
+
 export function formatValue(
   amount: number,
   {
@@ -51,22 +77,17 @@ export function formatValue(
     currency = "USD",
   }: FormatOptions = {}
 ): string {
-  const factor = Math.pow(10, maxDecimals);
-  const flooredAmount = Math.floor(amount * factor) / factor;
+  if (!Number.isFinite(amount)) return "0";
 
   const options: Intl.NumberFormatOptions = {
+    style: type === "currency" ? "currency" : "decimal",
     minimumFractionDigits: 0,
     maximumFractionDigits: maxDecimals,
+    useGrouping: true,
+    ...(type === "currency" && { currency }),
   };
 
-  if (type === "currency") {
-    options.style = "currency";
-    options.currency = currency;
-  } else {
-    options.style = "decimal";
-  }
-
-  return new Intl.NumberFormat(locale, options).format(flooredAmount);
+  return new Intl.NumberFormat(locale, options).format(amount);
 }
 
 export const formatDate = (isoString?: string) => {
@@ -113,4 +134,22 @@ export const getStatusByColor = (hex: string): string => {
   };
 
   return colorMap[hex.toUpperCase()] || "Unknown";
+};
+
+export function formatDateTime(isoString: string): string {
+  return format(parseISO(isoString), "yyyy-MM-dd hh:mm a");
+}
+
+export function formatFullDateTime(isoString: string): string {
+  try {
+    return format(parseISO(isoString), "MMM d, yyyy h:mm:ss a");
+  } catch {
+    return isoString;
+  }
+}
+
+export const getRandomHexColor = (): string => {
+  return `#${Math.floor(Math.random() * 16777215)
+    .toString(16)
+    .padStart(6, "0")}`;
 };
