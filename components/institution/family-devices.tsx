@@ -11,6 +11,7 @@ import FamilyList from "./familylist";
 import { Modal } from "@/ui/Modal";
 import AddFamilyForm from "../forms/AddFamilyForm";
 import DeviceList from "./device-list";
+import AssignFamilyForm from "../forms/assign-family";
 
 export default function Family_and_Devices() {
   return (
@@ -62,7 +63,7 @@ function FamilyTable() {
       <section className="flex flex-col gap-3.5">
         <h6 className=" font-bold text-[#23313B]">Family</h6>
         <div className="w-full">
-          <Modal.Trigger name="add-family">
+          <Modal.Trigger name="assign-family">
             <Button
               config={{
                 className: "px-0! gap-2! text-[#657987]! ring-0!",
@@ -105,6 +106,7 @@ function FamilyTable() {
             data={filteredData}
             render={(item) => (
               <FamilyList
+              key={item.id}
                 isSelected={selected.includes(item.id)}
                 handleRowSelect={handleRowSelect}
                 {...item}
@@ -114,6 +116,13 @@ function FamilyTable() {
         </Table>
       </section>
 
+      <Modal.Window
+        className="w-lg!"
+        hasClose={false}
+        name="assign-family"
+      >
+        <AssignFamilyForm />
+      </Modal.Window>
       <Modal.Window
         className="w-xl!"
         title="Add Family Member"
@@ -171,6 +180,7 @@ const DevicesTable = () => {
           data={filteredData}
           render={(item) => (
             <DeviceList
+            key={item.id}
               isSelected={selected.includes(item.id)}
               handleRowSelect={handleRowSelect}
               {...item}

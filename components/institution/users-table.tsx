@@ -139,6 +139,7 @@ export default function UsersTable() {
           data={filteredData}
           render={(item) => (
             <UserList
+            key={item.id}
               isSelected={selected.includes(item.id)}
               handleRowSelect={handleRowSelect}
               {...item}

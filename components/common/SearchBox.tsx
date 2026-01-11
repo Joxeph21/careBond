@@ -8,11 +8,13 @@ import { debounce } from "lodash";
 type SearchBoxProps = {
   placeholder?: string;
   searchKey?: string;
+  className?: string;
 };
 
 export default function SearchBox({
   placeholder = "Global Search",
   searchKey = "q",
+  className,
 }: SearchBoxProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -61,7 +63,7 @@ export default function SearchBox({
   return (
     <form
       onSubmit={(e) => handleSubmit(e)}
-      className="w-full gap-3 max-w-87.5 ring px-4.5 py-3 ring-[#E4E4E4] rounded-[10px] flex items-center"
+      className={`w-full gap-3 max-w-87.5 ring px-4.5 py-3 ring-[#E4E4E4] rounded-[10px] flex items-center ${className}`}
     >
       <button type="submit" className="shrink-0 cursor-pointer">
         <Icon icon={ICON.SEARCH} color="#959595" fontSize={21} />

@@ -1,8 +1,10 @@
+"use client"
 import Table from "@/ui/Table";
 import { formatDate, getRandomHexColor } from "@/utils/helper-functions";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function UserList({
   isSelected,
@@ -30,7 +32,7 @@ export default function UserList({
           onChange={() => handleRowSelect(id)}
         />
       </div>
-      <div className="flex items-center w-full gap-1">
+      <Link href={`/users/${encodeURIComponent(id)}`} className="flex group cursor-pointer items-center w-full gap-2">
         <figure
           className={`rounded-full size-10 bg-[${getRandomHexColor()}] relative overflow-hidden`}
         >
@@ -42,10 +44,10 @@ export default function UserList({
           />
         </figure>
         <div>
-          <h4 className="font-medium text-[#101828] capitalize">{name}</h4>
+          <h4 className="font-medium group-hover:underline text-[#101828] capitalize">{name}</h4>
           <p className="text-[#6B788E]">@{email}</p>
         </div>
-      </div>
+      </Link>
       <p className="p-1.5 rounded-full font-medium text-xs bg-[#F5F6F7] text-[#091E42]">
         {id}
       </p>

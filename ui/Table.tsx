@@ -108,7 +108,7 @@ Table.Body = function Body<T>({
 Table.Footer = function Footer({ children }: PropsWithChildren) {
   return (
     <footer
-      className={`flex items-center justify-end ${!children ? "hidden" : ""}`}
+      className={`flex items-center my-3 px-2 justify-end ${!children ? "hidden" : ""}`}
     >
       {children}
     </footer>

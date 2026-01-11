@@ -48,5 +48,10 @@ export const ICON = {
   CARET_CIRCLE_UP: "ci:caret-circle-up",
   DEVICES: "memory:device",
   PLUS_CIRCLE: "mdi:plus-circle",
-  SETTINGS: "mdi-light:settings"
+  SETTINGS: "mdi-light:settings",
+  ARROW_LEFT: "tabler:arrow-left",
+  ARROW_RIGHT: "tabler:arrow-right",
+  ASSIGN_CARD: "material-symbols-light:assignment-ind",
+  UNCHECKED: "material-symbols-light:radio-button-unchecked",
+  CHECKED: "fluent:checkmark-circle-12-filled",
 } as const;

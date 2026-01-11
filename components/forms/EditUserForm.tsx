@@ -1,10 +1,10 @@
-import Button from "@/components/common/Button";
-import DashTitle from "@/components/common/DashTitle";
-import Switch from "@/components/common/Switch";
+"use client"
 import UserForm from "@/components/forms/userForm";
-import InstitutionPlanBanner from "@/components/institution/InstitutionPlanBanner";
+import Button from "@/components/common/Button";
+import Switch from "@/components/common/Switch";
 import Family_and_Devices from "@/components/institution/family-devices";
-import React from "react";
+import ActionPopup from "@/ui/ActionPopup";
+import React, { useState } from "react";
 
 const settings = [
   {
@@ -25,15 +25,16 @@ const settings = [
   },
 ];
 
-export default function Page() {
+
+function EditUserForm() {
+  const [deletePopup, setDeletePopup] = useState(false);
+
   return (
-    <section className="bg-white gap-3 px-3 pb-4 section-container h-full">
-      <DashTitle title="Create New User" />
-      <InstitutionPlanBanner />
+   <>
       <UserForm />
       <Family_and_Devices />
 
-      <section className="w-full mt-2 border-b-2 border-[#0B122824] flex flex-col gap-3">
+      <section className="w-full mt-2 border-b-2 h-full border-[#0B122824] flex flex-col gap-3">
         <h3 className="text-lg font-bold text-[#454D5A]">
           User&apos;s Settings
         </h3>
@@ -56,8 +57,24 @@ export default function Page() {
         <p className="text-[#292A2E]">
           Your account is connected to Atlassian.
         </p>
-        <Button variants="danger">Delete Account</Button>
+        <Button
+          config={{
+            onClick: () => setDeletePopup(true),
+          }}
+          variants="danger"
+        >
+          Delete Account
+        </Button>
       </section>
-    </section>
-  );
+
+      <ActionPopup
+        mode={deletePopup}
+        onCancel={() => setDeletePopup(false)}
+        type="delete"
+        name="account"
+      />
+   </>
+  )
 }
+
+export default EditUserForm

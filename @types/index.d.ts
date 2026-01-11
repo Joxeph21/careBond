@@ -16,3 +16,8 @@ declare type OptionsType<T = unknown, Z = unknown> = {
   value: T | string;
   metadata?: Z;
 };
+
+
+declare type onCloseModal = {
+  onCloseModal?: () => void
+}
