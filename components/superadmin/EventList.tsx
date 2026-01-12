@@ -13,10 +13,10 @@ export default function EventList({
 }: SecurityEventLog) {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <Table.Row>
+    <Table.Row onClick={() => setIsOpen(!isOpen)}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+      
         className={`text-[#0051C3] cursor-pointer ease-in transition-all duration-150 ${
           isOpen && "rotate-180"
         }`}

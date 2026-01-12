@@ -57,7 +57,8 @@ Table.Header = function Header({ children, className }: {className?: string}& Pr
 Table.Row = function Row({
   children,
   isHighlighted,
-}: { isHighlighted?: boolean } & PropsWithChildren) {
+  onClick,
+}: { isHighlighted?: boolean, onClick?: () => void } & PropsWithChildren) {
   const { columns, border } = useTable();
   return (
     <div
@@ -66,6 +67,7 @@ Table.Row = function Row({
       className={`gap-6 truncate items-center cursor-pointer  px-3 text-[#474747] text-sm py-4 ${
         border && "border-b border-[#E1E1E1]"
       } ${isHighlighted && "bg-[#F9FAFC]!"}`}
+     onClick={onClick}
     >
       {children}
     </div>

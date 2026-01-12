@@ -134,9 +134,10 @@ Modal.Window = function Window({
   className,
   noClose,
   hasBack,
+  textStyle,
   text,
   children,
-}: ModalWindowProps) {
+}: {textStyle?: string} &ModalWindowProps) {
   const { openWindows, closeModal, closeAllModals, closePreviousModal } =
     useModal();
 
@@ -193,7 +194,7 @@ Modal.Window = function Window({
                   </h2>
                 </div>
                 {text && (
-                  <p className="text-gray text-[10px] sm:text-sm md:text-base text-wrap font-medium">
+                  <p className={`text-gray text-[10px] sm:text-sm md:text-base text-wrap font-medium ${textStyle}`}>
                     {text}
                   </p>
                 )}

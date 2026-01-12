@@ -13,8 +13,9 @@ export default function Pagination({ totalPages = 10 }: PaginationProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const defaultPage = Number(searchParams.get("page")) || 1;
-  const [currentPage, setCurrentPage] = useState<number>(defaultPage);
+  const [currentPage, setCurrentPage] = useState<number>(
+    Number(searchParams.get("page")) ?? 1
+  );
 
   const updatePage = (page: number) => {
     setCurrentPage(page);
@@ -36,8 +37,6 @@ export default function Pagination({ totalPages = 10 }: PaginationProps) {
   const handleNext = () => {
     if (currentPage < totalPages) updatePage(currentPage + 1);
   };
-
- 
 
   return (
     <div className="w-full flex-between">

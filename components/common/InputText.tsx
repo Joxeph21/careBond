@@ -34,7 +34,7 @@ const InputText = forwardRef<HTMLInputElement, InputProps>(
             : "password"
           : config.type,
       placeholder:
-        config?.type === "password" ? "********" : config.placeholder,
+        config?.type === "password" ? config?.placeholder ? config?.placeholder : "********" : config.placeholder,
     };
 
     return (

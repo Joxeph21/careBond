@@ -11,8 +11,9 @@ import { Icon } from "@iconify/react";
 import UserIcon from "../icons/UserIcon";
 import ChartIcon from "../icons/ChartIcon";
 import SettingsIcon from "../icons/SettingsIcon";
+import useAdmin from "@/hooks/auth/useAdmin";
 
-const links = [
+const Links = [
   {
     href: "/",
     label: "Dashboard",
@@ -42,14 +43,22 @@ const links = [
   {
     href: "/config",
     label: "Config",
-    icon: <SettingsIcon  />,
+    icon: <SettingsIcon />,
   },
 ];
+
+const superAdminLinks = ["/institutions", "/plans"];
 
 export default function Sidebar() {
   const pathName = usePathname();
   const router = useRouter();
   const { logout, isPending } = useLogout();
+  const { isSuperAdmin } = useAdmin();
+  const links = () => {
+    if (isSuperAdmin) return Links;
+
+    return Links.filter((el) => !superAdminLinks.includes(el.href));
+  };
 
   return (
     <aside
@@ -59,7 +68,7 @@ export default function Sidebar() {
     >
       <Logo />
       <nav className="w-full gap-6 col-start">
-        {links.map((el, i) => {
+        {links().map((el, i) => {
           const isActiveRoute = (path: string) => {
             if (path === "/") return pathName === path;
             return pathName.startsWith(path);

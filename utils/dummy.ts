@@ -394,3 +394,126 @@ export const dummy_transactions: Transaction[] = [
     paymentMethod: "Card",
   },
 ];
+
+export const DUMMY_LOGS = [
+  {
+    "time": "Dec 20, 2025 11:48:41 AM",
+    "source_ip": {
+      "value": "180.242.130.27",
+      "url": "https://example.com/ip/180.242.130.27"
+    },
+    "host": {
+      "value": "app.carebond.me",
+      "url": "https://app.carebond.me"
+    },
+    "path": "/wp-content/plugins/wps-hi..."
+  },
+  {
+    "time": "Dec 20, 2025 10:55:30 AM",
+    "source_ip": {
+      "value": "185.247.137.68",
+      "url": "https://example.com/ip/185.247.137.68"
+    },
+    "host": {
+      "value": "api.carebond.me:2052",
+      "url": "https://api.carebond.me:2052"
+    },
+    "path": "/"
+  },
+  {
+    "time": "Dec 20, 2025 7:20:50 AM",
+    "source_ip": {
+      "value": "185.247.137.231",
+      "url": "https://example.com/ip/185.247.137.231"
+    },
+    "host": {
+      "value": "api.carebond.me:2095",
+      "url": "https://api.carebond.me:2095"
+    },
+    "path": "/"
+  },
+  {
+    "time": "Dec 20, 2025 7:04:21 AM",
+    "source_ip": {
+      "value": "142.111.146.31",
+      "url": "https://example.com/ip/142.111.146.31"
+    },
+    "host": {
+      "value": "carebond.me",
+      "url": "https://carebond.me"
+    },
+    "path": "/.env"
+  },
+  {
+    "time": "Dec 20, 2025 6:58:12 AM",
+    "source_ip": {
+      "value": "184.154.139.58",
+      "url": "https://example.com/ip/184.154.139.58"
+    },
+    "host": {
+      "value": "www.carebond.me",
+      "url": "https://www.carebond.me"
+    },
+    "path": "/this_is_a_404.html"
+  },
+  {
+    "time": "Dec 20, 2025 6:58:11 AM",
+    "source_ip": {
+      "value": "184.154.139.58",
+      "url": "https://example.com/ip/184.154.139.58"
+    },
+    "host": {
+      "value": "www.carebond.me",
+      "url": "https://www.carebond.me"
+    },
+    "path": "/"
+  },
+  {
+    "time": "Dec 20, 2025 6:21:25 AM",
+    "source_ip": {
+      "value": "104.210.140.131",
+      "url": "https://example.com/ip/104.210.140.131"
+    },
+    "host": {
+      "value": "carebond.me",
+      "url": "https://carebond.me"
+    },
+    "path": "/robots.txt"
+  },
+  {
+    "time": "Dec 20, 2025 5:48:48 AM",
+    "source_ip": {
+      "value": "178.128.49.244",
+      "url": "https://example.com/ip/178.128.49.244"
+    },
+    "host": {
+      "value": "carebond.me",
+      "url": "https://carebond.me"
+    },
+    "path": "/site/wp-includes/wlwmanife..."
+  },
+  {
+    "time": "Dec 20, 2025 5:48:48 AM",
+    "source_ip": {
+      "value": "178.128.49.244",
+      "url": "https://example.com/ip/178.128.49.244"
+    },
+    "host": {
+      "value": "carebond.me",
+      "url": "https://carebond.me"
+    },
+    "path": "/cms/wp-includes/wlwmanife..."
+  },
+  {
+    "time": "Dec 20, 2025 5:48:48 AM",
+    "source_ip": {
+      "value": "178.128.49.244",
+      "url": "https://example.com/ip/178.128.49.244"
+    },
+    "host": {
+      "value": "carebond.me",
+      "url": "https://carebond.me"
+    },
+    "path": "/test/wp-includes/wlwmanife..."
+  }
+]
