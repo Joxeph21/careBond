@@ -1,9 +1,11 @@
 import { format, parseISO } from "date-fns";
 import { RawMetricData } from "./dummy";
+import { parse } from "psl";
+import toast from "react-hot-toast";
 
 export const filterMetricsData = (data: RawMetricData[]): RawMetricData[] => {
   return [...data].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 };
 
@@ -75,7 +77,7 @@ export function formatValue(
     maxDecimals = 2,
     type = "currency",
     currency = "USD",
-  }: FormatOptions = {}
+  }: FormatOptions = {},
 ): string {
   if (!Number.isFinite(amount)) return "0";
 
@@ -90,11 +92,11 @@ export function formatValue(
   return new Intl.NumberFormat(locale, options).format(amount);
 }
 
-export const formatDate = (isoString?: string) => {
+export const formatDate = (isoString?: string, dateFormat = "M/d/yy") => {
   if (!isoString) return "--";
 
   const date = parseISO(isoString);
-  return format(date, "M/d/yy");
+  return format(date, dateFormat);
 };
 
 export const formatTime24h = (isoString: string) => {
@@ -137,10 +139,12 @@ export const getStatusByColor = (hex: string): string => {
 };
 
 export function formatDateTime(isoString: string): string {
+  if (!isoString) return "--";
   return format(parseISO(isoString), "yyyy-MM-dd hh:mm a");
 }
 
 export function formatFullDateTime(isoString: string): string {
+  if (!isoString) return "--";
   try {
     return format(parseISO(isoString), "MMM d, yyyy h:mm:ss a");
   } catch {
@@ -153,3 +157,35 @@ export const getRandomHexColor = (): string => {
     .toString(16)
     .padStart(6, "0")}`;
 };
+
+export const capitalize = (str?: string) => {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+export function getRootDomain(hostname: string) {
+  const parsed = parse(hostname);
+
+  if ("error" in parsed) {
+    return null;
+  }
+  return parsed.domain;
+}
+
+export function downloadJsonFile<T>(data: T, filename: string = "data.json") {
+  const toString = JSON.stringify(data);
+  toast.loading("Download should start soon");
+  const blob = new Blob([toString], { type: "application/json" });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  setTimeout(() => {
+    toast.dismiss();
+  }, 2000);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}

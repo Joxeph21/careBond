@@ -5,9 +5,9 @@ import FilmIcon from "@/components/icons/FilmIcon";
 import { ICON } from "@/utils/icon-exports";
 import { Modal } from "@/ui/Modal";
 import CreateInstitutionForm from "@/components/forms/CreateInstitutionForm";
+import React, { useState } from "react";
 import SearchAndFilter from "@/ui/SearchAndFilter";
 import Table from "@/ui/Table";
-import { institutionData } from "@/utils/dummy";
 import {
   formatDate,
   formatTime24h,
@@ -17,6 +17,15 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import useTableSelect from "@/hooks/useTableSelect";
 import Pagination from "@/components/common/Pagination";
+import {
+  useDeleteInstitution,
+  useEditInstitution,
+  useGetInstitutions,
+} from "@/hooks/superadmin/useInstitutions";
+import TableOptions from "@/ui/TableOptions";
+import Popover from "@/ui/Popover";
+import ActionPopup from "@/ui/ActionPopup";
+import ActionLoader from "@/ui/ActionLoader";
 
 const FILTER_OPTIONS = [
   { label: "Newest", value: "newest" },
@@ -26,14 +35,22 @@ const FILTER_OPTIONS = [
 ];
 
 export default function InstitutionContent() {
+  const { institutions, isLoading, total_count, prevPage, nextPage } =
+    useGetInstitutions();
+  const { deleteInst, isPending } = useDeleteInstitution();
+  const [selectedItem, setSelectedItem] = useState<Institution | null>(null);
+  const { edit, isPending: isSuspending } = useEditInstitution(
+    selectedItem?.status === "Active" ? "suspend" : "activate",
+  );
+
   const {
     filteredData,
     selected,
     handleRowSelect,
     handleSelectAll,
     isAllSelected,
-  } = useTableSelect({
-    data: institutionData,
+  } = useTableSelect<Institution>({
+    data: institutions ?? [],
   });
 
   return (
@@ -55,10 +72,13 @@ export default function InstitutionContent() {
         filterOptions={FILTER_OPTIONS}
       />
 
-      <section className="w-full px-6">
+      {isPending || (isSuspending && <ActionLoader />)}
+
+      <section className="w-full flex gap-3 flex-col px-6">
+        {selected.length > 0 && <TableOptions ids={selected as string[]} />}
         <Table columns="40px 1.5fr 1.2fr .7fr .7fr 1.5fr .6fr 0.6fr 20px">
           <Table.Header className="text-center">
-            <p className="text-left">
+            <div className="text-left">
               <input
                 type="checkbox"
                 className="cursor-pointer"
@@ -67,9 +87,9 @@ export default function InstitutionContent() {
                 checked={isAllSelected}
                 onChange={handleSelectAll}
               />
-            </p>
-            <p>Institution Name</p>
-            <p>Description</p>
+            </div>
+            <p className="text-left">Institution Name</p>
+            <p className="text-left">Description</p>
             <p>Plan Status</p>
             <p>Active Status</p>
             <p>Contact E-mail</p>
@@ -78,7 +98,8 @@ export default function InstitutionContent() {
             <p></p>
           </Table.Header>
 
-          <Table.Body
+          <Table.Body<Institution>
+            isLoading={isLoading}
             data={filteredData}
             render={(item) => (
               <Table.Row
@@ -97,40 +118,104 @@ export default function InstitutionContent() {
                 </p>
                 <Link
                   href={`institutions/${item.id}`}
-                  className="font-medium text-primary underline cursor-pointer"
+                  className="font-medium truncate text-primary underline cursor-pointer"
                 >
                   {item.name}
                 </Link>
-                <p>{item.description}</p>
+                <p className="truncate">{item.description ?? "--"}</p>
                 <span
-                  className={`${getStatusStyle(item.planStatus as STATUS_TYPE)}
+                  className={`${getStatusStyle(item.plan_status as STATUS_TYPE)}
                   flex-center  rounded-full px-2 py-1
                   `}
                 >
                   <Icon icon={ICON.DOT} fontSize={20} />
-                  {item.planStatus}
+                  {item.plan_status}
                 </span>
                 <span
-                  className={`${getStatusStyle(
-                    item.activeStatus as STATUS_TYPE
-                  )}
+                  className={`${getStatusStyle(item.status as STATUS_TYPE)}
                   flex-center  rounded-full px-2 py-1
                   `}
                 >
                   <Icon icon={ICON.DOT} fontSize={20} />
-                  {item.activeStatus}
+                  {item.status}
                 </span>
-                <p>{item.contactEmail}</p>
-                <p>{formatDate(item.lastBilled)}</p>
-                <p>{formatTime24h(item.billedTime)}</p>
-                <button type="button" className="cursor-pointer flex-center">
-                  <Icon icon={ICON.MENU} fontSize={20} />
-                </button>
+                <p className="truncate">{item.contact_email}</p>
+                <p>{formatDate(item.last_billed_date)}</p>
+                <p>{formatTime24h(item.last_billed_date)}</p>
+                <Popover>
+                  <Popover.Menu>
+                    <Popover.Trigger>
+                      <button
+                        type="button"
+                        className="cursor-pointer flex-center"
+                      >
+                        <Icon icon={ICON.MENU} fontSize={20} />
+                      </button>
+                    </Popover.Trigger>
+                    <Popover.Content className="left-auto! shadow-card-shadow right-0! min-w-20!">
+                      {(closepopover) => {
+                        const isActive = item.status === "Active";
+                        return (
+                          <ul className="flex flex-col gap-2">
+                            <Modal.Trigger name="edit-institution">
+                              <button
+                                type="button"
+                                className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded-md transition-colors w-full text-left"
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  closepopover();
+                                }}
+                              >
+                                <Icon icon={ICON.EDIT} fontSize={18} />
+                                Edit
+                              </button>
+                            </Modal.Trigger>
+                            <Modal.Trigger
+                              disabled={isSuspending}
+                              name="suspend-institution"
+                            >
+                              <button
+                                disabled={isSuspending}
+                                type="button"
+                                className="flex disabled:opacity-50 disabled:cursor-wait cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded-md transition-colors w-full text-left"
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  closepopover();
+                                }}
+                              >
+                                <Icon icon={ICON.SUSPEND} fontSize={18} />
+                                {isActive ? "Suspend" : "Activate"}
+                              </button>
+                            </Modal.Trigger>
+                            <Modal.Trigger name="delete-institution">
+                              <button
+                                type="button"
+                                className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded-md transition-colors w-full text-left text-danger"
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  closepopover();
+                                }}
+                              >
+                                <Icon icon={ICON.TRASH} fontSize={18} />
+                                Delete
+                              </button>
+                            </Modal.Trigger>
+                          </ul>
+                        );
+                      }}
+                    </Popover.Content>
+                  </Popover.Menu>
+                </Popover>
               </Table.Row>
             )}
           />
+          {/* {total_count && total_count > 20 && ( */}
           <Table.Footer>
-            <Pagination />
+            <Pagination
+              totalCount={total_count}
+              prevPage={prevPage}
+              nextPage={nextPage}
+            />
           </Table.Footer>
         </Table>
       </section>
@@ -142,6 +227,48 @@ export default function InstitutionContent() {
         name="create-institution"
       >
         <CreateInstitutionForm />
+      </Modal.Window>
+
+      <Modal.Window
+        hasClose
+        className="max-w-2xl w-full!"
+        title="Edit Institution"
+        name="edit-institution"
+      >
+        <CreateInstitutionForm type="edit" data={selectedItem!} />
+      </Modal.Window>
+
+      <Modal.Window className="py-2! gap-0! px-1!" name="suspend-institution">
+        <ActionPopup
+          onConfirm={() => {
+            if (selectedItem) {
+              edit({
+                id: selectedItem.id,
+                data: {
+                  name: selectedItem.name,
+                  status:
+                    selectedItem.status === "Active" ? "Inactive" : "Active",
+                },
+              });
+            }
+          }}
+          type="suspend"
+          title={`${selectedItem?.status === "Active" ? "Suspend" : "Activate"} Institution`}
+          name="Institution"
+          description={`Are you sure you want to ${selectedItem?.status === "Active" ? "suspend" : "activate"} this institution?`}
+        />
+      </Modal.Window>
+
+      <Modal.Window className="py-2! gap-0! px-1!" name="delete-institution">
+        <ActionPopup
+          onConfirm={() => {
+            if (selectedItem) {
+              deleteInst(selectedItem.id);
+            }
+          }}
+          type="delete"
+          name="Institution"
+        />
       </Modal.Window>
     </Modal>
   );

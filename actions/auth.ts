@@ -11,7 +11,7 @@ export interface RefreshActionResponse {
 
 export const auth_update_refresh_token = async (
   refresh: string,
-  isPersistent: boolean
+  isPersistent: boolean,
 ) => {
   const _cookies = await cookies();
 
@@ -28,31 +28,71 @@ export const auth_update_refresh_token = async (
   _cookies.set(options);
 };
 
+export const auth_update_access_token = async (access: string) => {
+  const _cookies = await cookies();
+  _cookies.set({
+    ...CONFIG.BASE_COOKIE_OPTIONS,
+    name: CONFIG.ACCESS_TOKEN_IDENTIFIER,
+    value: access,
+  });
+};
+
 export const auth_refresh_token_action =
   async (): Promise<RefreshActionResponse | null> => {
     const _cookies = await cookies();
     const token = _cookies.get(CONFIG.REFRESH_TOKEN_IDENTIFIER);
 
-    if (!token) return { access: null, refresh: null };
+    if (!token) {
+      console.log("No refresh token found in cookies");
+      return { access: null, refresh: null };
+    }
 
     try {
       const { access, refresh } = await refreshToken({ refresh: token });
+
+      if (access) {
+        // Save to cookies so the server (and serverFetch) can find it next time
+        _cookies.set({
+          ...CONFIG.BASE_COOKIE_OPTIONS,
+          name: CONFIG.ACCESS_TOKEN_IDENTIFIER,
+          value: access,
+        });
+
+        if (refresh) {
+          _cookies.set({
+            ...CONFIG.BASE_COOKIE_OPTIONS,
+            name: CONFIG.REFRESH_TOKEN_IDENTIFIER,
+            value: refresh,
+          });
+        }
+      }
+
       return { access, refresh };
     } catch (err) {
-      console.log(err);
-      await auth_logout_action();
+      console.log("Server action refresh error:", err);
       return { access: null, refresh: null };
     }
   };
 
+export const auth_update_admin = async (admin: string) => {
+  const _cookies = await cookies();
 
+  _cookies.set({
+    ...CONFIG.BASE_COOKIE_OPTIONS,
+    name: CONFIG.ADMIN_TYPE_IDENTIFIER,
+    value: admin,
+    sameSite: "lax",
+  });
+};
 
 export const auth_logout_action = async () => {
   const _cookies = await cookies();
-  _cookies.set({
-    ...CONFIG.BASE_COOKIE_OPTIONS,
-    name: CONFIG.REFRESH_TOKEN_IDENTIFIER,
-    value: "",
-    maxAge: 0,
-  });
+  _cookies.delete(CONFIG.REFRESH_TOKEN_IDENTIFIER);
+  _cookies.delete(CONFIG.ACCESS_TOKEN_IDENTIFIER);
+};
+
+export const auth_get_access_server = async () => {
+  const _cookies = await cookies();
+  const token = _cookies.get(CONFIG.ACCESS_TOKEN_IDENTIFIER);
+  return token?.value;
 };

@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import Button from "../common/Button";
 import { Modal } from "@/ui/Modal";
 import { Icon } from "@iconify/react";
@@ -7,13 +6,38 @@ import { ICON } from "@/utils/icon-exports";
 import SearchBox from "../common/SearchBox";
 import Image from "next/image";
 import { useState, useMemo } from "react";
-import { dummy_users } from "@/utils/dummy";
-import { useSearchParams } from "next/navigation";
+import usePaginatorParams from "@/hooks/usePaginatorParams";
+import useIUsers from "@/hooks/superadmin/useIUsers";
+import useAdmin from "@/hooks/auth/useAdmin";
+import Skeleton from "../common/Skeleton";
+import { useAssignFamilyMember } from "@/hooks/institution/usePatients";
+import useQueueMutation from "@/hooks/useQueueMutation";
+import { useRouter } from "next/navigation";
 
-export default function AssignFamilyForm({ onCloseModal }: onCloseModal) {
+export default function AssignFamilyForm({
+  onCloseModal,
+  patient_id,
+}: onCloseModal & { patient_id: string }) {
+  const router = useRouter();
+  const { isSuperAdmin } = useAdmin();
+  const { assign_family_async, isPending: isAssigning } =
+    useAssignFamilyMember(patient_id);
+  const { query } = usePaginatorParams({ searchKey: "f" });
+  const { users: data, isLoading } = useIUsers(isSuperAdmin, { query });
   const [selected, setSelected] = useState<string[]>([]);
-  const searchParams = useSearchParams();
-  const query = searchParams.get("f") ?? "";
+
+  const { startQueue, isProcessing } = useQueueMutation(
+    selected,
+    (id) => assign_family_async({ family_member_id: id }),
+    {
+      loadingMessage: "Assigning Family Members...",
+      successMessage: "All family members assigned successfully",
+      onSuccess: () => {
+        onCloseModal?.();
+        router.refresh();
+      },
+    },
+  );
 
   const handleSelect = (id: string) => {
     if (selected.includes(id)) {
@@ -24,15 +48,8 @@ export default function AssignFamilyForm({ onCloseModal }: onCloseModal) {
   };
 
   const users = useMemo(() => {
-    if (!query) return dummy_users;
-    const lowerQuery = query.toLowerCase();
-    return dummy_users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(lowerQuery) ||
-        user.email.toLowerCase().includes(lowerQuery) ||
-        user.role.toLowerCase().includes(lowerQuery)
-    );
-  }, [query]);
+    return data.filter((el) => el.role === "family");
+  }, [data]);
 
   return (
     <section className="flex w-full px-5 pb-6 justify-between flex-col min-h-96 h-full">
@@ -70,14 +87,27 @@ export default function AssignFamilyForm({ onCloseModal }: onCloseModal) {
           className="max-w-full! p-2.5!"
         />
         <ul className="p-2 rounded-xl ring ring-grey w-full flex flex-col gap-3 min-h-20 justify-center">
-          {users && users.length > 0 ? (
+          {isLoading ? (
+            [1, 2, 3].map((i) => (
+              <li
+                key={i}
+                className="w-full ring ring-grey p-4 rounded-lg flex gap-3"
+              >
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              </li>
+            ))
+          ) : users && users.length > 0 ? (
             users.map((el) => {
-              const isActive = selected.includes(el.id);
+              const isActive = selected.includes(el.id!);
 
               return (
                 <li
                   role="radio"
-                  onClick={() => handleSelect(el.id)}
+                  onClick={() => handleSelect(el.id!)}
                   aria-checked={isActive}
                   key={el.id}
                   className={`w-full cursor-pointer ring ring-grey p-4  rounded-lg flex-between items-start! ${
@@ -87,18 +117,20 @@ export default function AssignFamilyForm({ onCloseModal }: onCloseModal) {
                   <div className="flex-center gap-3">
                     <figure className="rounded-full size-8 relative overflow-hidden">
                       <Image
-                        src={el.avatar}
-                        alt={`${el.name}_profile_picture`}
+                        src={"/user2.png"}
+                        alt={`${el.full_name}_profile_picture`}
                         fill
                         className="object-center object-cover"
                       />
                     </figure>
                     <div>
-                      <h4 className="font-medium text-[#091E42]">{el.name}</h4>
+                      <h4 className="font-medium text-[#091E42]">
+                        {el.full_name}
+                      </h4>
                       <div className="flex items-center text-xs font-light gap-2">
                         <p className="text-[#5E5E5E]">{el.email}</p>
                         <span className="text-primary capitalize">
-                          {el.role}
+                          {el.role_display}
                         </span>
                       </div>
                     </div>
@@ -107,7 +139,7 @@ export default function AssignFamilyForm({ onCloseModal }: onCloseModal) {
                     type="button"
                     role="switch"
                     aria-checked={isActive}
-                    onClick={() => handleSelect(el.id)}
+                    onClick={() => handleSelect(el.id!)}
                   >
                     <Icon
                       className={`${
@@ -117,16 +149,16 @@ export default function AssignFamilyForm({ onCloseModal }: onCloseModal) {
                       fontSize={21}
                     />
                   </button>
-                  <label htmlFor={el.id} className="sr-only">
-                    select {el.name}
+                  <label htmlFor={el.id!} className="sr-only">
+                    select {el.full_name}
                   </label>
                   <input
                     className="sr-only"
                     aria-checked={isActive}
                     checked={isActive}
                     type="checkbox"
-                    id={el.id}
-                    onChange={() => handleSelect(el.id)}
+                    id={el.id!}
+                    onChange={() => handleSelect(el.id!)}
                   />
                 </li>
               );
@@ -157,7 +189,15 @@ export default function AssignFamilyForm({ onCloseModal }: onCloseModal) {
         >
           Cancel
         </Button>
-        <Button variants="primary" size="full">
+        <Button
+          config={{
+            disabled: selected.length === 0,
+            onClick: startQueue,
+          }}
+          variants="primary"
+          size="full"
+          isLoading={isProcessing || isAssigning}
+        >
           Assign
         </Button>
       </div>

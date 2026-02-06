@@ -59,4 +59,8 @@ export const ICON = {
   CHECKED: "fluent:checkmark-circle-12-filled",
   QUESTION: "mingcute:question-line",
   EXTERNAL_LINK: "akar-icons:link-out",
+  EDIT: "iconoir:edit",
+  TRASH: "mingcute:delete-line",
+  SUSPEND: "wordpress:not-allowed",
+  CARET_RIGHT: "cuida:caret-right-outline",
 } as const;

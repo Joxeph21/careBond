@@ -1,10 +1,12 @@
-"use client"
+"use client";
 import UserForm from "@/components/forms/userForm";
 import Button from "@/components/common/Button";
 import Switch from "@/components/common/Switch";
 import Family_and_Devices from "@/components/institution/family-devices";
 import ActionPopup from "@/ui/ActionPopup";
 import React, { useState } from "react";
+import VitalsOverview from "../institution/vitals-overview";
+import { Modal } from "@/ui/Modal";
 
 const settings = [
   {
@@ -25,14 +27,17 @@ const settings = [
   },
 ];
 
+import { useGetIUserById } from "@/hooks/institution/useInstitutionsUsers";
 
-function EditUserForm() {
-  const [deletePopup, setDeletePopup] = useState(false);
+function EditUserForm({ user: initialUser }: { user: User }) {
+  const { user: updatedUser } = useGetIUserById(initialUser.id!);
+  const user = updatedUser || initialUser;
 
   return (
-   <>
-      <UserForm />
-      <Family_and_Devices />
+    <Modal>
+      {user.role === "patient" && <VitalsOverview />}
+      <UserForm data={user} />
+      <Family_and_Devices data={user} />
 
       <section className="w-full mt-2 border-b-2 h-full border-[#0B122824] flex flex-col gap-3">
         <h3 className="text-lg font-bold text-[#454D5A]">
@@ -57,24 +62,17 @@ function EditUserForm() {
         <p className="text-[#292A2E]">
           Your account is connected to Atlassian.
         </p>
-        <Button
-          config={{
-            onClick: () => setDeletePopup(true),
-          }}
-          variants="danger"
-        >
-          Delete Account
-        </Button>
+        <Modal.Trigger name="delete-account">
+          <Button config={{}} variants="danger">
+            Delete Account
+          </Button>
+        </Modal.Trigger>
       </section>
-
-      <ActionPopup
-        mode={deletePopup}
-        onCancel={() => setDeletePopup(false)}
-        type="delete"
-        name="account"
-      />
-   </>
-  )
+      <Modal.Window className="py-2! gap-0! px-1!" name="delete-account">
+        <ActionPopup type="delete" name="user account" />
+      </Modal.Window>
+    </Modal>
+  );
 }
 
-export default EditUserForm
+export default EditUserForm;

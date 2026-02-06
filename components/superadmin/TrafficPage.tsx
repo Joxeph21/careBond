@@ -1,30 +1,35 @@
 "use client";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
-import { Activity, useState } from "react";
+import { Activity, useMemo, useState } from "react";
 import Button from "../common/Button";
 import Table from "@/ui/Table";
 import { DUMMY_LOGS } from "@/utils/dummy";
 import Pagination from "../common/Pagination";
+import { useCloudStats } from "@/hooks/superadmin/useLogs";
 
 export default function TrafficPage() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data, isLoading } = useCloudStats();
+
   const suspicious_activity = [];
 
-  const activity_head = [
-    {
-      title: "Total",
-      value: 84,
-    },
-    {
-      title: "Previous",
-      value: 54,
-    },
-    {
-      title: "Current",
-      value: 10,
-    },
-  ];
+  const activity_head = useMemo(() => {
+    return [
+      {
+        title: "Total",
+        value: data?.total ?? 0,
+      },
+      {
+        title: "Previous",
+        value: data?.previous ?? 0,
+      },
+      {
+        title: "Current",
+        value: data?.current ?? 0,
+      },
+    ];
+  }, [data]);
 
   return (
     <section className="section-container flex pb-8 flex-col gap-3">
@@ -66,10 +71,16 @@ export default function TrafficPage() {
               className="flex flex-col gap-1 border-grey border-r"
             >
               <p className="text-sm flex items-center gap-1 text-[#313131]">
-                {index > 0 && <Icon icon={ICON.DOT2} fontSize={20} className={index > 1 ? "text-[#104858]" : "text-[#E46E0A]"} />}
+                {index > 0 && (
+                  <Icon
+                    icon={ICON.DOT2}
+                    fontSize={20}
+                    className={index > 1 ? "text-[#104858]" : "text-[#E46E0A]"}
+                  />
+                )}
                 {item.title}
               </p>
-              <p className="text-[#0A0A0A] text-2xl">{item.value}</p>
+              <p className="text-[#0A0A0A] text-2xl">{isLoading ? "--:--" :item.value}</p>
             </li>
           ))}
         </ul>

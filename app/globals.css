@@ -17,8 +17,8 @@
   --color-danger: #ef1e1e;
   --font-sans: var(--font-outfit);
   --font-ut: var(--font-utendo);
-  --shadow-card-shadow: box-shadow: 8px 8px 20px 0px rgba(100, 130, 158, 0.2);
-
+  --shadow-card-shadow: 8px 8px 20px 0px rgba(100, 130, 158, 0.2);
+--color-accent: #FF8E26;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -57,4 +57,19 @@ body {
 
 .icon-btn {
   @apply p-2 relative hover:shadow-2xl ease-in transition-all duration-200 rounded-sm cursor-pointer ring ring-grey flex-center
+}
+
+@utility animate-shimmer {
+  background: linear-gradient(90deg, #f6f7f8 0%, #edeef1 50%, #f6f7f8 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }

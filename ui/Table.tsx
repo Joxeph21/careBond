@@ -1,4 +1,5 @@
 "use client";
+import ActivityIndicator from "@/components/common/ActivityIndicator";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
 import React, { useContext } from "react";
@@ -32,14 +33,17 @@ export default function Table({
 }: contextProps) {
   return (
     <TableContext.Provider value={{ columns, border }}>
-      <div className="rounded-lg w-full ring ring-grey overflow-hidden">
+      <div className="rounded-lg w-full ring ring-grey overflow-visible">
         {children}
       </div>
     </TableContext.Provider>
   );
 }
 
-Table.Header = function Header({ children, className }: {className?: string}& PropsWithChildren) {
+Table.Header = function Header({
+  children,
+  className,
+}: { className?: string } & PropsWithChildren) {
   const { columns, border } = useTable();
   return (
     <div
@@ -58,16 +62,16 @@ Table.Row = function Row({
   children,
   isHighlighted,
   onClick,
-}: { isHighlighted?: boolean, onClick?: () => void } & PropsWithChildren) {
+}: { isHighlighted?: boolean; onClick?: () => void } & PropsWithChildren) {
   const { columns, border } = useTable();
   return (
     <div
       role="row"
       style={{ display: "grid", gridTemplateColumns: columns }}
-      className={`gap-6 truncate items-center cursor-pointer  px-3 text-[#474747] text-sm py-4 ${
+      className={`gap-6 items-center cursor-pointer  px-3 text-[#474747] text-sm py-4 ${
         border && "border-b border-[#E1E1E1]"
       } ${isHighlighted && "bg-[#F9FAFC]!"}`}
-     onClick={onClick}
+      onClick={onClick}
     >
       {children}
     </div>
@@ -87,7 +91,12 @@ Table.Body = function Body<T>({
   name?: string;
   icon?: string;
 }) {
-  if (isLoading) return <div>Loading....</div>;
+  if (isLoading)
+    return (
+      <div className="w-full flex-center min-h-60">
+        <ActivityIndicator size={30} className="text-primary" />
+      </div>
+    );
 
   if (data.length === 0)
     return (
@@ -95,7 +104,8 @@ Table.Body = function Body<T>({
         <Icon icon={icon ?? ICON.SEARCH} fontSize={60} />
         <h4 className="text-lg font-semibold">No {name} Found</h4>
         <p className="text-grey-dark max-w-[60%] text-center">
-          Your search did not match any result, try a different search term or try adjusting the filter.
+          Your search did not match any result, try a different search term or
+          try adjusting the filter.
         </p>
       </div>
     );

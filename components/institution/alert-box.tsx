@@ -5,9 +5,9 @@ import Link from "next/link";
 import { dummy_alerts } from "@/utils/dummy";
 import { AlertList } from "../common/List";
 
-export default function AlertBox() {
+export default function AlertBox({ data }: { data: [] }) {
   return (
-    <Card className="col-span-3">
+    <Card className="col-span-3 min-h-96">
       <Card.Header>
         <h3 className="font-bold flex items-center gap-2 text-lg text-[#212B36]">
           <span className="flex-center size-6.5 rounded-md bg-[#FFEDE9] text-danger">
@@ -19,10 +19,12 @@ export default function AlertBox() {
           View All
         </Link>
       </Card.Header>
-      <Card.Content className="flex flex-col gap-3">
-        {dummy_alerts.slice(0, 4).map((el, i) => (
-          <AlertList {...el} key={i} />
-        ))}
+      <Card.Content className="flex items-center flex-col gap-3">
+        {data?.length === 0 ? (
+          <p>No alerts found</p>
+        ) : (
+          dummy_alerts.slice(0, 4).map((el, i) => <AlertList {...el} key={i} />)
+        )}
       </Card.Content>
     </Card>
   );

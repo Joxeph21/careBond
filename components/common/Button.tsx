@@ -74,7 +74,11 @@ export default function Button({
       {isLoading ? (
         <Icon icon={ICON.SPINNER} className="animate-spin" fontSize={21} />
       ) : (
-        <BaseChildern variant={variants} iconPlacement={iconPlacement} icon={icon}>
+        <BaseChildern
+          variant={variants}
+          iconPlacement={iconPlacement}
+          icon={icon}
+        >
           {children}
         </BaseChildern>
       )}

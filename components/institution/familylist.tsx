@@ -6,11 +6,11 @@ import React from "react";
 export default function FamilyList({
   handleRowSelect,
   isSelected,
-  name,
+  full_name: name,
   id,
   email,
   role,
-}: { handleRowSelect: (id: string) => void; isSelected: boolean } & Family) {
+}: { handleRowSelect: (id: string) => void; isSelected: boolean } & FamilyMember) {
   return (
     <Table.Row isHighlighted={isSelected}>
       <div>
@@ -38,7 +38,7 @@ export default function FamilyList({
           <p className="text-[#6B788E]">@{email}</p>
         </div>
       </div>
-      <p className="p-1.5 rounded-full w-fit font-medium text-xs bg-[#F5F6F7] text-[#091E42]">
+      <p className="p-1.5 rounded-full truncate max-w-[50%] w-fit font-medium text-xs bg-[#F5F6F7] text-[#091E42]">
         {id}
       </p>
       <p className="text-[#42526D] capitalize">{role}</p>

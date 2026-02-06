@@ -1,12 +1,36 @@
-"use client";
-import InstitutionDashboard from "@/components/institution/institutionDashboard";
-import SuperadminDashboard from "@/components/superadmin/SuperadminDashboard";
-import useAdmin from "@/hooks/auth/useAdmin";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import DashboardClient from "./dashboardClient";
+import { fetchWithAuth } from "@/lib/auth/serverPrefetch";
 
-export default function Home() {
-  const { isSuperAdmin } = useAdmin();
+export default async function Home() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 2,
+      },
+    },
+  });
 
-  if (isSuperAdmin) return <SuperadminDashboard />;
+  await queryClient.prefetchQuery({
+    queryKey: ["user-me"],
+    queryFn: async () => {
+      const data = await fetchWithAuth(
+        `${process.env.BASE_BACKEND_URL}/auth/me`,
+      );
 
-  return <InstitutionDashboard />;
+      return data.data?.at(0);
+    },
+  });
+
+
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <DashboardClient />
+    </HydrationBoundary>
+  );
 }

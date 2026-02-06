@@ -1,6 +1,11 @@
 import DashTitle from "@/components/common/DashTitle";
 import CreatePlanForm from "@/components/forms/CreatePlanForm";
-import React from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Create Plan | CareBond",
+  description: "Create new subscription plans for institutions on CareBond.",
+};
 
 export default function Page() {
   return (

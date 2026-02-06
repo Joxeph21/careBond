@@ -63,9 +63,8 @@ export default function OverviewChart() {
 
   const processedData = useMemo(() => {
     if (Array.isArray(data.value)) {
-      const filtered = filterMetricsData(data.value, sortBy);
+      const filtered = filterMetricsData(data.value, );
 
-      console.log(filtered)
 
       return filtered.map((item) => {
         const dateObj = new Date(item.date);
@@ -89,14 +88,15 @@ export default function OverviewChart() {
 
   useAmChart("overview-chart", "line", processedData);
 
-  console.log(processedData, Array.isArray(data.value))
+ 
 
   return (
     <section className="w-full py-3 px-4 bg-white rounded-lg min-h-96 ring ring-grey">
       <div className="flex-between w-full">
         <Select
+        defaultValue={data.value}
           data={chartData}
-          onChange={(_, val) => val && setData(val)}
+          onChange={(_, val) => val && setData(val as OptionsType<RawMetricData[]>)}
           variant="themed"
         />
         <Select

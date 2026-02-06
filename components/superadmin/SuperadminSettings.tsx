@@ -4,40 +4,27 @@ import DashTitle from "@/components/common/DashTitle";
 import Select from "@/components/common/Select";
 import Switch from "@/components/common/Switch";
 import { ICON } from "@/utils/icon-exports";
-import React from "react";
 import useTabs from "@/hooks/useTabs";
+import useAdminConfig from "@/hooks/superadmin/useAConfig";
 
 const tabs = ["general_settings", "user's_settings", "maintenance", "security"];
 
 export default function SuperAdminSettings() {
   const { tab, setTab, containerRef, tabRef, tabWidth } = useTabs(tabs[0]);
+  const { config, isLoading } = useAdminConfig();
 
   const renderTab = () => {
     switch (tab) {
       case "general_settings":
-        return (
-          <>
-            <GeneralSettings />
-            <UserSettings />
-            <MaintenanceSettings />
-            <SecuritySettings />
-          </>
-        );
+        return <AllSettings {...config} isLoading={isLoading} />;
       case "user's_settings":
-        return <UserSettings />;
+        return <UserSettings {...config} isLoading={isLoading} />;
       case "maintenance":
-        return <MaintenanceSettings />;
+        return <MaintenanceSettings {...config} isLoading={isLoading} />;
       case "security":
-        return <SecuritySettings />;
+        return <SecuritySettings {...config} isLoading={isLoading} />;
       default:
-        return (
-          <>
-            <GeneralSettings />
-            <UserSettings />
-            <MaintenanceSettings />
-            <SecuritySettings />
-          </>
-        );
+        return <AllSettings {...config} />;
     }
   };
 
@@ -84,18 +71,53 @@ export default function SuperAdminSettings() {
   );
 }
 
-export function GeneralSettings() {
+function AllSettings({
+  isLoading,
+  ...config
+}: { isLoading?: boolean } & Partial<Admin_Config>) {
+  return (
+    <>
+      <GeneralSettings isLoading={isLoading} {...config} />
+      <UserSettings isLoading={isLoading} {...config} />
+      <MaintenanceSettings isLoading={isLoading} {...config} />
+      <SecuritySettings isLoading={isLoading} {...config} />
+    </>
+  );
+}
+
+export function GeneralSettings({
+  system_language,
+  allow_user_signup,
+  default_app_language,
+  currency,
+  allow_system_notifications,
+  security_notifications_frequency,
+  isLoading,
+}: Partial<Admin_Config> & { isLoading?: boolean }) {
   return (
     <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">General</h3>
       <ul className="w-full grid grid-cols-3 gap-8">
         <Select
+          isLoading={isLoading}
+          defaultValue={system_language}
           icon={ICON.CARET_DOWN3}
           size="full"
+          type="optimistic"
           variant="themed"
           themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
-          data={[{ label: "English", value: "en-us" }]}
+          data={[
+            { label: "Back", value: "en-bc" },
+            { label: "English", value: "English" },
+          ]}
           label="System Language"
+          onChange={async (newValue) => {
+            console.log("🚀 Starting update to:", newValue);
+
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            console.log("✅ Update complete!");
+          }}
         />
         <li className="w-full flex flex-col gap-2">
           <h3 className="pb-2 text-[#353B45] border-b border-primary">
@@ -103,23 +125,40 @@ export function GeneralSettings() {
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow new users to sign up</p>
-            <Switch />
+            <Switch
+              type="optimistic"
+              disabled={isLoading}
+              checked={allow_user_signup}
+              onChange={async (newValue) => {
+                console.log("Saving...", newValue);
+                // Create a 3-second delay
+                await new Promise((resolve) => setTimeout(resolve, 3000));
+                console.log("Saved successfully!");
+              }}
+            />
           </div>
         </li>
         <Select
+          defaultValue={default_app_language}
+          isLoading={isLoading}
           icon={ICON.CARET_DOWN3}
           size="full"
           variant="themed"
           themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
-          data={[{ label: "English", value: "en-us" }]}
+          data={[
+            { label: "Back", value: "en-bc" },
+            { label: "English", value: "English" },
+          ]}
           label="Default App Language"
         />
         <Select
+          isLoading={isLoading}
+          defaultValue={currency}
           icon={ICON.CARET_DOWN3}
           size="full"
           variant="themed"
           themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
-          data={[{ label: "USD ($)", value: "USD" }]}
+          data={[{ label: "USD ($)", value: "USD ($)" }]}
           label="Currency"
         />
         <li className="w-full flex flex-col gap-2">
@@ -128,18 +167,20 @@ export function GeneralSettings() {
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow system notifications</p>
-            <Switch />
+            <Switch checked={allow_system_notifications} disabled={isLoading} />
           </div>
         </li>
         <Select
+          isLoading={isLoading}
+          defaultValue={security_notifications_frequency}
           icon={ICON.CARET_DOWN3}
           size="full"
           variant="themed"
           themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
           data={[
-            { label: "Weekly", value: "weekly" },
-            { label: "Monthly", value: "monthly" },
-            { label: "Yearly", value: "yearly" },
+            { label: "Weekly", value: "Weekly" },
+            { label: "Monthly", value: "Monthly" },
+            { label: "Yearly", value: "Yearly" },
           ]}
           label="Security Checks Notifications Frequency"
         />
@@ -147,7 +188,12 @@ export function GeneralSettings() {
     </section>
   );
 }
-export function UserSettings() {
+export function UserSettings({
+  allow_profile_pictures,
+  isLoading,
+  allow_profile_edit,
+  send_notifications_to_users,
+}: { isLoading?: boolean } & Partial<Admin_Config>) {
   return (
     <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">User&apos;s Settings</h3>
@@ -158,7 +204,7 @@ export function UserSettings() {
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow profile pictures</p>
-            <Switch />
+            <Switch disabled={isLoading} checked={allow_profile_pictures} />
           </div>
         </li>
         <li className="w-full flex flex-col gap-2">
@@ -167,7 +213,7 @@ export function UserSettings() {
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow users to edit their profile</p>
-            <Switch />
+            <Switch disabled={isLoading} checked={allow_profile_edit} />
           </div>
         </li>
         <li className="w-full flex flex-col gap-2">
@@ -176,14 +222,23 @@ export function UserSettings() {
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Send notifications to users</p>
-            <Switch />
+            <Switch
+              disabled={isLoading}
+              checked={send_notifications_to_users}
+            />
           </div>
         </li>
       </ul>
     </section>
   );
 }
-function MaintenanceSettings() {
+function MaintenanceSettings({
+  isLoading,
+  enable_log_backup,
+  allow_admins_view_logs,
+  maintenance_frequency,
+  maintenance_time,
+}: { isLoading?: boolean } & Partial<Admin_Config>) {
   return (
     <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">Maintainance</h3>
@@ -194,7 +249,7 @@ function MaintenanceSettings() {
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Enable Backup of logs</p>
-            <Switch />
+            <Switch disabled={isLoading} checked={enable_log_backup} />
           </div>
         </li>
         <li className="w-full flex flex-col gap-2">
@@ -203,18 +258,20 @@ function MaintenanceSettings() {
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow Admins to view logs</p>
-            <Switch />
+            <Switch disabled={isLoading} checked={allow_admins_view_logs} />
           </div>
         </li>
         <Select
           icon={ICON.CARET_DOWN3}
           size="full"
+          isLoading={isLoading}
+          defaultValue={maintenance_frequency}
           variant="themed"
           themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
           data={[
-            { label: "Weekly", value: "weekly" },
-            { label: "Monthly", value: "monthly" },
-            { label: "Yearly", value: "yearly" },
+            { label: "Weekly", value: "Weekly" },
+            { label: "Monthly", value: "Monthly" },
+            { label: "Yearly", value: "Yearly" },
           ]}
           label="Scheduled Maintenance Frequency"
         />
@@ -228,7 +285,11 @@ function MaintenanceSettings() {
     </section>
   );
 }
-export function SecuritySettings() {
+export function SecuritySettings({
+  require_2fa,
+  max_login_attempts,
+  isLoading,
+}: { isLoading?: boolean } & Partial<Admin_Config>) {
   return (
     <section className="w-full flex flex-col pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">Security</h3>
@@ -239,18 +300,19 @@ export function SecuritySettings() {
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Require Two Factor Authentication</p>
-            <Switch />
+            <Switch disabled={isLoading} checked={require_2fa} />
           </div>
         </li>
         <Select
           icon={ICON.CARET_DOWN3}
           size="full"
+          defaultValue={max_login_attempts}
           variant="themed"
           themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
           data={[
-            { label: "5", value: "5" },
-            { label: "6", value: "6" },
-            { label: "7", value: "7" },
+            { label: "5", value: 5 },
+            { label: "6", value: 6 },
+            { label: "7", value: 7 },
           ]}
           label="Login Attempts before Account Lockout"
         />

@@ -30,14 +30,15 @@ export function useAmChart<T extends Record<string, unknown>>(
     let chart: ChartInstance = null;
 
     if (type === "pie" || type === "donut") {
-      chart = root.container.children.push(
+      const pieChart = root.container.children.push(
         am5percent.PieChart.new(root, {
           innerRadius: type === "donut" ? am5.percent(75) : 0,
           layout: root.verticalLayout,
         })
       );
+      chart = pieChart;
 
-      const series = chart.series.push(
+      const series = pieChart.series.push(
         am5percent.PieSeries.new(root, {
           valueField: "value",
           categoryField: "name",
@@ -61,7 +62,7 @@ export function useAmChart<T extends Record<string, unknown>>(
 
     // --- SPLINE / LINE LOGIC ---
     else if (type === "line") {
-      chart = root.container.children.push(
+      const lineChart = root.container.children.push(
         am5xy.XYChart.new(root, {
           panX: true,
           panY: false,
@@ -69,9 +70,10 @@ export function useAmChart<T extends Record<string, unknown>>(
           layout: root.verticalLayout,
         })
       );
+      chart = lineChart;
 
       // Create Axes
-      const xAxis = chart.xAxes.push(
+      const xAxis = lineChart.xAxes.push(
         am5xy.CategoryAxis.new(root, {
           categoryField: "name",
           renderer: am5xy.AxisRendererX.new(root, { minGridDistance: 30 }),
@@ -79,14 +81,14 @@ export function useAmChart<T extends Record<string, unknown>>(
       );
       xAxis.data.setAll(data);
 
-      const yAxis = chart.yAxes.push(
+      const yAxis = lineChart.yAxes.push(
         am5xy.ValueAxis.new(root, {
           renderer: am5xy.AxisRendererY.new(root, {}),
         })
       );
 
       // Create Series
-      const series = chart.series.push(
+      const series = lineChart.series.push(
         am5xy.SmoothedXLineSeries.new(root, {
           name: "Series",
           xAxis: xAxis,
@@ -112,6 +114,82 @@ export function useAmChart<T extends Record<string, unknown>>(
 
       series.data.setAll(data);
       series.appear(1000);
+    }
+
+    // Bar Chart
+    else if (type === "bar") {
+      const barChart = root.container.children.push(
+        am5xy.XYChart.new(root, {
+          panX: false,
+          panY: false,
+          wheelX: "none",
+          wheelY: "none",
+          layout: root.verticalLayout,
+        })
+      );
+      chart = barChart;
+
+      // Define the Date Axis (X)
+      const xAxis = barChart.xAxes.push(
+        am5xy.DateAxis.new(root, {
+          baseInterval: { timeUnit: "month", count: 1 },
+          renderer: am5xy.AxisRendererX.new(root, {
+            minGridDistance: 30,
+            cellStartLocation: 0.1, // This creates the clustering gap
+            cellEndLocation: 0.9,
+          }),
+        })
+      );
+
+      // Define the Value Axis (Y)
+      const yAxis = barChart.yAxes.push(
+        am5xy.ValueAxis.new(root, {
+          renderer: am5xy.AxisRendererY.new(root, {}),
+        })
+      );
+
+      // Function to dynamically add series for clustering
+      // We look at the first data item to find keys that aren't 'date'
+      const fields = Object.keys(data[0] || {}).filter(
+        (key) => key !== "date" && key !== "fill"
+      );
+
+      // Custom colors to match your image
+      const colors = ["#3F8EF3", "#00C4DF", "#FFBB28"];
+
+      fields.forEach((field, index) => {
+        const series = barChart.series.push(
+          am5xy.ColumnSeries.new(root, {
+            name: field.charAt(0).toUpperCase() + field.slice(1),
+            xAxis: xAxis,
+            yAxis: yAxis,
+            valueYField: field,
+            valueXField: "date",
+            tooltip: am5.Tooltip.new(root, { labelText: "{name}: {valueY}" }),
+          })
+        );
+
+        series.columns.template.setAll({
+          width: am5.percent(90),
+          tooltipY: 0,
+          cornerRadiusTL: 4,
+          cornerRadiusTR: 4,
+          fill: am5.color(colors[index] || "#ccc"),
+          strokeOpacity: 0,
+        });
+
+        series.data.setAll(data);
+        series.appear(1000);
+      });
+
+      // Add Legend
+      const legend = barChart.children.push(
+        am5.Legend.new(root, {
+          centerX: am5.p50,
+          x: am5.p50,
+        })
+      );
+      legend.data.setAll(barChart.series.values);
     }
 
     chartRef.current = chart;

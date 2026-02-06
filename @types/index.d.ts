@@ -3,21 +3,32 @@ declare type BaseBackendResponse<Z = unknown, T = unknown> = {
   data?: Z;
 } & T;
 
-declare type Plan = {
-  title: string;
-  description: string;
-  priceInYearly: number;
-  priceInMonth: number;
-  features: string[];
-};
-
 declare type OptionsType<T = unknown, Z = unknown> = {
   label: string;
   value: T | string;
   metadata?: Z;
 };
 
-
 declare type onCloseModal = {
-  onCloseModal?: () => void
+  onCloseModal?: () => void;
+};
+
+declare type Pagination = {
+  count: number;
+  next: number | null;
+  previous: number | null;
+};
+
+declare interface Paginator {
+  query?: string;
+  page?: number;
 }
+
+declare type Log = {
+  id: string;
+  user: string;
+  user_name: string;
+  action: string;
+  details: string;
+  timestamp: string;
+};

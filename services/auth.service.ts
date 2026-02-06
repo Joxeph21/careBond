@@ -1,8 +1,9 @@
+// import { auth_update_admin } from "@/actions/auth";
 import HttpClient from "@/adapters/http";
-import { auth_login } from "@/adapters/utils";
+// import { auth_login } from "@/adapters/utils";
 import { ThrowError } from "@/utils/config";
 
-export async function AuthLogin({ email, password, persist }: AuthLoginData) {
+export async function AuthLogin({ email, password, }: AuthLoginData) {
   try {
     const res = await HttpClient.post<BaseBackendResponse<LoginResponseData[]>>(
       "/auth/login/",
@@ -11,13 +12,19 @@ export async function AuthLogin({ email, password, persist }: AuthLoginData) {
 
     const response = res?.data;
 
-    const payload = response?.data?.[0];
+    // const payload = response?.data?.[0];
 
-    const tokens = payload?.tokens;
+    // const user = payload?.user
 
-    if (tokens) {
-      auth_login(tokens.access, tokens.refresh, persist);
-    }
+    // const tokens = payload?.tokens;
+
+    // if (tokens) {
+    //   auth_login(tokens.access, tokens.refresh, persist);
+    // }
+
+    // if(user){
+    //   await auth_update_admin(user.role)
+    // }
 
     return response;
   } catch (err) {

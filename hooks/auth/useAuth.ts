@@ -9,21 +9,41 @@ import {
 } from "@/services/auth.service";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { auth_logout_action } from "@/actions/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { auth_logout_action, auth_update_admin } from "@/actions/auth";
 import { CONFIG } from "@/utils/config";
+import { auth_login } from "@/adapters/utils";
 
 // # 1. Login Hook
 
 export function useLogin() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { mutate: login, isPending } = useMutation({
     mutationFn: AuthLogin,
     onError: (err) => {
       toast.error(err.message);
     },
-    onSuccess: () => {
-      router.replace("/");
+    onSuccess: async (res, state) => {
+      const response = res?.data;
+
+      const payload = response?.[0];
+
+      const user = payload?.user;
+
+      const tokens = payload?.tokens;
+
+      if (tokens) {
+        await auth_login(tokens.access, tokens.refresh, state.persist);
+      }
+
+      if (user) {
+        await auth_update_admin(user.role);
+      }
+
+      const callbackUrl = searchParams.get("callbackUrl");
+
+      router.replace(callbackUrl || "/");
     },
   });
 

@@ -2,7 +2,6 @@
 import Button from "@/components/common/Button";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
-import React, { Activity } from "react";
 
 type PopupProps = {
   type: "delete" | "suspend";
@@ -11,7 +10,6 @@ type PopupProps = {
   title?: string;
   name: string;
   description?: string;
-  mode: boolean;
 };
 
 export default function ActionPopup({
@@ -19,16 +17,18 @@ export default function ActionPopup({
   type,
   description,
   onCancel,
+  onCloseModal,
   onConfirm,
-  mode,
   title,
-}: PopupProps) {
+}: onCloseModal & PopupProps) {
   return (
-    <Activity mode={mode ? "visible" : "hidden"}>
-      <section className="w-full h-screen fixed bg-black/20 inset-0 flex-center">
-        <dialog className="w-[400px] px-4 py-3 relative col-between gap-5 rounded-2xl bg-white">
+    
+        <div className="px-4 py-3 pb-4 relative col-between gap-5 rounded-2xl bg-white w-full h-full">
           <button
-            onClick={() => onCancel?.()}
+            onClick={() => {
+              onCancel?.();
+              onCloseModal?.();
+            }}
             type="button"
             className="absolute top-2 right-2"
           >
@@ -78,7 +78,10 @@ export default function ActionPopup({
           <div className="flex-center w-fit  gap-3 self-end">
             <Button
               config={{
-                onClick: () => onCancel?.(),
+                onClick: () => {
+                  onCancel?.();
+                  onCloseModal?.();
+                },
                 className: "capitalize",
               }}
               variants="outlined"
@@ -87,7 +90,10 @@ export default function ActionPopup({
             </Button>
             <Button
               config={{
-                onClick: () => onConfirm?.(),
+                onClick: () => {
+                  onConfirm?.();
+                  onCloseModal?.();
+                },
                 className: "capitalize",
               }}
               variants="danger"
@@ -95,8 +101,7 @@ export default function ActionPopup({
               Confirm {type}
             </Button>
           </div>
-        </dialog>
-      </section>
-    </Activity>
+        </div>
+ 
   );
 }

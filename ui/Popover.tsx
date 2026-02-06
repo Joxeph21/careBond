@@ -87,7 +87,10 @@ Popover.Menu = function Menu({
 };
 
 // Trigger button to toggle dropdown
-Popover.Trigger = function Trigger({ children }: PropsWithChildren) {
+Popover.Trigger = function Trigger({
+  children,
+  disabled,
+}: PropsWithChildren & { disabled?: boolean }) {
   const { setIsOpen, isOpen, setPosition, setSize, setIsNearBottom } =
     usePopover();
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -119,6 +122,7 @@ Popover.Trigger = function Trigger({ children }: PropsWithChildren) {
     <div
       ref={triggerRef}
       onClick={(e) => {
+        if (disabled) return;
         e.stopPropagation();
         setIsOpen((prev) => !prev);
       }}
@@ -159,7 +163,7 @@ Popover.Content = function Content({
           width: "auto",
           minWidth: size.width,
         }}
-        className={`rounded-lg ring ring-grey left-0 flex flex-col gap-5 shadow-card-shadow z-30 absolute min-h-4 bg-white py-4 px-3 ${className}`}
+        className={`rounded-lg border border-gray-200 left-0 flex flex-col gap-5 shadow-card-shadow z-30 absolute min-h-4 bg-white py-4 px-3 ${className}`}
       >
         {children(closePopOver)}
       </motion.ul>

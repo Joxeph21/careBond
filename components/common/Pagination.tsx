@@ -3,19 +3,32 @@ import { ICON } from "@/utils/icon-exports";
 import Button from "./Button";
 import { useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import useScrollToTop from "@/hooks/useScrollToTop";
 
 type PaginationProps = {
-  totalPages?: number;
+  totalCount?: number;
+  prevPage?: number | null;
+  nextPage?: number | null;
+  itemsPerPage?: number;
 };
 
-export default function Pagination({ totalPages = 10 }: PaginationProps) {
+export default function Pagination({
+  totalCount = 0,
+  prevPage,
+  nextPage,
+  itemsPerPage = 20,
+}: PaginationProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-
+  const defaultPage = searchParams.get("page");
   const [currentPage, setCurrentPage] = useState<number>(
-    Number(searchParams.get("page")) ?? 1
+    defaultPage ? Number(defaultPage) : 1,
   );
+
+  useScrollToTop(currentPage)
+
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const updatePage = (page: number) => {
     setCurrentPage(page);
@@ -38,11 +51,48 @@ export default function Pagination({ totalPages = 10 }: PaginationProps) {
     if (currentPage < totalPages) updatePage(currentPage + 1);
   };
 
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 7;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+
+      if (currentPage > 3) {
+        pages.push("...");
+      }
+
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        if (!pages.includes(i)) {
+          pages.push(i);
+        }
+      }
+
+      if (currentPage < totalPages - 2) {
+        pages.push("...");
+      }
+
+      // Always show last page
+      if (!pages.includes(totalPages)) {
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+
   return (
     <div className="w-full flex-between">
       <Button
         config={{
-          disabled: currentPage <= 1,
+          disabled: currentPage <= 1 || !prevPage,
           onClick: handlePrevious,
         }}
         variants="outlined"
@@ -54,77 +104,41 @@ export default function Pagination({ totalPages = 10 }: PaginationProps) {
       </Button>
 
       <ul className="flex items-center gap-1">
-        {(() => {
-          if (totalPages <= 6) {
-            return Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (page) => (
-                <li key={page}>
-                  <Button
-                    config={{
-                      className: `${
-                        currentPage === page
-                          ? "text-white! bg-primary!"
-                          : "text-[#667085]"
-                      } size-8! ring-0!`,
-                      onClick: () => {
-                        if (page === currentPage) return;
-                        updatePage(page);
-                      },
-                    }}
-                    variants="outlined"
-                    size="medium"
-                  >
-                    {page}
-                  </Button>
-                </li>
-              )
-            );
-          }
-
-          return [
-            1,
-            2,
-            3,
-            "...",
-            totalPages - 2,
-            totalPages - 1,
-            totalPages,
-          ].map((item, index) =>
-            item === "..." ? (
-              <li
-                key={`ellipsis-${index}`}
-                className="size-8 flex items-center justify-center text-[#667085]"
+        {getPageNumbers().map((item, index) =>
+          item === "..." ? (
+            <li
+              key={`ellipsis-${index}`}
+              className="size-8 flex items-center justify-center text-[#667085]"
+            >
+              ...
+            </li>
+          ) : (
+            <li key={item}>
+              <Button
+                config={{
+                  className: `${
+                    currentPage === item
+                      ? "text-white! bg-primary!"
+                      : "text-[#667085]"
+                  } size-8! ring-0!`,
+                  onClick: () => {
+                    if (item === currentPage) return;
+                    updatePage(item as number);
+                  },
+                }}
+                variants="outlined"
+                size="medium"
               >
-                ...
-              </li>
-            ) : (
-              <li key={item}>
-                <Button
-                  config={{
-                    className: `${
-                      currentPage === item
-                        ? "text-white! bg-primary!"
-                        : "text-[#667085]"
-                    } size-8! ring-0!`,
-                    onClick: () => {
-                      if (item === currentPage) return;
-                      updatePage(item as number);
-                    },
-                  }}
-                  variants="outlined"
-                  size="medium"
-                >
-                  {item}
-                </Button>
-              </li>
-            )
-          );
-        })()}
+                {item}
+              </Button>
+            </li>
+          ),
+        )}
       </ul>
 
       <Button
         config={{
-          disabled: currentPage >= totalPages,
+          disabled: currentPage >= totalPages || !nextPage,
           onClick: handleNext,
         }}
         variants="outlined"

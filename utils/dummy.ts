@@ -1,33 +1,93 @@
-export const institutionData = [
+export const dummy_plans: Plan[] = [
   {
-    id: 1,
+    id: "plan_1",
+    name: "Standard",
+    description: "Standard plan for small institutions",
+    monthly_rate: 200,
+    yearly_rate: 2000,
+    features: ["Feature 1", "Feature 2"],
+    promo_codes: ["PROMO10"],
+    is_active: true,
+    created_at: "2023-01-01T00:00:00Z",
+    updated_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "plan_2",
+    name: "Premium",
+    description: "Premium plan for medium institutions",
+    monthly_rate: 1200,
+    yearly_rate: 12000,
+    features: ["All Standard features", "Premium Feature 1"],
+    promo_codes: ["PREMIUM20"],
+    is_active: true,
+    created_at: "2023-01-01T00:00:00Z",
+    updated_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "plan_3",
+    name: "Enterprise",
+    description: "Enterprise plan for large institutions",
+    monthly_rate: 5000,
+    yearly_rate: 50000,
+    features: ["All Premium features", "Enterprise Feature 1"],
+    promo_codes: ["ENTERPRISE30"],
+    is_active: true,
+    created_at: "2023-01-01T00:00:00Z",
+    updated_at: "2023-01-01T00:00:00Z",
+  },
+];
+
+export const dummy_institutions: Institution[] = [
+  {
+    id: "inst_1",
     name: "St Williams Hospital",
     description: "Rent Act Matters",
-    planStatus: "Active",
-    activeStatus: "Active",
-    contactEmail: "jessica.hanson@example.com",
-    lastBilled: "2025-05-27T09:25:00Z", // ISO format
-    billedTime: "2025-05-27T09:25:00Z",
+    status: "Active",
+    plan_status: "Active",
+    contact_email: "jessica.hanson@example.com",
+    last_billed_date: "2025-05-27T09:25:00Z",
+    location: "United States",
+    address: "123 Medical Way, New York, NY",
+    phone: "+1-202-555-0173",
+    plan: "Premium",
+    plan_details: dummy_plans[1],
+    next_payment_date: "2025-06-27T09:25:00Z",
+    created_at: "2023-01-15T09:00:00Z",
+    updated_at: "2025-05-27T09:25:00Z",
   },
   {
-    id: 2,
-    name: "St Williams Hospital",
+    id: "inst_2",
+    name: "City Health Clinic",
     description: "Labour Matters",
-    planStatus: "Suspended",
-    activeStatus: "Inactive",
-    contactEmail: "willie.jennings@example.com",
-    lastBilled: "2025-05-19T14:42:00Z",
-    billedTime: "2025-05-19T14:42:00Z",
+    status: "Suspended",
+    plan_status: "Inactive",
+    contact_email: "willie.jennings@example.com",
+    last_billed_date: "2025-05-19T14:42:00Z",
+    location: "Nigeria",
+    address: "45 Victoria Island, Lagos",
+    phone: "+234 803 123 4567",
+    plan: "Standard",
+    plan_details: dummy_plans[0],
+    next_payment_date: "2025-06-19T14:42:00Z",
+    created_at: "2023-02-20T10:00:00Z",
+    updated_at: "2025-05-19T14:42:00Z",
   },
   {
-    id: 3,
-    name: "St Williams Hospital",
+    id: "inst_3",
+    name: "General Medical Center",
     description: "Criminal Matters",
-    planStatus: "Suspended",
-    activeStatus: "Reopened",
-    contactEmail: "tanya.hill@example.com",
-    lastBilled: "2025-08-02T10:12:00Z",
-    billedTime: "2025-08-02T10:12:00Z",
+    status: "Active",
+    plan_status: "Active",
+    contact_email: "tanya.hill@example.com",
+    last_billed_date: "2025-08-02T10:12:00Z",
+    location: "United Kingdom",
+    address: "88 Baker Street, London",
+    phone: "+44 20 7946 0958",
+    plan: "Enterprise",
+    plan_details: dummy_plans[2],
+    next_payment_date: "2025-09-02T10:12:00Z",
+    created_at: "2023-03-10T11:30:00Z",
+    updated_at: "2025-08-02T10:12:00Z",
   },
 ];
 
@@ -126,62 +186,118 @@ export const dummy_alerts: Alert[] = [
 export const dummy_users: User[] = [
   {
     avatar: "/user.png",
-    name: "John Doe",
+    full_name: "John Doe",
     id: "#23454GH6J7YT6",
+    display_id: "USR-23454",
     role: "proffessional",
-    associated_user: 5,
-    all_devices: 3,
-    createdAt: "2023-01-15T09:00:00Z",
+    role_display: "Professional",
+    associated_users_count: 5,
+    connected_devices_count: 3,
+    created_at: "2023-01-15T09:00:00Z",
     email: "john.doe@example.com",
+    is_active: true,
+    institution_id: "1",
+    institution_name: "St Williams Hospital",
+    phone: "+234 810 123 4567",
+    last_login: "2025-05-27T09:25:00Z",
+    address: "123 Medical Way, New York, NY",
+    dob: "1980-05-15",
+    gender: "Male",
+    description: "Senior medical professional with 10 years experience.",
+    assigned_professionals: [],
+    assigned_family_members: [],
+    assigned_patients: [],
   },
   {
     avatar: "/user2.png",
-    name: "Jane Smith",
+    full_name: "Jane Smith",
     id: "#89234KL1M7XQ9",
+    display_id: "USR-89234",
     role: "patient",
-    associated_user: 2,
-    all_devices: 1,
-    createdAt: "2024-03-10T14:30:00Z",
+    role_display: "Patient",
+    associated_users_count: 2,
+    connected_devices_count: 1,
+    created_at: "2024-03-10T14:30:00Z",
     email: "jane.smith@example.com",
+    is_active: true,
+    institution_id: "2",
+    institution_name: "City Medical Center",
+    phone: "+234 810 987 6543",
+    last_login: "2025-05-19T14:42:00Z",
+    address: "45 Victoria Island, Lagos",
+    dob: "1992-08-20",
+    gender: "Female",
+    description: "Patient undergoing regular checkups.",
+    assigned_professionals: [],
+    assigned_family_members: [],
+    assigned_patients: [],
   },
   {
     avatar: "/user.png",
-    name: "Michael Brown",
+    full_name: "Michael Brown",
     id: "#12874PO9L3KA1",
+    display_id: "USR-12874",
     role: "family",
-    associated_user: 1,
-    all_devices: 2,
-    createdAt: "2023-11-22T10:15:00Z",
+    role_display: "Family",
+    associated_users_count: 1,
+    connected_devices_count: 2,
+    created_at: "2023-11-22T10:15:00Z",
     email: "m.brown@example.com",
+    is_active: false,
+    institution_id: "1",
+    institution_name: "St Williams Hospital",
+    phone: "+234 703 456 7890",
+    last_login: "2025-01-15T12:00:00Z",
+    address: "88 Baker Street, London",
+    dob: "1975-11-30",
+    gender: "Male",
+    description: "Family member managing account for patient.",
+    assigned_professionals: [],
+    assigned_family_members: [],
+    assigned_patients: [],
   },
   {
     avatar: "/user2.png",
-    name: "Emily Davis",
+    full_name: "Emily Davis",
     id: "#76345UY2T8RE4",
+    display_id: "USR-76345",
     role: "proffessional",
-    associated_user: 8,
-    all_devices: 5,
-    createdAt: "2024-01-05T08:45:00Z",
+    role_display: "Professional",
+    associated_users_count: 8,
+    connected_devices_count: 5,
+    created_at: "2024-01-05T08:45:00Z",
     email: "emily.davis@example.com",
+    is_active: true,
+    institution_id: "3",
+    institution_name: "General Health Trust",
+    phone: "+234 902 345 6789",
+    last_login: "2025-02-05T14:30:00Z",
+    address: "15 Marina Check, Singapore",
+    dob: "1988-03-12",
+    gender: "Female",
+    description: "Specialist in elder care.",
+    assigned_professionals: [],
+    assigned_family_members: [],
+    assigned_patients: [],
   },
 ];
 
 export const dummy_family: Family[] = [
   {
     id: "#98765FD4S3A21",
-    name: "Alice Johnson",
+    full_name: "Alice Johnson",
     email: "alice.j@example.com",
     role: "family",
   },
   {
     id: "#12345GH6J7K89",
-    name: "Robert Smith",
+    full_name: "Robert Smith",
     email: "robert.smith@example.com",
     role: "family",
   },
   {
     id: "#56473UY8I9O0P",
-    name: "Maria Garcia",
+    full_name: "Maria Garcia",
     email: "m.garcia@example.com",
     role: "family",
   },
@@ -213,307 +329,264 @@ export const dummy_devices: Devices[] = [
 export const dummy_events: SecurityEventLog[] = [
   {
     id: "evt_1",
-
-    summary: {
-      date: "2025-12-20T11:48:41Z",
-      action: "New Login Action",
-      country: "Indonesia",
-      ipAddress: "180.242.130.27",
-      service: "Custom rules",
-    },
-
-    matchedService: {
-      service: "Custom rules",
-      actionTaken: "Login Action",
-      ruleset: {
-        name: "default",
-        id: "2e09703b",
-      },
-      rule: {
-        name: "Global Rate Limit – 8 Requests in 10s",
-        id: "3c484c2f",
-      },
-    },
-
-    requestDetails: {
-      rayId: "9b0e919b8d8bfc7",
-      ipAddress: "180.242.130.27",
-      asn: {
-        id: "AS7713",
-        organization: "Telekomunikasi Indonesia",
-      },
-      country: "Indonesia",
-      userAgent: "Mozilla/5.0",
-      httpVersion: "HTTP/1.1",
-      referrer: null,
-      method: "GET",
-      host: "app.flowoptix.me",
-      path: "/wp-content/plugins/wps-hide-login/wps-hide-login.php",
-      queryString: "",
-    },
+    timestamp: "2025-12-20T11:48:41Z",
+    ip_address: "180.242.130.27",
+    country: "Indonesia",
+    asn: 7713,
+    as_organization: "Telekomunikasi Indonesia",
+    method: "GET",
+    path: "/wp-content/plugins/wps-hide-login/wps-hide-login.php",
+    user_agent: "Mozilla/5.0",
+    host: "app.flowoptix.me",
   },
-
   {
     id: "evt_2",
-
-    summary: {
-      date: "2025-12-20T07:04:21Z",
-      action: "Login Action",
-      country: "Malaysia",
-      ipAddress: "142.111.146.31",
-      service: "Custom rules",
-    },
-
-    matchedService: {
-      service: "Custom rules",
-      actionTaken: "Login Action",
-      ruleset: {
-        name: "default",
-        id: "5ab901cc",
-      },
-      rule: {
-        name: "Suspicious Login Protection",
-        id: "1d9a33ff",
-      },
-    },
-
-    requestDetails: {
-      rayId: "1af2399c1a9ef12",
-      ipAddress: "142.111.146.31",
-      asn: {
-        id: "AS4788",
-        organization: "Malaysia Telecom",
-      },
-      country: "Malaysia",
-      userAgent: "Mozilla/5.0",
-      httpVersion: "HTTP/1.1",
-      referrer: "None (direct)",
-      method: "GET",
-      host: "app.flowoptix.me",
-      path: "/login",
-      queryString: "",
-    },
+    timestamp: "2025-12-20T07:04:21Z",
+    ip_address: "142.111.146.31",
+    country: "Malaysia",
+    asn: 4788,
+    as_organization: "Malaysia Telecom",
+    method: "GET",
+    path: "/login",
+    user_agent: "Mozilla/5.0",
+    host: "app.flowoptix.me",
   },
 ];
 
 export const dummy_transactions: Transaction[] = [
   {
     id: "1",
-    index: "0012023",
-    payeePayer: "St Williams Hospital",
-    transactionId: "THNCOI-17891-2023",
+    institution: "St Williams Hospital",
+    institution_details: dummy_institutions[0],
+    transaction_id: "THNCOI-17891-2023",
     plan: "Standard",
-    transactionDate: "2015-05-27",
-    clearDate: "2015-05-27",
-    amount: 200.0,
+    plan_details: dummy_plans[0],
+    amount: "200.0",
+    transaction_date: "2015-05-27",
+    clear_date: "2015-05-27",
     status: "Received",
-    paymentMethod: "PayPal",
+    payment_method: "PayPal",
+    created_at: "2015-05-27T10:00:00Z",
   },
   {
     id: "2",
-    index: "0022023",
-    payeePayer: "St Williams Hospital",
-    transactionId: "THNCOI-13245-2023",
+    institution: "St Williams Hospital",
+    institution_details: dummy_institutions[0],
+    transaction_id: "THNCOI-13245-2023",
     plan: "Premium",
-    transactionDate: "2012-05-19",
-    clearDate: "2012-05-19",
-    amount: 1200.0,
+    plan_details: dummy_plans[1],
+    amount: "1200.0",
+    transaction_date: "2012-05-19",
+    clear_date: "2012-05-19",
     status: "Received",
-    paymentMethod: "Cheque",
+    payment_method: "Cheque",
+    created_at: "2012-05-19T10:00:00Z",
   },
   {
     id: "3",
-    index: "0032023",
-    payeePayer: "St Williams Hospital",
-    transactionId: "THNCOI-13445-2023",
+    institution: "St Williams Hospital",
+    institution_details: dummy_institutions[0],
+    transaction_id: "THNCOI-13445-2023",
     plan: "Enterprise",
-    transactionDate: "2016-03-04",
-    clearDate: "2016-03-04",
-    amount: 16.0,
+    plan_details: dummy_plans[2],
+    amount: "16.0",
+    transaction_date: "2016-03-04",
+    clear_date: "2016-03-04",
     status: "Pending",
-    paymentMethod: "Bank Transfer",
+    payment_method: "Bank Transfer",
+    created_at: "2016-03-04T10:00:00Z",
   },
   {
     id: "4",
-    index: "0042023",
-    payeePayer: "St Williams Hospital",
-    transactionId: "THNCOI-19823-2023",
+    institution: "St Williams Hospital",
+    institution_details: dummy_institutions[0],
+    transaction_id: "THNCOI-19823-2023",
     plan: "Standard",
-    transactionDate: "2016-03-04",
-    clearDate: "2016-03-04",
-    amount: 321.0,
+    plan_details: dummy_plans[0],
+    amount: "321.0",
+    transaction_date: "2016-03-04",
+    clear_date: "2016-03-04",
     status: "Received",
-    paymentMethod: "Card",
+    payment_method: "Card",
+    created_at: "2016-03-04T10:00:00Z",
   },
   {
     id: "5",
-    index: "0052023",
-    payeePayer: "St Williams Hospital",
-    transactionId: "THNCOI-12341-2023",
+    institution: "St Williams Hospital",
+    institution_details: dummy_institutions[0],
+    transaction_id: "THNCOI-12341-2023",
     plan: "Premium",
-    transactionDate: "2013-07-27",
-    clearDate: "2013-07-27",
-    amount: 100.0,
+    plan_details: dummy_plans[1],
+    amount: "100.0",
+    transaction_date: "2013-07-27",
+    clear_date: "2013-07-27",
     status: "Pending",
-    paymentMethod: "Cheque",
+    payment_method: "Cheque",
+    created_at: "2013-07-27T10:00:00Z",
   },
   {
     id: "6",
-    index: "0062023",
-    payeePayer: "St Williams Hospital",
-    transactionId: "THNCOI-12345-2023",
+    institution: "St Williams Hospital",
+    institution_details: dummy_institutions[0],
+    transaction_id: "THNCOI-12345-2023",
     plan: "Standard",
-    transactionDate: "2015-05-27",
-    clearDate: "2015-05-27",
-    amount: 500.0,
+    plan_details: dummy_plans[0],
+    amount: "500.0",
+    transaction_date: "2015-05-27",
+    clear_date: "2015-05-27",
     status: "Received",
-    paymentMethod: "PayPal",
+    payment_method: "PayPal",
+    created_at: "2015-05-27T10:00:00Z",
   },
   {
     id: "7",
-    index: "0072023",
-    payeePayer: "St Williams Hospital",
-    transactionId: "THNCOI-13432-2023",
+    institution: "St Williams Hospital",
+    institution_details: dummy_institutions[0],
+    transaction_id: "THNCOI-13432-2023",
     plan: "Premium",
-    transactionDate: "2019-07-01",
-    clearDate: "2019-07-01",
-    amount: 71.0,
+    plan_details: dummy_plans[1],
+    amount: "71.0",
+    transaction_date: "2019-07-01",
+    clear_date: "2019-07-01",
     status: "Pending",
-    paymentMethod: "Bank Transfer",
+    payment_method: "Bank Transfer",
+    created_at: "2019-07-01T10:00:00Z",
   },
   {
     id: "8",
-    index: "0082023",
-    payeePayer: "St Williams Hospital",
-    transactionId: "THNCOI-11998-2023",
+    institution: "St Williams Hospital",
+    institution_details: dummy_institutions[0],
+    transaction_id: "THNCOI-11998-2023",
     plan: "Enterprise",
-    transactionDate: "2016-09-23",
-    clearDate: "2016-09-23",
-    amount: 1000.0,
+    plan_details: dummy_plans[2],
+    amount: "1000.0",
+    transaction_date: "2016-09-23",
+    clear_date: "2016-09-23",
     status: "Received",
-    paymentMethod: "Card",
+    payment_method: "Card",
+    created_at: "2016-09-23T10:00:00Z",
   },
 ];
 
 export const DUMMY_LOGS = [
   {
-    "time": "Dec 20, 2025 11:48:41 AM",
-    "source_ip": {
-      "value": "180.242.130.27",
-      "url": "https://example.com/ip/180.242.130.27"
+    time: "Dec 20, 2025 11:48:41 AM",
+    source_ip: {
+      value: "180.242.130.27",
+      url: "https://example.com/ip/180.242.130.27",
     },
-    "host": {
-      "value": "app.carebond.me",
-      "url": "https://app.carebond.me"
+    host: {
+      value: "app.carebond.me",
+      url: "https://app.carebond.me",
     },
-    "path": "/wp-content/plugins/wps-hi..."
+    path: "/wp-content/plugins/wps-hi...",
   },
   {
-    "time": "Dec 20, 2025 10:55:30 AM",
-    "source_ip": {
-      "value": "185.247.137.68",
-      "url": "https://example.com/ip/185.247.137.68"
+    time: "Dec 20, 2025 10:55:30 AM",
+    source_ip: {
+      value: "185.247.137.68",
+      url: "https://example.com/ip/185.247.137.68",
     },
-    "host": {
-      "value": "api.carebond.me:2052",
-      "url": "https://api.carebond.me:2052"
+    host: {
+      value: "api.carebond.me:2052",
+      url: "https://api.carebond.me:2052",
     },
-    "path": "/"
+    path: "/",
   },
   {
-    "time": "Dec 20, 2025 7:20:50 AM",
-    "source_ip": {
-      "value": "185.247.137.231",
-      "url": "https://example.com/ip/185.247.137.231"
+    time: "Dec 20, 2025 7:20:50 AM",
+    source_ip: {
+      value: "185.247.137.231",
+      url: "https://example.com/ip/185.247.137.231",
     },
-    "host": {
-      "value": "api.carebond.me:2095",
-      "url": "https://api.carebond.me:2095"
+    host: {
+      value: "api.carebond.me:2095",
+      url: "https://api.carebond.me:2095",
     },
-    "path": "/"
+    path: "/",
   },
   {
-    "time": "Dec 20, 2025 7:04:21 AM",
-    "source_ip": {
-      "value": "142.111.146.31",
-      "url": "https://example.com/ip/142.111.146.31"
+    time: "Dec 20, 2025 7:04:21 AM",
+    source_ip: {
+      value: "142.111.146.31",
+      url: "https://example.com/ip/142.111.146.31",
     },
-    "host": {
-      "value": "carebond.me",
-      "url": "https://carebond.me"
+    host: {
+      value: "carebond.me",
+      url: "https://carebond.me",
     },
-    "path": "/.env"
+    path: "/.env",
   },
   {
-    "time": "Dec 20, 2025 6:58:12 AM",
-    "source_ip": {
-      "value": "184.154.139.58",
-      "url": "https://example.com/ip/184.154.139.58"
+    time: "Dec 20, 2025 6:58:12 AM",
+    source_ip: {
+      value: "184.154.139.58",
+      url: "https://example.com/ip/184.154.139.58",
     },
-    "host": {
-      "value": "www.carebond.me",
-      "url": "https://www.carebond.me"
+    host: {
+      value: "www.carebond.me",
+      url: "https://www.carebond.me",
     },
-    "path": "/this_is_a_404.html"
+    path: "/this_is_a_404.html",
   },
   {
-    "time": "Dec 20, 2025 6:58:11 AM",
-    "source_ip": {
-      "value": "184.154.139.58",
-      "url": "https://example.com/ip/184.154.139.58"
+    time: "Dec 20, 2025 6:58:11 AM",
+    source_ip: {
+      value: "184.154.139.58",
+      url: "https://example.com/ip/184.154.139.58",
     },
-    "host": {
-      "value": "www.carebond.me",
-      "url": "https://www.carebond.me"
+    host: {
+      value: "www.carebond.me",
+      url: "https://www.carebond.me",
     },
-    "path": "/"
+    path: "/",
   },
   {
-    "time": "Dec 20, 2025 6:21:25 AM",
-    "source_ip": {
-      "value": "104.210.140.131",
-      "url": "https://example.com/ip/104.210.140.131"
+    time: "Dec 20, 2025 6:21:25 AM",
+    source_ip: {
+      value: "104.210.140.131",
+      url: "https://example.com/ip/104.210.140.131",
     },
-    "host": {
-      "value": "carebond.me",
-      "url": "https://carebond.me"
+    host: {
+      value: "carebond.me",
+      url: "https://carebond.me",
     },
-    "path": "/robots.txt"
+    path: "/robots.txt",
   },
   {
-    "time": "Dec 20, 2025 5:48:48 AM",
-    "source_ip": {
-      "value": "178.128.49.244",
-      "url": "https://example.com/ip/178.128.49.244"
+    time: "Dec 20, 2025 5:48:48 AM",
+    source_ip: {
+      value: "178.128.49.244",
+      url: "https://example.com/ip/178.128.49.244",
     },
-    "host": {
-      "value": "carebond.me",
-      "url": "https://carebond.me"
+    host: {
+      value: "carebond.me",
+      url: "https://carebond.me",
     },
-    "path": "/site/wp-includes/wlwmanife..."
+    path: "/site/wp-includes/wlwmanife...",
   },
   {
-    "time": "Dec 20, 2025 5:48:48 AM",
-    "source_ip": {
-      "value": "178.128.49.244",
-      "url": "https://example.com/ip/178.128.49.244"
+    time: "Dec 20, 2025 5:48:48 AM",
+    source_ip: {
+      value: "178.128.49.244",
+      url: "https://example.com/ip/178.128.49.244",
     },
-    "host": {
-      "value": "carebond.me",
-      "url": "https://carebond.me"
+    host: {
+      value: "carebond.me",
+      url: "https://carebond.me",
     },
-    "path": "/cms/wp-includes/wlwmanife..."
+    path: "/cms/wp-includes/wlwmanife...",
   },
   {
-    "time": "Dec 20, 2025 5:48:48 AM",
-    "source_ip": {
-      "value": "178.128.49.244",
-      "url": "https://example.com/ip/178.128.49.244"
+    time: "Dec 20, 2025 5:48:48 AM",
+    source_ip: {
+      value: "178.128.49.244",
+      url: "https://example.com/ip/178.128.49.244",
     },
-    "host": {
-      "value": "carebond.me",
-      "url": "https://carebond.me"
+    host: {
+      value: "carebond.me",
+      url: "https://carebond.me",
     },
-    "path": "/test/wp-includes/wlwmanife..."
-  }
-]
+    path: "/test/wp-includes/wlwmanife...",
+  },
+];

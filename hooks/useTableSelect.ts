@@ -1,20 +1,20 @@
 "use client";
-import  { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface Identifiable {
   id: string | number;
-  name?: string
+  name?: string;
 }
 
 type HookProps<T extends Identifiable> = {
   data: T[];
-  searchKeys?: (keyof T)[];
+  searchKeys?: (keyof T)[] | undefined;
 };
 
 export default function useTableSelect<T extends Identifiable>({
   data,
-  searchKeys = ["name"],
+  searchKeys = undefined,
 }: HookProps<T>) {
   const searchParams = useSearchParams();
 
@@ -23,11 +23,12 @@ export default function useTableSelect<T extends Identifiable>({
 
   const handleRowSelect = (id: T["id"]) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
   const filteredData = useMemo(() => {
+    if (searchKeys === undefined) return data;
     const query = searchParams.get("table-q");
 
     if (!query || searchKeys.length === 0) return data;
@@ -40,12 +41,12 @@ export default function useTableSelect<T extends Identifiable>({
         return String(val ?? "")
           .toLowerCase()
           .includes(lowerQuery);
-      })
+      }),
     );
   }, [searchParams, data, searchKeys]);
 
   const isAllSelected =
-    filteredData.length > 0 && selected.length === filteredData.length;
+    filteredData?.length > 0 && selected.length === filteredData?.length;
 
   const handleSelectAll = () => {
     if (isAllSelected) {

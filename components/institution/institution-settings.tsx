@@ -13,11 +13,30 @@ import { ICON } from "@/utils/icon-exports";
 import Table from "@/ui/Table";
 import Button from "../common/Button";
 import { Modal } from "@/ui/Modal";
+import useAdmin from "@/hooks/auth/useAdmin";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  INSTITUTION_SCHEMA,
+  InstitutionFormData,
+} from "@/schema/institution-schema";
+import FormInput from "../common/FormInput";
+import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import InputTextArea from "../common/InputTextArea";
+import useBillingOverview, {
+  useStripeKey,
+} from "@/hooks/institution/useBilling";
+import ActivityIndicator from "../common/ActivityIndicator";
+import StripeProvider from "../stripe/stripe-provider";
 
 const tabs = ["general_settings", "billing", "security"];
 
 export default function InstitutionSettings() {
+  const { data: billingOverview } = useBillingOverview();
   const { tab, setTab, tabRef, tabWidth, containerRef } = useTabs(tabs[0]);
+
+  console.log(billingOverview);
 
   const renderTab = () => {
     switch (tab) {
@@ -53,34 +72,52 @@ export default function InstitutionSettings() {
               </Button>
             </Modal.Trigger>
 
-            <Modal.Window hasClose title="Update Your Password" textStyle="text-[#4B5563]! font-normal!" text="Create a strong password to keep your account secure" name="update-password" className="w-xl! ">
-
+            <Modal.Window
+              hasClose
+              title="Update Your Password"
+              textStyle="text-[#4B5563]! font-normal!"
+              text="Create a strong password to keep your account secure"
+              name="update-password"
+              className="w-xl! "
+            >
               <Card>
                 <Card.Content className="flex flex-col pb-16 gap-4">
-                  <InputText config={{
-                    type: "password",
-                    placeholder: "Enter current password"
-                  }} label="Current Password" />
-                  <InputText config={{
-                    type: "password",
-                    placeholder: "Enter new password"
-                  }} label="New Password" />
-                  <InputText config={{
-                    type: "password",
-                    placeholder: "Confirm new password"
-                  }} label="Confirm your New Password" />
+                  <InputText
+                    config={{
+                      type: "password",
+                      placeholder: "Enter current password",
+                    }}
+                    label="Current Password"
+                  />
+                  <InputText
+                    config={{
+                      type: "password",
+                      placeholder: "Enter new password",
+                    }}
+                    label="New Password"
+                  />
+                  <InputText
+                    config={{
+                      type: "password",
+                      placeholder: "Confirm new password",
+                    }}
+                    label="Confirm your New Password"
+                  />
 
-<div className="mt-4 w-full rounded-2xl mb-12 ring flex flex-col gap-2 ring-[#BFDBFE] bg-[#EFF6FF] p-4">
-<h4 className="text-[#1E40AF] font-medium">Use at least 8 characters with a mix of letters, numbers & symbols:</h4>
-<ul className="list-disc ml-4 text-[#1D4ED8] space-y-1">
-  <li>At least 8 characters</li>
-  <li>Lowercase letter</li>
-  <li>Uppercase letter</li>
-  <li>Number</li>
-</ul>
-</div>
+                  <div className="mt-4 w-full rounded-2xl mb-12 ring flex flex-col gap-2 ring-[#BFDBFE] bg-[#EFF6FF] p-4">
+                    <h4 className="text-[#1E40AF] font-medium">
+                      Use at least 8 characters with a mix of letters, numbers &
+                      symbols:
+                    </h4>
+                    <ul className="list-disc ml-4 text-[#1D4ED8] space-y-1">
+                      <li>At least 8 characters</li>
+                      <li>Lowercase letter</li>
+                      <li>Uppercase letter</li>
+                      <li>Number</li>
+                    </ul>
+                  </div>
 
-<Button size="full">Update Password</Button>
+                  <Button size="full">Update Password</Button>
                 </Card.Content>
               </Card>
             </Modal.Window>
@@ -135,38 +172,142 @@ export default function InstitutionSettings() {
 }
 
 function InstitutionInformation() {
+  const { isLoading, data } = useAdmin();
+
+  console.log(data);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isDirty },
+    reset,
+  } = useForm<InstitutionFormData>({
+    mode: "all",
+    resolver: yupResolver(INSTITUTION_SCHEMA),
+    defaultValues: {
+      name: data?.institution_name ?? "",
+      description: data?.description ?? "",
+      contact_email: data?.email ?? "",
+      phone: data?.phone ?? "",
+      location: "",
+      address: data?.address ?? "",
+      plan: "",
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      reset({
+        name: data?.institution_name ?? "",
+        description: data?.description ?? "",
+        contact_email: data?.email ?? "",
+        phone: data?.phone ?? "",
+        location: "",
+        address: data?.address ?? "",
+        plan: "",
+      });
+    }
+  }, [data, reset]);
+
+  const onSubmit = (formData: InstitutionFormData) => {
+    console.log("Institution Form Data:", formData);
+    toast.success("Institution information updated successfully");
+  };
+
   return (
-    <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
-      <h3 className="text-[#454D5A] text-lg font-bold">
-        Institution Information
-      </h3>
-      <ul className="w-full grid grid-cols-2 gap-8">
-        <li>
-          <InputText
-            label="Institution Name"
-            config={{ placeholder: "Enter institution name" }}
-          />
-        </li>
-        <li>
-          <InputText
-            label="Email Address"
-            config={{ placeholder: "Enter email address", type: "email" }}
-          />
-        </li>
-        <li>
-          <InputText
-            label="Phone Number"
-            config={{ placeholder: "Enter phone number" }}
-          />
-        </li>
-        <li>
-          <InputText
-            label="Address"
-            config={{ placeholder: "Enter physical address" }}
-          />
-        </li>
-      </ul>
-    </section>
+    <FormInput
+      config={{
+        onSubmit: handleSubmit(onSubmit),
+        className: "max-w-full!",
+      }}
+    >
+      <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
+        <h3 className="text-[#454D5A] text-lg font-bold">
+          Institution Information
+        </h3>
+        <ul className="w-full grid grid-cols-2 gap-8">
+          <li className="col-span-2">
+            <InputText
+              label="Institution Name"
+              config={{
+                placeholder: "Enter institution name",
+                ...register("name"),
+              }}
+              error={!!errors.name}
+              errorMessage={errors.name?.message}
+            />
+          </li>
+          <li>
+            <InputText
+              label="Email Address"
+              config={{
+                placeholder: "Enter email address",
+                type: "email",
+                ...register("contact_email"),
+              }}
+              error={!!errors.contact_email}
+              errorMessage={errors.contact_email?.message}
+            />
+          </li>
+          <li>
+            <InputText
+              label="Phone Number"
+              config={{
+                placeholder: "Enter phone number",
+                ...register("phone"),
+              }}
+              error={!!errors.phone}
+              errorMessage={errors.phone?.message}
+            />
+          </li>
+          <li>
+            <InputText
+              label="Location (Country)"
+              config={{
+                placeholder: "Enter country",
+                ...register("location"),
+              }}
+              error={!!errors.location}
+              errorMessage={errors.location?.message}
+            />
+          </li>
+          <li>
+            <InputText
+              label="Address"
+              config={{
+                placeholder: "Enter physical address",
+                ...register("address"),
+              }}
+              error={!!errors.address}
+              errorMessage={errors.address?.message}
+            />
+          </li>
+          <li className="col-span-2">
+            <InputTextArea
+              label="Description"
+              config={{
+                placeholder: "Enter institution description",
+                ...register("description"),
+              }}
+              error={!!errors.description}
+              errorMessage={errors.description?.message}
+            />
+          </li>
+          {/* Plan field is required by schema, adding a hidden or default value if not needed in UI */}
+          <input type="hidden" {...register("plan")} value="Basic" />
+        </ul>
+        <div className="flex justify-end mt-4">
+          <Button
+            config={{
+              type: "submit",
+              disabled: !isValid || !isDirty,
+            }}
+          >
+            Save Changes
+          </Button>
+        </div>
+      </section>
+    </FormInput>
   );
 }
 
@@ -241,20 +382,47 @@ function Billing() {
 }
 
 function PaymentMethods() {
+  const { mutate, isLoading } = useStripeKey();
+  const [x_key, setX_key] = useState("")
   return (
-    <section className="w-full flex flex-col  gap-4">
-      <header className="w-full flex-between">
-        <h3 className="text-[#454D5A] text-lg font-bold">Payment Methods</h3>
-      </header>
-      <div className="w-full gap-5 grid grid-cols-2">
-        <div className="w-full rounded-2xl bg-white p-4 h-48"></div>
-        <div className="w-full rounded-2xl bg-white p-4 h-48"></div>
-        <button className="w-full p-5 col-span-2 flex-center border-dashed rounded-2xl border gap-1">
-          <Icon icon={ICON.PLUS} />
-          Add Card
-        </button>
-      </div>
-    </section>
+    <Modal>
+      <section className="w-full flex flex-col  gap-4">
+        <header className="w-full flex-between">
+          <h3 className="text-[#454D5A] text-lg font-bold">Payment Methods</h3>
+        </header>
+        <div className="w-full gap-5 grid grid-cols-2">
+          <div className="w-full rounded-2xl bg-white p-4 h-48"></div>
+          <div className="w-full rounded-2xl bg-white p-4 h-48"></div>
+          <Modal.Trigger disabled={isLoading} className="col-span-2" name="add-card">
+            <button
+              disabled={isLoading}
+              onClick={() => mutate(undefined, {
+                onSuccess: (data) => {
+                  setX_key(data?.client_secret ?? "")
+                }
+              })}
+              className="w-full disabled:opacity-50 p-5 cursor-pointer col-span-2 flex-center border-dashed rounded-2xl border gap-1"
+            >
+              {isLoading ? (
+                <>
+                  <ActivityIndicator size={20} />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <Icon icon={ICON.PLUS} />
+                  Add Card
+                </>
+              )}
+            </button>
+          </Modal.Trigger>
+        </div>
+      </section>
+
+      <Modal.Window noClose hasClose name="add-card" className="w-2xl!">
+        <StripeProvider  isLoading={isLoading} retry={mutate} x_secret_key={x_key} />
+      </Modal.Window>
+    </Modal>
   );
 }
 

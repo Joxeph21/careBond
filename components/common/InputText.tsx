@@ -17,7 +17,7 @@ const InputText = forwardRef<HTMLInputElement, InputProps>(
   ({ label, config = {}, error, errorMessage, prefix, suffix }, ref) => {
     const [isVisible, setIsVisible] = useState(false);
 
-    const baseClass = `w-full ring py-1.5 p-3 gap-2 rounded-md flex-between ${
+    const baseClass = `w-full focus-within:ring-2 focus-within:ring-primary ring py-1.5  p-3 gap-2 rounded-md flex-between ${
       error ? "ring-danger" : "ring-grey"
     }
     ${config.className ?? ""}  

@@ -8,7 +8,7 @@ export default function QueryProvider({ children }: { children: Readonly<React.R
             queries: {
                 staleTime: 1000 * 60 * 5,
                 gcTime: 1000 * 60 * 60 * 24,
-                refetchOnWindowFocus: true,
+                refetchOnWindowFocus: false,
                 retry: 1,
             }
         }

@@ -1,7 +1,7 @@
 "use client";
 import { CONFIG } from "@/utils/config";
 import axios, { InternalAxiosRequestConfig, type AxiosError } from "axios";
-import { access_token_retrieve,  } from "./utils";
+import { access_token_retrieve } from "./utils";
 import { auth_logout_action } from "@/actions/auth";
 
 export const PUBLIC_ROUTES = [
@@ -14,6 +14,7 @@ export const PUBLIC_ROUTES = [
 
 const HttpClient = axios.create({
   baseURL: CONFIG.NEXT_PUBLIC_BASE_BACKEND_URL,
+  withCredentials: true
 });
 
 export default HttpClient;
@@ -46,11 +47,17 @@ const authErrorInterceptor = async (error: AxiosError) => {
 
       console.log("::> 401 detected. Attempting token refresh...");
 
+      sessionStorage.removeItem(CONFIG.ACCESS_TOKEN_IDENTIFIER);
+
       const newAccessToken = await access_token_retrieve();
+
+
 
       if (newAccessToken) {
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return HttpClient(originalRequest);
+      } else {
+        await auth_logout_action();
       }
     }
 
@@ -63,7 +70,7 @@ const authErrorInterceptor = async (error: AxiosError) => {
 
 HttpClient.interceptors.request.use(authInterceptor);
 
-  HttpClient.interceptors.response.use(
-    (response) => response,
-    (error) => authErrorInterceptor(error)
-  );
+HttpClient.interceptors.response.use(
+  (response) => response,
+  (error) => authErrorInterceptor(error)
+);

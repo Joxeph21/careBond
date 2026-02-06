@@ -35,6 +35,11 @@ const Links = [
     icon: ICON.PLAN,
   },
   {
+    href: "/devices",
+    label: "Devices",
+    icon: ICON.DEVICE,
+  },
+  {
     href: "/logs",
     label: "Logs",
     icon: <ChartIcon />,
@@ -55,9 +60,9 @@ export default function Sidebar() {
   const { logout, isPending } = useLogout();
   const { isSuperAdmin } = useAdmin();
   const links = () => {
-    if (isSuperAdmin) return Links;
+    if (isSuperAdmin) return Links.filter((el) => el.href !== "/devices");
 
-    return Links.filter((el) => !superAdminLinks.includes(el.href));
+    return Links.filter((el) => !superAdminLinks.includes(el.href))
   };
 
   return (

@@ -1,19 +1,20 @@
 "use client";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import Card from "../common/Card";
 import Image from "next/image";
 import Button from "../common/Button";
 import Table from "@/ui/Table";
 import useTableSelect from "@/hooks/useTableSelect";
 import { Icon } from "@iconify/react";
-import { dummy_devices, dummy_family } from "@/utils/dummy";
+import { dummy_devices } from "@/utils/dummy";
 import FamilyList from "./familylist";
 import { Modal } from "@/ui/Modal";
 import AddFamilyForm from "../forms/AddFamilyForm";
 import DeviceList from "./device-list";
 import AssignFamilyForm from "../forms/assign-family";
 
-export default function Family_and_Devices() {
+export default function Family_and_Devices({ data }: { data: User }) {
+  console.log(data);
   return (
     <Modal>
       <Card className="px-6 h-full! py-6.5">
@@ -40,7 +41,12 @@ export default function Family_and_Devices() {
         </header>
 
         <Card.Content className="px-0! flex flex-col gap-5 h-full">
-          <FamilyTable />
+          {data.role !== "family" && (
+            <FamilyTable
+              {...data}
+              assigned_family_members={data.assigned_family_members}
+            />
+          )}
           <DevicesTable />
         </Card.Content>
       </Card>
@@ -48,7 +54,13 @@ export default function Family_and_Devices() {
   );
 }
 
-function FamilyTable() {
+function FamilyTable({
+  assigned_family_members,
+  ...data
+}: User & {
+  assigned_family_members: FamilyMember[] 
+  
+}) {
   const {
     isAllSelected,
     handleSelectAll,
@@ -56,8 +68,9 @@ function FamilyTable() {
     selected,
     handleRowSelect,
   } = useTableSelect({
-    data: dummy_family,
+    data: assigned_family_members,
   });
+
   return (
     <Modal>
       <section className="flex flex-col gap-3.5">
@@ -106,7 +119,7 @@ function FamilyTable() {
             data={filteredData}
             render={(item) => (
               <FamilyList
-              key={item.id}
+                key={item.id}
                 isSelected={selected.includes(item.id)}
                 handleRowSelect={handleRowSelect}
                 {...item}
@@ -116,12 +129,8 @@ function FamilyTable() {
         </Table>
       </section>
 
-      <Modal.Window
-        className="w-lg!"
-        hasClose={false}
-        name="assign-family"
-      >
-        <AssignFamilyForm />
+      <Modal.Window className="w-lg!" hasClose={false} name="assign-family">
+        <AssignFamilyForm patient_id={data.id} />
       </Modal.Window>
       <Modal.Window
         className="w-xl!"
@@ -143,7 +152,7 @@ const DevicesTable = () => {
     selected,
     handleRowSelect,
   } = useTableSelect<Devices>({
-    data: dummy_devices,
+    data: dummy_devices.slice(0, 1),
     searchKeys: ["device_name"],
   });
   return (
@@ -180,7 +189,7 @@ const DevicesTable = () => {
           data={filteredData}
           render={(item) => (
             <DeviceList
-            key={item.id}
+              key={item.id}
               isSelected={selected.includes(item.id)}
               handleRowSelect={handleRowSelect}
               {...item}

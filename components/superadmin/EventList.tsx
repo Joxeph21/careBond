@@ -1,22 +1,45 @@
 "use client";
 import Table from "@/ui/Table";
-import { formatFullDateTime } from "@/utils/helper-functions";
+import {
+  downloadJsonFile,
+  formatFullDateTime,
+  getRootDomain,
+} from "@/utils/helper-functions";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
-import React, { Activity, useState } from "react";
+import { Activity, useState } from "react";
 import Button from "../common/Button";
 
 export default function EventList({
-  summary,
-  matchedService,
-  requestDetails,
+  timestamp,
+  method,
+  country,
+  ip_address,
+  path,
+  user_agent,
+  asn,
+  as_organization,
+  id,
 }: SecurityEventLog) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const details = {
+    "Log ID": id,
+    Timestamp: timestamp,
+    Method: method,
+    Path: path,
+    Host: window.location.hostname,
+    "IP Address": ip_address,
+    Country: country,
+    ASN: asn,
+    "AS Org": as_organization,
+    "User Agent": user_agent,
+  };
+
   return (
     <Table.Row onClick={() => setIsOpen(!isOpen)}>
       <button
         type="button"
-      
         className={`text-[#0051C3] cursor-pointer ease-in transition-all duration-150 ${
           isOpen && "rotate-180"
         }`}
@@ -28,20 +51,24 @@ export default function EventList({
         onClick={() => setIsOpen(!isOpen)}
         className="text-base cursor-pointer text-[#0051C3]"
       >
-        {formatFullDateTime(summary.date)}
+        {formatFullDateTime(timestamp)}
       </p>
-      <p>{summary.action}</p>
-      <p>{summary.country}</p>
-      <p>{summary.ipAddress}</p>
-      <p>{summary.service}</p>
+      <p>{method}</p>
+      <p>{country}</p>
+      <p>{ip_address}</p>
+      <p className="truncate">{getRootDomain(window.location.hostname)}</p>
       <Activity mode={isOpen ? "visible" : "hidden"}>
-        <section className="w-full flex flex-col gap-3 col-span-6 py-3 px-4     ">
+        <section className="w-full flex flex-col gap-3 col-span-6 py-3 px-4">
           <section className="w-full flex flex-col gap-3">
             <div className="w-full flex-between">
-              <h2 className="text-[#191919] text-base">Matched service</h2>
+              <h2 className="text-[#191919] text-base">Request Details</h2>
               <Button
                 config={{
                   className: "ring-0! gap-1! text-primary!",
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    downloadJsonFile(details, `${id}-carebond-event.json`);
+                  },
                 }}
                 size="medium"
                 variants="outlined"
@@ -53,76 +80,18 @@ export default function EventList({
             </div>
 
             <ul className="w-full gap-3 grid grid-cols-2">
-              {renderObjectList(matchedService)}
-            </ul>
-          </section>
-
-          <hr className="w-full border-t-2 border-t-grey" />
-
-          <section className="w-full flex flex-col gap-3">
-            <div className="w-full flex-between">
-              <h2 className="text-[#191919] text-base">Request details</h2>
-            </div>
-            <ul className="w-full gap-3 grid grid-cols-2">
-              {renderObjectList(requestDetails)}
+              {Object.entries(details).map(([label, value]) => (
+                <li key={label} className="w-full flex items-start gap-2">
+                  <h4 className="text-[#797979] w-[20%] capitalize">{label}</h4>
+                  <p className="text-[#191919] w-[80%] wrap-break-word">
+                    {label == "host" ? getRootDomain(value as string) : value}
+                  </p>
+                </li>
+              ))}
             </ul>
           </section>
         </section>
       </Activity>
     </Table.Row>
   );
-}
-function renderObjectList(obj: Record<string, unknown>) {
-  return Object.entries(obj).map(([key, value]) => {
-    // Special handling for ruleset & rule
-    if (
-      (key === "ruleset" || key === "rule") &&
-      typeof value === "object" &&
-      value !== null
-    ) {
-      const v = value as { name?: string; id?: string };
-
-      return (
-        <li key={key} className="w-full flex items-start gap-2">
-          <h4 className="text-[#797979] w-[20%] capitalize">{key}</h4>
-
-          <div className="w-[80%] flex flex-col">
-            <p className="text-[#0051C3]">{v.name}</p>
-            {v.id && (
-              <p className="text-[#797979] text-sm">…{v.id.slice(-8)}</p>
-            )}
-          </div>
-        </li>
-      );
-    }
-
-    // Generic nested objects (asn, http, url, etc.)
-    if (typeof value === "object" && value !== null) {
-      return Object.entries(value as Record<string, unknown>).map(
-        ([nestedKey, nestedValue]) => (
-          <li
-            key={`${key}-${nestedKey}`}
-            className="w-full flex items-start gap-2"
-          >
-            <h4 className="text-[#797979] w-[20%] capitalize">
-              {nestedKey.replace(/([A-Z])/g, " $1")}
-            </h4>
-            <p className="text-[#191919] w-[80%] wrap-break-word">
-              {String(nestedValue)}
-            </p>
-          </li>
-        )
-      );
-    }
-
-    // Primitive values
-    return (
-      <li key={key} className="w-full flex items-start gap-2">
-        <h4 className="text-[#797979] w-[20%] capitalize">
-          {key.replace(/([A-Z])/g, " $1")}
-        </h4>
-        <p className="text-[#191919] w-[80%] wrap-break-word">{String(value)}</p>
-      </li>
-    );
-  });
 }

@@ -1,8 +1,8 @@
 "use client";
 import {
   RefreshActionResponse,
-  
   auth_refresh_token_action,
+  auth_update_access_token,
   auth_update_refresh_token,
 } from "@/actions/auth";
 import { CONFIG } from "@/utils/config";
@@ -53,5 +53,8 @@ export const auth_login = async (
   isPersistent: boolean = false
 ) => {
   sessionStorage.setItem(CONFIG.ACCESS_TOKEN_IDENTIFIER, access);
+  await auth_update_access_token(access);
   await auth_update_refresh_token(refresh, isPersistent);
 };
+
+

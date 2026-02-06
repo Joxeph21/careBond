@@ -1,11 +1,12 @@
 "use client";
 import SubscriptionCard from "@/components/common/SubscriptionCard";
-import { PLANS } from "@/utils/constants";
-import React, { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
+import { useGetPlans } from "@/hooks/superadmin/usePlans";
 
 const tabs = ["yearly", "monthly"];
 
 export default function PlansContent() {
+  const { plans, isLoading } = useGetPlans();
   const [activeTab, setActiveTab] = useState<"yearly" | "monthly">("yearly");
   const activeRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -13,6 +14,8 @@ export default function PlansContent() {
     left: 0,
     width: 0,
   });
+
+  console.log(plans);
 
   useEffect(() => {
     if (!activeRef.current || !containerRef.current) return;
@@ -60,8 +63,19 @@ export default function PlansContent() {
         ))}
       </div>
 
-      <ul className="w-full flex-center min-h-96 gap-6">
-        {PLANS.map((el, i) => <SubscriptionCard activeTab={activeTab} key={i} {...el}/>)}
+      <ul className="w-full grid grid-cols-3 px-4 min-h-96 gap-6">
+        {isLoading
+          ? Array.from({ length: 3 }).map((_, i) => (
+              <SubscriptionCard isLoading key={i} />
+            ))
+          : plans?.map((el, i) => (
+              <SubscriptionCard
+                isLoading={false}
+                activeTab={activeTab}
+                key={i}
+                {...el}
+              />
+            ))}
       </ul>
     </section>
   );

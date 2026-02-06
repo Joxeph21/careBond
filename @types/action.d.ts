@@ -1,43 +1,56 @@
 declare type SecurityEventLog = {
   id: string;
+  ip_address: string;
+  country: string;
+  asn: number;
+  as_organization: string;
+  method: string;
+  path: string;
+  user_agent: string;
+  timestamp: string;
+  host: string;
+};
 
-  /** Table row (collapsed view) */
-  summary: {
-    date: string; // ISO string
-    action: string;
-    country: string;
-    ipAddress: string;
-    service: string;
-  };
+declare type CloudStatsResponse = {
+  total: number;
+  previous: number;
+  current: number;
+  graph: [
+    {
+      timestamp: string;
+      count: number;
+    },
+    {
+      timestamp: string;
+      count: number;
+    },
+    {
+      timestamp: string;
+      count: number;
+    },
+    {
+      timestamp: string;
+      count: number;
+    },
+  ];
+};
 
-  matchedService: {
-    service: string;
-    actionTaken: string;
-    ruleset: {
-      name: string;
-      id: string;
-    };
-    rule: {
-      name: string;
-      id: string;
-    };
-  };
-
-  /** Expanded: Request details */
-  requestDetails: {
-    rayId: string;
-    ipAddress: string;
-    asn: {
-      id: string;
-      organization: string;
-    };
-    country: string;
-    userAgent: string;
-    httpVersion: string;
-    referrer: string | null;
-    method: "GET" | "POST" | "PUT" | "DELETE";
-    host: string;
-    path: string;
-    queryString: string;
-  };
+declare type Admin_Config = {
+  id: number;
+  system_language: string;
+  allow_user_signup: boolean;
+  default_app_language: string;
+  currency: string;
+  allow_system_notifications: boolean;
+  security_notifications_frequency: "Daily" | "Weekly" | "Monthly" | string;
+  allow_profile_pictures: boolean;
+  allow_profile_edit: boolean;
+  send_notifications_to_users: boolean;
+  enable_log_backup: boolean;
+  allow_admins_view_logs: boolean;
+  maintenance_frequency: string;
+  maintenance_time: string;
+  require_2fa: boolean;
+  max_login_attempts: number;
+  updated_at: string;
 };

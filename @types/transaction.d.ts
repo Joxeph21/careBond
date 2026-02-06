@@ -1,4 +1,8 @@
-declare type TransactionStatus = "Received" | "Pending";
+declare type TransactionStatus =
+  | "Received"
+  | "Pending"
+  | "Cancelled"
+  | "Failed";
 
 declare type PaymentMethod = "PayPal" | "Cheque" | "Card" | "Bank Transfer";
 
@@ -6,13 +10,15 @@ declare type PLANS = "Standard" | "Premium" | "Enterprise";
 
 declare interface Transaction {
   id: string;
-  index: string;
-  payeePayer: string;
-  transactionId: string;
-  plan: PLANS;
-  transactionDate: string;
-  clearDate: string;
-  amount: number;
+  institution: string;
+  institution_details: Institution;
+  transaction_id: string;
+  plan: string;
+  plan_details: Plan;
+  amount: string;
+  transaction_date: string;
+  clear_date: string;
+  payment_method: PaymentMethod;
   status: TransactionStatus;
-  paymentMethod: PaymentMethod;
+  created_at: string;
 }

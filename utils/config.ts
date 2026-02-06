@@ -13,6 +13,7 @@ export const CONFIG = {
   NEXT_PUBLIC_BASE_BACKEND_URL: process.env.NEXT_PUBLIC_BASE_BACKEND_URL,
   ACCESS_TOKEN_IDENTIFIER: "carebond.access",
   REFRESH_TOKEN_IDENTIFIER: "carebond.refresh",
+  ADMIN_TYPE_IDENTIFIER: "carebond.adminType",
   REFRESH_TOKEN_LIFETIME: ms("30d") / 1000,
   BASE_COOKIE_OPTIONS: {
     httpOnly: true,

@@ -1,4 +1,5 @@
 "use client";
+import { useAdminLogs } from "@/hooks/superadmin/useS_Dashboard";
 import { useAmChart } from "@/hooks/useAMCharts";
 import {
   KFormatter,
@@ -7,24 +8,25 @@ import {
 } from "@/utils/helper-functions";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
+import { format } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useMemo } from "react";
 
 const stats = [
   {
     title: "Total Uptime",
-    value: 949493,
+    value: 123231,
     type: "duration",
   },
   {
     title: "Total Devices",
-    value: 949493,
+    value: 12,
     type: "decimal",
   },
   {
     title: "Total Plans",
-    value: 3,
+    value: 8,
   },
 ];
 
@@ -35,11 +37,25 @@ const data = [
 ];
 
 export default function SuperAdminTab() {
+  const { logs, isLoading } = useAdminLogs();
   const totalDuration = formatDuration(
-    data.reduce((acc, el) => acc + el.value, 0)
+    data.reduce((acc, el) => acc + el.value, 0),
   );
 
-
+  const groupedLogs = useMemo(() => {
+    if (!logs) return {};
+    return logs.reduce(
+      (acc, log) => {
+        const date = format(new Date(log.timestamp), "MMM dd, yyyy");
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(log);
+        return acc;
+      },
+      {} as Record<string, Log[]>,
+    );
+  }, [logs]);
 
   useAmChart<(typeof data)[0]>("uptime-donut", "donut", data);
   const returnValue = (val: number, type?: "duration" | "decimal" | string) => {
@@ -99,9 +115,65 @@ export default function SuperAdminTab() {
           </button>
         </div>
 
+        <ul className="w-full flex flex-col gap-6 mt-6 pb-20 max-h-[480px] overflow-y-auto scrollbar-hide">
+          {Object.entries(groupedLogs).map(([date, items]) => (
+            <li key={date} className="w-full flex flex-col gap-4">
+              <div className="flex items-center gap-3 w-full">
+                <span className="text-primary font-medium text-sm whitespace-nowrap">
+                  {date}
+                </span>
+                <div className="h-px bg-primary flex-1" />
+              </div>
+
+              <ul className="flex flex-col gap-1 w-full">
+                {items.map((log) => (
+                  <li
+                    key={log.id}
+                    className="flex  items-start gap-3 w-full border-b border-[#E6EBF4] last:border-0 pb-3 last:pb-0"
+                  >
+                    <div className="size-2.5 rounded-full bg-[#B4B4B4] mt-1.5 shrink-0" />
+                    <div className="flex flex-col flex-1 gap-1">
+                      <span className="text-[#646464] text-sm font-medium">
+                        {format(new Date(log.timestamp), "hh:mm a")}
+                      </span>
+                      <div className="flex flex-col">
+                        <h5 className="text-[#1C1C1C] font-semibold text-sm">
+                          {log.user_name}
+                        </h5>
+                        <p className="text-[#646464] text-xs">{log.details ?? "Created an account "}</p>
+                      </div>
+                    </div>
+                    <Icon
+                      icon={ICON.CARET_RIGHT}
+                      className="text-[#B4B4B4] mt-1"
+                      fontSize={18}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+          {isLoading && (
+            <div className="w-full py-10 flex-center">
+              <Icon
+                icon={"line-md:loading-twotone-loop"}
+                className="text-primary"
+                fontSize={30}
+              />
+            </div>
+          )}
+          {!isLoading && Object.keys(groupedLogs).length === 0 && (
+            <div className="w-full py-10 flex-center text-gray text-sm">
+              No logs found
+            </div>
+          )}
+        </ul>
+
+        {/* See More Link with Background */}
+        <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#f1f4f9] via-[#f1f4f9] to-transparent pointer-events-none rounded-b-xl" />
         <Link
           href={"/"}
-          className="text-[#777777] font-medium absolute  bottom-3"
+          className="text-primary font-medium absolute left-4 w-[calc(100%-32px)] text-center bottom-3 py-2 z-10"
         >
           See more
         </Link>
@@ -116,7 +188,6 @@ export default function SuperAdminTab() {
 
         {/* Pie chart on the left label on the right */}
         <div className="flex items-center justify-between px-0  w-full pb-5">
-
           {/* Donut Chart */}
           <div className="relative w-[60%] aspect-square">
             <div id="uptime-donut" className="w-full cursor-pointer h-full" />
@@ -127,9 +198,8 @@ export default function SuperAdminTab() {
               </span>
             </div>
           </div>
-         
 
-         {/* Label */}
+          {/* Label */}
           <ul className="flex flex-col w-[35%] gap-3">
             {data.map((item) => (
               <li key={item.name} className="flex items-center gap-3">
