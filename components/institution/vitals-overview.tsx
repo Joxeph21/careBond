@@ -1,7 +1,10 @@
+import { useGetPatientVitals } from "@/hooks/institution/usePatients";
 import { Icon } from "@iconify/react";
 import React, { useMemo, useState } from "react";
 
-export default function VitalsOverview() {
+export default function VitalsOverview({id}: {id: string}) {
+  const { vitals } = useGetPatientVitals(id);
+  console.log(vitals)
   const VitalStats = useMemo(() => {
     return [
       {
@@ -19,8 +22,15 @@ export default function VitalsOverview() {
         icon: "material-symbols-light:oxygen-saturation-outline",
       },
       {
+        id: "3",
+        title: "Systolic BP",
+        value: 0,
+        unit: "mmHg",
+        icon: "material-symbols-light:blood-pressure-outline-rounded",
+      },
+      {
         id: "4",
-        title: "Blood Pressure",
+        title: "Diastolic BP",
         value: 0,
         unit: "mmHg",
         icon: "material-symbols-light:blood-pressure-outline-rounded",
@@ -33,18 +43,11 @@ export default function VitalsOverview() {
         icon: "ph:fire",
       },
       {
-        id: "5t",
-        title: "Temperature",
+        id: "6",
+        title: "Respiratory Rate",
         value: 0,
-        unit: "°C",
-        icon: "ph:fire",
-      },
-      {
-        id: "5t4",
-        title: "Temperature",
-        value: 0,
-        unit: "°C",
-        icon: "ph:fire",
+        unit: "breaths/min",
+        icon: "material-symbols-light:air-outline",
       },
     ];
   }, []);
@@ -54,7 +57,7 @@ export default function VitalsOverview() {
   return (
     <section className="grid max-w-[95%] mx-auto grid-cols-[65%_35%] w-full gap-5">
       <ul className="w-full flex items-center gap-4 justify-between col-span-2">
-        {VitalStats.map((item) => {
+        {VitalStats.map((item, id) => {
           const isActiveTab = item.id === selected;
 
           return (
@@ -62,7 +65,7 @@ export default function VitalsOverview() {
               role="radio"
               aria-checked={isActiveTab}
               onClick={() => setSelected(item.id)}
-              key={item.id}
+              key={id}
               className={`w-full flex flex-col justify-between p-4 cursor-pointer h-30 rounded-3xl ${isActiveTab ? "bg-primary text-white" : "bg-[#EEF2FF]"}`}
             >
               <header className="w-full flex-between">

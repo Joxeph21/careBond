@@ -7,9 +7,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { CAMERA_SCHEMA, CameraFormData } from "@/schema/camera-schema";
 import Select from "../common/Select";
 import usePaginatorParams from "@/hooks/usePaginatorParams";
-import usePatients from "@/hooks/institution/usePatients";
+import usePatients, { useAddCameras } from "@/hooks/institution/usePatients";
+import Switch from "../common/Switch";
+import useAdmin from "@/hooks/auth/useAdmin";
 
-export default function AddCameraForm() {
+export default function AddCameraForm({ onCloseModal }: onCloseModal) {
+  const { data: institution } = useAdmin();
+  const { add_camera, isPending } = useAddCameras();
   const { query } = usePaginatorParams({ searchKey: "sq" });
   const {
     patients,
@@ -37,12 +41,21 @@ export default function AddCameraForm() {
       onvif_port: "",
       username: "",
       password: "",
-      patient: "",
+      patient_id: "",
+      fall_detection_enabled: false,
     },
   });
 
   const onSubmit = (data: CameraFormData) => {
-    console.log("Camera Form Data:", data);
+    if (!institution?.institution_id) return;
+    add_camera(
+      { institution_id: institution.institution_id, data },
+      {
+        onSuccess: () => {
+          onCloseModal?.();
+        },
+      },
+    );
   };
 
   return (
@@ -66,7 +79,7 @@ export default function AddCameraForm() {
       </div>
       <div className="col-span-2">
         <Controller
-          name="patient"
+          name="patient_id"
           control={control}
           render={({ field }) => (
             <Select
@@ -89,8 +102,8 @@ export default function AddCameraForm() {
               }
               placeholder="Select Patient"
               label="Select Patient"
-              error={!!errors.patient}
-              errorMessage={errors.patient?.message}
+              error={!!errors.patient_id}
+              errorMessage={errors.patient_id?.message}
             />
           )}
         />
@@ -124,7 +137,7 @@ export default function AddCameraForm() {
           ...register("protocol"),
         }}
         label="Protocol"
-          error={!!errors.protocol}
+        error={!!errors.protocol}
         errorMessage={errors.protocol?.message}
       />
       <div className="col-span-2">
@@ -180,12 +193,30 @@ export default function AddCameraForm() {
         error={!!errors.password}
         errorMessage={errors.password?.message}
       />
-
+      <div className="flex-row-reverse flex col-span-2 items-center justify-end gap-2 p-3  rounded-lg">
+        <label
+          htmlFor="fall_detection_enabled"
+          className="cursor-pointer font-medium text-[#353B45]"
+        >
+          Enable Fall Detection
+        </label>
+        <Controller
+          name="fall_detection_enabled"
+          control={control}
+          render={({ field }) => (
+            <Switch
+              checked={field.value}
+              onChange={(val) => field.onChange(val)}
+            />
+          )}
+        />
+      </div>
       <div className="col-span-2 mt-4 flex justify-end">
         <Button
+          isLoading={isPending}
           config={{
             type: "submit",
-            disabled: !isValid || !isDirty,
+            disabled: !isValid || !isDirty || isPending,
           }}
         >
           Add Camera

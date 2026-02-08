@@ -1,0 +1,20 @@
+declare type Camera = {
+  id: string;
+  name: string;
+  location: string;
+  patient: string;
+  patient_name: string;
+  institution: string;
+  brand: string;
+  protocol: string;
+  host: string;
+  rtsp_port: number;
+  onvif_port: number;
+  enabled: boolean;
+  fall_detection_enabled: boolean;
+  privacy_mode: boolean;
+  status: string;
+  status_display: string;
+  last_seen: string | null;
+  created_at: string;
+};

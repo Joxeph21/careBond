@@ -4,6 +4,7 @@ import { ICON } from "@/utils/icon-exports";
 import Link from "next/link";
 import { dummy_alerts } from "@/utils/dummy";
 import { AlertList } from "../common/List";
+import Skeleton from "../common/Skeleton";
 
 export default function AlertBox({ data }: { data: [] }) {
   return (
@@ -29,3 +30,28 @@ export default function AlertBox({ data }: { data: [] }) {
     </Card>
   );
 }
+
+AlertBox.Skeleton = function AlertBoxSkeleton() {
+  return (
+    <Card className="col-span-3 min-h-96">
+      <Card.Header>
+        <div className="flex items-center gap-2">
+          <Skeleton className="size-6.5 rounded-md" />
+          <Skeleton className="h-5 w-32" />
+        </div>
+        <Skeleton className="h-4 w-16" />
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4 px-4 py-2">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex gap-3 w-full">
+            <Skeleton className="size-10 rounded-full shrink-0" />
+            <div className="flex flex-col gap-2 w-full">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+        ))}
+      </Card.Content>
+    </Card>
+  );
+};

@@ -28,7 +28,7 @@ declare type STATUS_TYPE =
   | "suspended"
   | "reopened";
 
-declare type USER_ROLE = "proffessional" | "patient" | "family";
+declare type USER_ROLE = "professional" | "patient" | "family";
 
 declare type User = {
   avatar?: string;
@@ -42,7 +42,7 @@ declare type User = {
   institution_name: string;
   phone: string;
   address: string;
-  dob: string;
+  date_of_birth: string;
   gender: string;
   description: string;
   is_active: boolean;
@@ -60,7 +60,7 @@ declare type Professional = {
   full_name: string;
   email: string;
   phone: string;
-  role: string;
+  role: "professional" | "family" | "patient";
   role_display: string;
   is_active: boolean;
   can_view_stream: boolean;

@@ -7,6 +7,7 @@ import PatientsChart from "@/components/institution/patients-chart";
 import PatientsOverview from "@/components/institution/patients-overview";
 import UsersTable from "@/components/institution/users-table";
 import { useSession } from "@/context/UserContext";
+import { useGetActivities } from "@/hooks/institution/useActivities";
 import { useGetIUsers } from "@/hooks/institution/useInstitutionsUsers";
 import { useGetInstitutionDashboard } from "@/hooks/superadmin/useInstitutions";
 import { ICON } from "@/utils/icon-exports";
@@ -17,11 +18,19 @@ export default function InstitutionDashboard({
   data,
 }: {
   id?: string;
-  data?: Institution;
+  data?: IUser | Institution;
 }) {
   const { user } = useSession();
-const {users, isLoading: isPending, total_count, prevPage, nextPage } = useGetIUsers(id ?? user?.id);
+  const {
+    users,
+    isLoading: isPending,
+    total_count,
+    prevPage,
+    nextPage,
+  } = useGetIUsers(id ?? user?.institution_id);
   const name = user?.full_name?.split(" ")?.[0] ?? "";
+
+ const {} = useGetActivities()
 
   const {
     stats: dashboardStats,
@@ -72,20 +81,37 @@ const {users, isLoading: isPending, total_count, prevPage, nextPage } = useGetIU
           Welcome, {name}
         </h3>
       </div>
-      {/* <InstitutionPlanBanner /> */}
+      {/* <InstitutionPlanBanner  /> */}
       <ul className="w-full flex-wrap flex-between">
-        {stats.map((el) => (
-          <InstitutionCard key={el.type} {...el} />
-        ))}
+        {isLoading
+          ? [1, 2, 3, 4].map((i) => <InstitutionCard.Skeleton key={i} />)
+          : stats.map((el) => <InstitutionCard key={el.type} {...el} />)}
       </ul>
       <section className="grid w-full   grid-cols-6 gap-5.5">
-        <PatientsChart data={charts?.patients_attended} />
-        <PatientsOverview data={charts} />
-        <Activities data={activities ?? []} />
-        <AlertBox data={[]} />
+        {isLoading ? (
+          <>
+            <PatientsChart.Skeleton />
+            <PatientsOverview.Skeleton />
+            <Activities.Skeleton />
+            <AlertBox.Skeleton />
+          </>
+        ) : (
+          <>
+            <PatientsChart data={charts?.patients_attended} />
+            <PatientsOverview data={charts} />
+            <Activities data={activities ?? []} />
+            <AlertBox data={[]} />
+          </>
+        )}
       </section>
 
-      <UsersTable users={users ?? []} isLoading={isPending} total_count={total_count ?? 0} nextPage={nextPage} prevPage={prevPage}/>
+      <UsersTable
+        users={users ?? []}
+        isLoading={isPending}
+        total_count={total_count ?? 0}
+        nextPage={nextPage}
+        prevPage={prevPage}
+      />
     </section>
   );
 }

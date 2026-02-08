@@ -31,7 +31,7 @@ export default function useIUsers(isSuperAdmin: boolean, option?: Paginator) {
   useEffect(() => {
     if (!isPlaceholderData && nextOptions && isSuperAdmin) {
       queryClient.prefetchQuery({
-        queryKey: ["I-Users", nextOptions, isSuperAdmin],
+        queryKey: ["I-Users", nextOptions],
         queryFn: () => getUsers(nextOptions),
         staleTime: 5000,
       });

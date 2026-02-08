@@ -115,9 +115,7 @@ export function useDeleteInstitution() {
   };
 }
 
-export function useEditInstitution(
-  type?: "suspend" | "edit" | "activate",
-) {
+export function useEditInstitution(type?: "suspend" | "edit" | "activate") {
   const queryClient = useQueryClient();
   const {
     mutate: edit,

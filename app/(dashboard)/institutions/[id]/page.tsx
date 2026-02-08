@@ -21,6 +21,8 @@ export default async function Page({ params }: Props) {
     throw error;
   }
 
+ 
+
   return <InstitutionDashboard id={id} data={institution} />;
 }
   

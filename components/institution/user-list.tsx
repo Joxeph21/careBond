@@ -26,7 +26,7 @@ export default function UserList({
   handleRowSelect: (id: string) => void;
   isSelected: boolean;
   setSelectedItem: (item: User) => void;
-} & User) {
+} & IUser) {
   const userObj = {
     id,
     full_name,

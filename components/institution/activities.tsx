@@ -6,6 +6,7 @@ import Select from "../common/Select";
 import Link from "next/link";
 // import { dummy_activities } from "@/utils/dummy";
 import { ActivityList } from "../common/List";
+import Skeleton from "../common/Skeleton";
 
 export default function Activities({
   data,
@@ -49,3 +50,31 @@ export default function Activities({
     </Card>
   );
 }
+
+Activities.Skeleton = function ActivitiesSkeleton() {
+  return (
+    <Card className="col-span-3 flex flex-col min-h-96">
+      <Card.Header>
+        <div className="flex items-center gap-2">
+          <Skeleton className="size-6.5 rounded-md" />
+          <Skeleton className="h-5 w-32" />
+        </div>
+        <Skeleton className="h-8 w-24 rounded-md" />
+      </Card.Header>
+      <Card.Content className="flex flex-col gap-4 px-4 py-2">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex gap-3 w-full">
+            <Skeleton className="size-10 rounded-full shrink-0" />
+            <div className="flex flex-col gap-2 w-full">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+        ))}
+      </Card.Content>
+      <Card.Footer className="flex justify-center pb-3">
+        <Skeleton className="h-4 w-20" />
+      </Card.Footer>
+    </Card>
+  );
+};

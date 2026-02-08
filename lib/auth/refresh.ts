@@ -1,5 +1,10 @@
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { redirect } from "next/navigation";
 
 export async function refreshToken(val: { refresh: { value: string } }) {
+  if (!val.refresh) {
+    redirect("/login");
+  }
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_BACKEND_URL}/auth/token/refresh/`,
@@ -15,8 +20,8 @@ export async function refreshToken(val: { refresh: { value: string } }) {
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => "No error body");
-      console.error("Refresh token API failed:", res.status, errorText);
-      return { access: null, refresh: null };
+      console.warn("Refresh token API failed:", res.status, errorText);
+      redirect("/login");
     }
 
     const data: { access: string | null; refresh: string | null } =
@@ -28,7 +33,7 @@ export async function refreshToken(val: { refresh: { value: string } }) {
     };
   } catch (err) {
     // If it's a redirect error from a nested call (unlikely here but good practice), let it bubble
-   
+    if (isRedirectError(err)) throw err;
 
     console.error("Internal error during token refresh:", err);
     return { access: null, refresh: null };

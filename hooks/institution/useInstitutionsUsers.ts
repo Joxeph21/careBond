@@ -1,20 +1,38 @@
 import {
+  createInstitutionUser,
   deleteInstitutionUser,
   editInstitutionUser,
   getInstitutionUserById,
   getInstitutionUsers,
 } from "@/services/institutions.service";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useEffect, useMemo } from "react";
 
-export function useGetIUsers(id: string) {
-  const { data, isLoading, error, refetch, isRefetching, isFetched } = useQuery(
-    {
-      queryKey: ["institution-users", id],
-      queryFn: () => getInstitutionUsers(id),
-      enabled: !!id,
-    },
-  );
+export function useGetIUsers(
+  id: string | null | undefined,
+  option?: Paginator,
+) {
+  const queryClient = useQueryClient();
+  const {
+    data,
+    isLoading,
+    error,
+    refetch,
+    isRefetching,
+    isFetched,
+    isPlaceholderData,
+  } = useQuery({
+    queryKey: ["institution-users", id, option],
+    queryFn: () => getInstitutionUsers(id!, option),
+    placeholderData: keepPreviousData,
+    staleTime: 5000,
+  });
 
   const total_count = data?.count;
   const users = data?.result;
@@ -22,9 +40,28 @@ export function useGetIUsers(id: string) {
   const nextPage = data?.next;
   const prevPage = data?.previous;
 
+  const nextOptions = useMemo(() => {
+    if (!nextPage || !option?.page) return null;
+
+    return {
+      ...option,
+      page: option?.page + 1,
+    };
+  }, [option, nextPage]);
+
+  useEffect(() => {
+    if (!isPlaceholderData && nextOptions && id) {
+      queryClient.prefetchQuery({
+        queryKey: ["institution-users", id, nextOptions],
+        queryFn: () => getInstitutionUsers(id, nextOptions),
+        staleTime: 5000,
+      });
+    }
+  }, [id, isPlaceholderData, nextOptions, queryClient]);
+
   return {
     total_count,
-    users,
+    users: users?.filter(el => el.role !== "super_admin" && el.role !== "institution_admin") ?? [],
     nextPage,
     prevPage,
     isLoading,
@@ -32,6 +69,7 @@ export function useGetIUsers(id: string) {
     refetch,
     isRefetching,
     isFetched,
+    isPlaceholderData,
   };
 }
 
@@ -83,4 +121,31 @@ export function useGetIUserById(id: string) {
   });
 
   return { user: data, isLoading, error, refetch, isRefetching };
+}
+
+export function useCreateIUser() {
+  const queryClient = useQueryClient();
+  const { mutate: createUser, isPending: isCreating } = useMutation({
+    mutationFn: createInstitutionUser,
+    onSuccess: (_, variables) => {
+      toast.success("User created successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["institution-users"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["I-Users"],
+      });
+           queryClient.invalidateQueries({
+        queryKey: ["I-Users"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["I-Users", variables],
+      });
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Failed to create user");
+    },
+  });
+
+  return { createUser, isCreating };
 }

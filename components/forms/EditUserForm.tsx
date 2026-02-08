@@ -29,14 +29,14 @@ const settings = [
 
 import { useGetIUserById } from "@/hooks/institution/useInstitutionsUsers";
 
-function EditUserForm({ user: initialUser }: { user: User }) {
+function EditUserForm({ user: initialUser, isEdit }:  { user: User, isEdit?: boolean}) {
   const { user: updatedUser } = useGetIUserById(initialUser.id!);
   const user = updatedUser || initialUser;
 
   return (
     <Modal>
-      {user.role === "patient" && <VitalsOverview />}
-      <UserForm data={user} />
+      {user.role === "patient" && <VitalsOverview id={user.id!} />}
+      <UserForm data={user} isEdit={isEdit} />
       <Family_and_Devices data={user} />
 
       <section className="w-full mt-2 border-b-2 h-full border-[#0B122824] flex flex-col gap-3">

@@ -22,7 +22,7 @@ export default function UsersTable({
 }: {
   isLoading: boolean;
   total_count: number;
-  users: User[];
+  users: IUser[];
   prevPage?: number | null;
   nextPage?: number | null;
 }) {
@@ -39,7 +39,7 @@ export default function UsersTable({
     if (tab === "all-users") return users;
 
     if (tab === "proffesionals")
-      return users.filter((el) => el.role === "proffessional");
+      return users.filter((el) => el.role === "professional");
 
     if (tab === "patients") return users.filter((el) => el.role === "patient");
 

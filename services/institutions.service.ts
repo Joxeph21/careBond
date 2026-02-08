@@ -1,4 +1,5 @@
 import HttpClient from "@/adapters/http";
+import { UserFormData } from "@/schema/user-schema";
 import { ThrowError } from "@/utils/config";
 
 export async function getInstitutionById(id: string) {
@@ -12,11 +13,16 @@ export async function getInstitutionById(id: string) {
   }
 }
 
-export async function getInstitutionUsers(id: string) {
+export async function getInstitutionUsers(id: string, option?: Paginator) {
   try {
     const res = await HttpClient.get<
-      BaseBackendResponse<null, Pagination & { results: User[] }>
-    >(`/institution/${id}/users/`);
+      BaseBackendResponse<null, Pagination & { results: IUser[] }>
+    >(`/institution/${id}/users/`, {
+      params: {
+        search: option?.query,
+        page: option?.page,
+      },
+    });
 
     const data = res.data;
 
@@ -70,3 +76,16 @@ export async function deleteInstitutionUser(
     ThrowError(error);
   }
 }
+
+export async function createInstitutionUser(data: UserFormData) {
+  try {
+    const res = await HttpClient.post<BaseBackendResponse<User>>(
+      `/institution/users/`,
+      { ...data },
+    );
+    return res.data;
+  } catch (error) {
+    ThrowError(error);
+  }
+}
+

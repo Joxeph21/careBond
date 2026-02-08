@@ -10,7 +10,8 @@ export const CAMERA_SCHEMA = Yup.object({
   onvif_port: Yup.string().required("ONVIF port is required"),
   username: Yup.string().required("Username is required"),
   password: Yup.string().required("Password is required"),
-  patient: Yup.string().required("Patient is required"),
+  patient_id: Yup.string().required("Patient is required"),
+  fall_detection_enabled: Yup.boolean().default(false),
 });
 
 export type CameraFormData = Yup.InferType<typeof CAMERA_SCHEMA>;

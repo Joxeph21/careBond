@@ -10,28 +10,77 @@ import usePaginatorParams from "@/hooks/usePaginatorParams";
 import useIUsers from "@/hooks/superadmin/useIUsers";
 import useAdmin from "@/hooks/auth/useAdmin";
 import Skeleton from "../common/Skeleton";
-import { useAssignFamilyMember } from "@/hooks/institution/usePatients";
+import { useAssignMember } from "@/hooks/institution/usePatients";
 import useQueueMutation from "@/hooks/useQueueMutation";
 import { useRouter } from "next/navigation";
+import { useGetIUsers } from "@/hooks/institution/useInstitutionsUsers";
 
-export default function AssignFamilyForm({
+function useAUsers({
+  isSuperAdmin,
+  query,
+  isFetched,
+  institutionId,
+}: {
+  isSuperAdmin: boolean;
+  query: string;
+  isFetched: boolean;
+  institutionId?: string | null;
+}) {
+  const superAdminHook = useIUsers(isSuperAdmin && isFetched, { query });
+  const instAdminHook = useGetIUsers(institutionId, { query });
+
+  return {
+    data: isSuperAdmin ? superAdminHook.users : instAdminHook.users,
+    isLoading: isSuperAdmin
+      ? superAdminHook.isLoading
+      : instAdminHook.isLoading,
+  };
+}
+
+export default function AssignUserForm({
   onCloseModal,
   patient_id,
-}: onCloseModal & { patient_id: string }) {
+  type = "family",
+}: onCloseModal & { patient_id: string; type?: IUser["role"] }) {
   const router = useRouter();
-  const { isSuperAdmin } = useAdmin();
-  const { assign_family_async, isPending: isAssigning } =
-    useAssignFamilyMember(patient_id);
+  const {
+    isSuperAdmin,
+    isFetched,
+    data: adminData,
+  } = useAdmin();
+  const { assign_member_async, isPending: isAssigning } = useAssignMember(
+    patient_id,
+    type,
+  );
+
   const { query } = usePaginatorParams({ searchKey: "f" });
-  const { users: data, isLoading } = useIUsers(isSuperAdmin, { query });
+  const { data, isLoading } = useAUsers({
+    isSuperAdmin,
+    query,
+    isFetched,
+    institutionId: adminData?.institution_id,
+  });
   const [selected, setSelected] = useState<string[]>([]);
+
+  const typeLabel = useMemo(() => {
+    switch (type) {
+      case "family":
+        return "Family Member";
+      case "patient":
+        return "Patient";
+      case "professional":
+        return "Professional";
+      default:
+        return "User";
+    }
+  }, [type]);
 
   const { startQueue, isProcessing } = useQueueMutation(
     selected,
-    (id) => assign_family_async({ family_member_id: id }),
+    (id) => assign_member_async({ member_id: id }),
     {
-      loadingMessage: "Assigning Family Members...",
-      successMessage: "All family members assigned successfully",
+      loadingMessage: `Assigning ${typeLabel}s...`,
+      successMessage: `All ${typeLabel}s assigned successfully`,
       onSuccess: () => {
         onCloseModal?.();
         router.refresh();
@@ -47,9 +96,11 @@ export default function AssignFamilyForm({
     }
   };
 
+console.log(type)
+
   const users = useMemo(() => {
-    return data.filter((el) => el.role === "family");
-  }, [data]);
+    return data.filter((el) => el.role === type);
+  }, [data, type]);
 
   return (
     <section className="flex w-full px-5 pb-6 justify-between flex-col min-h-96 h-full">
@@ -60,14 +111,14 @@ export default function AssignFamilyForm({
 
         <div className="space-y-1 my-6">
           <h4 className="text-[#15294B] font-semibold text-lg">
-            Assign Family
+            Assign {typeLabel}
           </h4>
           <p className="text-[#667085]">
-            Select one or multiple Users to assign to this role
+            Select one or multiple {typeLabel}s to assign to this role
           </p>
         </div>
 
-        <Modal.Trigger name="add-family">
+        <Modal.Trigger name={`add-${type}`}>
           <Button
             config={{
               className: "py-2!",
@@ -75,7 +126,7 @@ export default function AssignFamilyForm({
             variants="primary"
             size="full"
           >
-            Create Family Member
+            Create {typeLabel}
           </Button>
         </Modal.Trigger>
       </div>
@@ -170,7 +221,7 @@ export default function AssignFamilyForm({
                 fontSize={40}
                 className="text-grey mb-3"
               />
-              <p className="text-[#667085] font-medium">No members found</p>
+              <p className="text-[#667085] font-medium">No {typeLabel}s found</p>
               <p className="text-[#959595] text-sm px-4">
                 Try adjusting your search to find what you&apos;re looking for.
               </p>

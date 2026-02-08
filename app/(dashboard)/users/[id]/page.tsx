@@ -2,7 +2,6 @@ import DashTitle from "@/components/common/DashTitle";
 import EditUserForm from "@/components/forms/EditUserForm";
 import { Metadata } from "next";
 import Image from "next/image";
-import React from "react";
 import { serverFetch } from "@/adapters/http-server";
 import { capitalize } from "@/utils/helper-functions";
 import { notFound } from "next/navigation";
@@ -46,10 +45,10 @@ async function Page({ params }: PageProps) {
 
   return (
     <section className="section-container gap-3 px-3 pb-4 flex flex-col bg-white">
-      <DashTitle title={capitalize(user?.full_name)} />
+      <DashTitle href="/users" title={capitalize(user?.full_name)} />
       <section className="w-full ring flex flex-col gap-3 ring-grey p-6 pb-3 rounded-2xl">
         <p>Name and Photo</p>
-        <p>Change your name and photo on Atlassian</p>
+        {/* <p>Change your name and photo on Atlassian</p> */}
 
         <div className="flex mt-5 mb-10 gap-4 items-center">
           <figure className="rounded-full relative overflow-hidden bg-primary/30 size-32">
@@ -61,7 +60,7 @@ async function Page({ params }: PageProps) {
             />
           </figure>
           <div className="space-y-3">
-            <p className="font-medium text-[#292A2E]">{user?.full_name}</p>
+            <p className="font-medium capitalize text-[#292A2E]">{user?.full_name}</p>
             <h4 className="text-lg font-semibold text-[#292A2E]">
               {user?.display_id}
             </h4>
@@ -69,9 +68,18 @@ async function Page({ params }: PageProps) {
               {user?.role_display}
             </p>
           </div>
+          <div
+            className={`p-1.5 px-4 rounded-full mb-auto text-xs font-medium ml-auto w-fit ${
+              user.is_active
+                ? "bg-[#ECFDF3] text-[#027A48]"
+                : "bg-[#FFF1F2] text-[#E11D48]"
+            }`}
+          >
+            {user.is_active ? "Active" : "Suspended"}
+          </div>
         </div>
       </section>
-      <EditUserForm user={user} />
+      <EditUserForm user={user} isEdit />
     </section>
   );
 }

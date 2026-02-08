@@ -4,9 +4,9 @@ import SuperadminDashboard from "@/components/superadmin/SuperadminDashboard";
 import { useSession } from "@/context/UserContext";
 
 export default function DashboardClient() {
-const {isSuperAdmin} = useSession()
+const {isSuperAdmin, user} = useSession()
 
   if (isSuperAdmin) return <SuperadminDashboard />;
 
-  return <InstitutionDashboard />;
+  return <InstitutionDashboard data={user} id={user?.institution_id || ""} />;
 }

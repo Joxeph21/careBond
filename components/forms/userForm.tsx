@@ -18,19 +18,26 @@ import {
   Resolver,
 } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { USER_SCHEMA, UserFormData } from "@/schema/user-schema";
-import toast from "react-hot-toast";
+import { get_user_schema, UserFormData } from "@/schema/user-schema";
+import { useCreateIUser } from "@/hooks/institution/useInstitutionsUsers";
+import { useRouter } from "next/navigation";
 
 const ROLES: OptionsType<string>[] = [
-  { label: "Professional", value: "proffessional" },
+  { label: "Professional", value: "professional" },
   { label: "Patient", value: "patient" },
   { label: "Family", value: "family" },
 ];
 
-export default function UserForm({ data }: { data?: User }) {
+export default function UserForm({
+  data,
+  isEdit,
+}: {
+  data?: User;
+  isEdit?: boolean;
+}) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-
-  console.log(data);
+  const { createUser, isCreating } = useCreateIUser();
+  const router = useRouter();
 
   // Extract first and last name from full_name if available
   const names = data?.full_name?.split(" ") || ["", ""];
@@ -43,22 +50,32 @@ export default function UserForm({ data }: { data?: User }) {
     control,
     formState: { errors, isValid, isDirty },
   } = useForm<UserFormData>({
-    resolver: yupResolver(USER_SCHEMA) as Resolver<UserFormData>,
+    mode: "all",
+    resolver: yupResolver(get_user_schema(isEdit)) as Resolver<UserFormData>,
     defaultValues: {
       first_name: firstName ?? "",
       last_name: lastName ?? "",
       email: data?.email ?? "",
       phone: data?.phone ?? "",
       role: data?.role ?? "",
-      dob: data?.dob ?? "",
+      date_of_birth: data?.date_of_birth ?? "",
       address: data?.address ?? "",
       gender: data?.gender ?? "",
       description: data?.description ?? "",
+      password: "",
     },
   });
 
   const onSubmit: SubmitHandler<UserFormData> = (formData) => {
     console.log("Form Data:", formData);
+    if (isEdit) {
+    } else {
+      createUser(formData, {
+        onSuccess: () => {
+          router.replace("/users");
+        },
+      });
+    }
   };
 
   return (
@@ -71,7 +88,7 @@ export default function UserForm({ data }: { data?: User }) {
       }}
     >
       <section className="w-full ring flex flex-col gap-3 ring-grey p-6 rounded-2xl">
-        <h4>{data?.full_name || "User name"}</h4>
+        {data?.full_name && <h4>{data?.full_name}</h4>}
 
         <div className="w-full flex-center p-4">
           <figure className="bg-[#000000B0] rounded-full size-30.5 overflow-hidden relative">
@@ -136,6 +153,17 @@ export default function UserForm({ data }: { data?: User }) {
                   error={!!errors.email}
                   errorMessage={errors.email?.message}
                 />
+             {!isEdit &&   <InputText
+                  config={{
+                    placeholder: "Enter password",
+                    type: "password",
+                    className: "py-2!",
+                    ...register("password"),
+                  }}
+                  label="Create Password"
+                  error={!!errors.password}
+                  errorMessage={errors.password?.message}
+                />}
                 <InputText
                   config={{
                     placeholder: "Enter first name",
@@ -172,24 +200,13 @@ export default function UserForm({ data }: { data?: User }) {
                 <InputText
                   config={{
                     placeholder: "Enter Date of Birth",
-                    type: "text",
+                    type: "date",
                     className: "py-2!",
-                    ...register("dob"),
+                    ...register("date_of_birth"),
                   }}
                   label="Date of Birth"
-                  error={!!errors.dob}
-                  errorMessage={errors.dob?.message}
-                />
-                <InputText
-                  config={{
-                    placeholder: "Enter address",
-                    type: "text",
-                    className: "py-2!",
-                    ...register("address"),
-                  }}
-                  label="Address"
-                  error={!!errors.address}
-                  errorMessage={errors.address?.message}
+                  error={!!errors.date_of_birth}
+                  errorMessage={errors.date_of_birth?.message}
                 />
                 <InputText
                   config={{
@@ -202,6 +219,20 @@ export default function UserForm({ data }: { data?: User }) {
                   error={!!errors.gender}
                   errorMessage={errors.gender?.message}
                 />
+                <div className={`${isEdit ? "col-span-1" : "col-span-2"}`}>
+                  <InputText
+                    config={{
+                      placeholder: "Enter address",
+                      type: "text",
+                      className: "py-2!",
+                      ...register("address"),
+                    }}
+                    label="Address"
+                    error={!!errors.address}
+                    errorMessage={errors.address?.message}
+                  />
+                </div>
+
                 <InputTextArea
                   className="col-span-2"
                   label="Description"
@@ -231,10 +262,7 @@ export default function UserForm({ data }: { data?: User }) {
         <Button
           config={{
             type: "submit",
-            disabled: !isValid || !isDirty,
-            onClick: () => {
-              toast.success("User profile edited successfully");
-            },
+            disabled: !isValid || !isDirty || isCreating,
           }}
         >
           Submit

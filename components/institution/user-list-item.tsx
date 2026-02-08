@@ -1,16 +1,41 @@
+import { useToggleCameraAccess } from "@/hooks/institution/usePatients";
 import Table from "@/ui/Table";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
 import React from "react";
+import Switch from "../common/Switch";
 
-export default function FamilyList({
+export default function UserListItem({
   handleRowSelect,
   isSelected,
   full_name: name,
   id,
   email,
-  role,
-}: { handleRowSelect: (id: string) => void; isSelected: boolean } & FamilyMember) {
+  role_display: role,
+  patients_id,
+  can_view_stream,
+  user_role,
+  ...rest
+}: {
+  can_view_stream?: boolean;
+  user_role?: IUser["role"];
+  role?: IUser["role"];
+} & {
+  handleRowSelect: (id: string) => void;
+  isSelected: boolean;
+  full_name: string;
+  id: string;
+  email: string;
+  role_display: string;
+  patients_id?: string;
+}) {
+  const { toggle_camera_access, isPending } = useToggleCameraAccess(
+    patients_id!,
+    can_view_stream!,
+  );
+
+  console.log(can_view_stream);
+
   return (
     <Table.Row isHighlighted={isSelected}>
       <div>
@@ -42,7 +67,22 @@ export default function FamilyList({
         {id}
       </p>
       <p className="text-[#42526D] capitalize">{role}</p>
-      <div></div>
+      <div>
+        {user_role === "patient" && (
+          <Switch
+            type="optimistic"
+            disabled={isPending}
+            checked={can_view_stream}
+            onChange={() =>
+              toggle_camera_access({
+                can_view_stream: !can_view_stream,
+                user_id: id,
+                role: rest.role! as "family" | "professional",
+              })
+            }
+          />
+        )}
+      </div>
       <button className="cursor-pointer">
         <Icon icon={ICON.MENU} fontSize={21} />
       </button>

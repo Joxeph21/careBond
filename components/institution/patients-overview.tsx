@@ -3,16 +3,13 @@ import Card from "../common/Card";
 import { Icon } from "@iconify/react";
 import { ICON } from "@/utils/icon-exports";
 import Select from "../common/Select";
-
+import Skeleton from "../common/Skeleton";
 
 export default function PatientsOverview({
   data,
 }: {
   data?: Institution_dashboard_response["charts"];
 }) {
-
-
-
   return (
     <Card className="col-span-2">
       <Card.Header>
@@ -69,14 +66,17 @@ export default function PatientsOverview({
               <li className="flex flex-col justify-center items-center gap-2">
                 <p className="text-[#212B36] text-lg font-bold">55</p>
                 <p className="text-primary">First Time</p>
-                               <span className="p-1 rounded-md bg-[#3EB780] text-[10px] text-white">23%</span>
-
+                <span className="p-1 rounded-md bg-[#3EB780] text-[10px] text-white">
+                  23%
+                </span>
               </li>
               <div className="w-px h-full bg-[#E6EAED]"></div>
               <li className="flex flex-col justify-center items-center gap-2">
                 <p className="text-[#212B36] text-lg font-bold">55</p>
                 <p className="text-[#0E9384]">Return</p>
-                <span className="p-1 rounded-md bg-[#3EB780] text-[10px] text-white">23%</span>
+                <span className="p-1 rounded-md bg-[#3EB780] text-[10px] text-white">
+                  23%
+                </span>
               </li>
             </ul>
           </div>
@@ -85,3 +85,36 @@ export default function PatientsOverview({
     </Card>
   );
 }
+
+PatientsOverview.Skeleton = function PatientsOverviewSkeleton() {
+  return (
+    <Card className="col-span-2">
+      <Card.Header>
+        <div className="flex items-center gap-2">
+          <Skeleton className="size-7.5 rounded-md" />
+          <Skeleton className="h-5 w-32" />
+        </div>
+      </Card.Header>
+      <Card.Content className="grid grid-cols-2 gap-5">
+        <Skeleton className="h-30 w-full rounded-md" />
+        <Skeleton className="h-30 w-full rounded-md" />
+      </Card.Content>
+
+      <Card.Footer className="p-3 border-t border-grey">
+        <div className="flex flex-col gap-3 w-full">
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-8 w-24 rounded-md" />
+          </div>
+          <div className="flex justify-between items-center">
+            <Skeleton className="size-20 rounded-full" />
+            <div className="flex gap-4">
+              <Skeleton className="h-12 w-16" />
+              <Skeleton className="h-12 w-16" />
+            </div>
+          </div>
+        </div>
+      </Card.Footer>
+    </Card>
+  );
+};

@@ -13,5 +13,12 @@ declare type Vitals = {
 };
 
 declare type VitalRequest = Pick<
-  "patient" | "heart_rate" | "systolic_bp" | "diastolic_bp" | "temperature" | "oxygen_saturation" | "respiratory_rate"
+  Vitals,
+  | "patient"
+  | "heart_rate"
+  | "systolic_bp"
+  | "diastolic_bp"
+  | "temperature"
+  | "oxygen_saturation"
+  | "respiratory_rate"
 >;

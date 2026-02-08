@@ -107,7 +107,7 @@ export async function EditPlan(id: string, params: EditPlan) {
 export async function getUsers(option?: Paginator) {
   try {
     const res = await HttpClient.get<
-      BaseBackendResponse<null, Pagination & { results: User[] }>
+      BaseBackendResponse<null, Pagination & { results: IUser[] }>
     >("institution/users", {
       params: {
         search: option?.query,
