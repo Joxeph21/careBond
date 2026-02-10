@@ -136,8 +136,10 @@ Modal.Window = function Window({
   hasBack,
   textStyle,
   text,
+  onClose,
   children,
-}: {textStyle?: string} &ModalWindowProps) {
+  titleLeft,
+}: {textStyle?: string, titleLeft?: boolean, onClose?: () => void} &ModalWindowProps) {
   const { openWindows, closeModal, closeAllModals, closePreviousModal } =
     useModal();
 
@@ -145,6 +147,7 @@ Modal.Window = function Window({
     () => {
       if (noClose) return;
       handleClose();
+     
     },
     undefined,
     openWindows.includes(Windowname) &&
@@ -154,6 +157,7 @@ Modal.Window = function Window({
   const isOpen = openWindows.includes(Windowname);
 
   const handleClose = () => {
+    onClose?.();
     closeModal(Windowname);
   };
 
@@ -179,7 +183,7 @@ Modal.Window = function Window({
             className={`shadow-card-shadow max-h-[90vh] w-full lg:min-w-96 overflow-y-auto lg:w-fit flex items-center flex-col gap-8 rounded-xl bg-white p-4 relative ${className}`}
           >
             <div className="w-full flex items-start  justify-between">
-              <div className="w-full flex flex-col items-center  gap-1">
+              <div className={`w-full flex flex-col  gap-1 ${titleLeft ? "items-start" : "items-center"}`}>
                 <div className="flex items-center gap-3">
                   {hasBack && (
                     <Icon
@@ -189,7 +193,7 @@ Modal.Window = function Window({
                       onClick={closeFunc}
                     />
                   )}
-                  <h2 className="text-[#060B1E] font-medium text-center text-2xl">
+                  <h2 className={`text-[#060B1E] font-medium  text-2xl ${titleLeft ? "text-left" : "text-center"}`}>
                     {title}
                   </h2>
                 </div>

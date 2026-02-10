@@ -61,6 +61,9 @@ export function useCreateFamilyMember() {
         queryKey: ["I-Users"],
       });
       queryClient.invalidateQueries({
+        queryKey: ["institution-users"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["I-Users", variables],
       });
     },
@@ -98,6 +101,9 @@ export function useAssignMember(id: string, type: IUser["role"] = "family") {
         queryKey: ["I-Users"],
       });
       queryClient.invalidateQueries({
+        queryKey: ["institution-users"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["institution-user", id],
       });
     },
@@ -113,10 +119,14 @@ export function useAddCameras() {
   const queryClient = useQueryClient();
   const { mutate: add_camera, isPending } = useMutation({
     mutationFn: AddPatientCamera,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Camera Added");
       queryClient.invalidateQueries({ queryKey: ["patients"] });
       queryClient.invalidateQueries({ queryKey: ["I-Users"] });
+      queryClient.invalidateQueries({ queryKey: ["institution-users"] });
+      queryClient.invalidateQueries({
+        queryKey: ["institution-user", variables.data.patient_id],
+      });
       queryClient.invalidateQueries({ queryKey: ["Cameras"] });
     },
     onError: (err) => {
@@ -158,6 +168,10 @@ export function useToggleCameraAccess(id: string, status: boolean) {
       toast.success(`Camera Access ${status ? "disabled" : "enabled"}`);
       queryClient.invalidateQueries({ queryKey: ["patients"] });
       queryClient.invalidateQueries({ queryKey: ["I-Users"] });
+      queryClient.invalidateQueries({ queryKey: ["institution-users"] });
+      queryClient.invalidateQueries({
+        queryKey: ["institution-user", id],
+      });
       queryClient.invalidateQueries({ queryKey: ["Cameras"] });
     },
     onError: (err) => {

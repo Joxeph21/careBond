@@ -10,6 +10,7 @@ type PaginationProps = {
   prevPage?: number | null;
   nextPage?: number | null;
   itemsPerPage?: number;
+  className?: string;
 };
 
 export default function Pagination({
@@ -17,6 +18,7 @@ export default function Pagination({
   prevPage,
   nextPage,
   itemsPerPage = 20,
+  className
 }: PaginationProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -89,7 +91,7 @@ export default function Pagination({
   };
 
   return (
-    <div className="w-full flex-between">
+    <div className={`w-full flex-between ${className}`}>
       <Button
         config={{
           disabled: currentPage <= 1 || !prevPage,

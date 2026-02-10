@@ -5,7 +5,7 @@ import FilmIcon from "@/components/icons/FilmIcon";
 import { ICON } from "@/utils/icon-exports";
 import { Modal } from "@/ui/Modal";
 import CreateInstitutionForm from "@/components/forms/CreateInstitutionForm";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import SearchAndFilter from "@/ui/SearchAndFilter";
 import Table from "@/ui/Table";
 import {
@@ -49,9 +49,44 @@ export default function InstitutionContent() {
     handleRowSelect,
     handleSelectAll,
     isAllSelected,
+    clearSelected,
   } = useTableSelect<Institution>({
     data: institutions ?? [],
   });
+
+  const handleBulkDelete = () => {
+    selected.forEach((id) => deleteInst(id as string));
+    clearSelected();
+  };
+
+  const handleBulkSuspend = () => {
+    selected.forEach((id) => {
+      const inst = institutions?.find((item) => item.id === id);
+      if (inst) {
+        edit({
+          id: inst.id,
+          data: {
+            status: inst.status === "Active" ? "Inactive" : "Active",
+          },
+        });
+      }
+    });
+    clearSelected();
+  };
+
+  const { canSuspend, isInactive } = useMemo(() => {
+    const selectedItems = institutions?.filter((item) =>
+      selected.includes(item.id),
+    );
+    if (!selectedItems || selectedItems.length === 0)
+      return { canSuspend: false, isInactive: false };
+    const firstStatus = selectedItems[0].status;
+    const isInactive = firstStatus !== "Active";
+    return {
+      canSuspend: selectedItems.every((item) => item.status === firstStatus),
+      isInactive,
+    };
+  }, [selected, institutions]);
 
   return (
     <Modal>
@@ -75,7 +110,16 @@ export default function InstitutionContent() {
       {isPending || (isSuspending && <ActionLoader />)}
 
       <section className="w-full flex gap-3 flex-col px-6">
-        {selected.length > 0 && <TableOptions ids={selected as string[]} />}
+        {selected.length > 0 && (
+          <TableOptions
+            ids={selected as string[]}
+            onConfirmDelete={handleBulkDelete}
+            onConfirmSuspend={handleBulkSuspend}
+            hasSuspend={canSuspend}
+            suspendLabel={isInactive ? "Activate" : "Suspend"}
+            name="institution"
+          />
+        )}
         <Table columns="40px 1.5fr 1.2fr .7fr .7fr 1.5fr .6fr 0.6fr 20px">
           <Table.Header className="text-center">
             <div className="text-left">

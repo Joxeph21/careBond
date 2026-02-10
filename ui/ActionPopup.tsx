@@ -10,6 +10,7 @@ type PopupProps = {
   title?: string;
   name: string;
   description?: string;
+  isPlural?: boolean;
 };
 
 export default function ActionPopup({
@@ -19,6 +20,7 @@ export default function ActionPopup({
   onCancel,
   onCloseModal,
   onConfirm,
+  isPlural,
   title,
 }: onCloseModal & PopupProps) {
   return (
@@ -71,7 +73,7 @@ export default function ActionPopup({
             )}
 
             <p>
-              {description ?? `Are you sure you want to ${type} this ${name}?`}
+              {description ?? `Are you sure you want to ${type} ${isPlural ? "these" : "this"} ${name}?`}
             </p>
           </div>
 

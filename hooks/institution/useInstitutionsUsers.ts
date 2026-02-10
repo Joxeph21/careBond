@@ -61,7 +61,10 @@ export function useGetIUsers(
 
   return {
     total_count,
-    users: users?.filter(el => el.role !== "super_admin" && el.role !== "institution_admin") ?? [],
+    users:
+      users?.filter(
+        (el) => el.role !== "super_admin" && el.role !== "institution_admin",
+      ) ?? [],
     nextPage,
     prevPage,
     isLoading,
@@ -78,10 +81,16 @@ export function useEditIUser(institution_id: string) {
   const { mutate: editUser, isPending: isEditing } = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<User> }) =>
       editInstitutionUser(institution_id, id, data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("User updated successfully");
       queryClient.invalidateQueries({
-        queryKey: ["institution-users", institution_id],
+        queryKey: ["institution-users"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["I-Users"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["institution-user", variables.id],
       });
     },
     onError: () => {
@@ -96,10 +105,16 @@ export function useDeleteIUser(institution_id: string) {
   const queryClient = useQueryClient();
   const { mutate: deleteUser, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => deleteInstitutionUser(institution_id, id),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       toast.success("User deleted successfully");
       queryClient.invalidateQueries({
-        queryKey: ["institution-users", institution_id],
+        queryKey: ["institution-users"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["I-Users"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["institution-user", id],
       });
     },
     onError: () => {
@@ -133,9 +148,6 @@ export function useCreateIUser() {
         queryKey: ["institution-users"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["I-Users"],
-      });
-           queryClient.invalidateQueries({
         queryKey: ["I-Users"],
       });
       queryClient.invalidateQueries({

@@ -21,16 +21,17 @@ export default function InstitutionDashboard({
   data?: IUser | Institution;
 }) {
   const { user } = useSession();
+  const inst_id = id ?? user?.institution_id ?? ""; // Ensure inst_id is always a string
   const {
     users,
     isLoading: isPending,
     total_count,
     prevPage,
     nextPage,
-  } = useGetIUsers(id ?? user?.institution_id);
+  } = useGetIUsers(inst_id);
   const name = user?.full_name?.split(" ")?.[0] ?? "";
 
- const {} = useGetActivities()
+  const {} = useGetActivities();
 
   const {
     stats: dashboardStats,
@@ -87,7 +88,7 @@ export default function InstitutionDashboard({
           ? [1, 2, 3, 4].map((i) => <InstitutionCard.Skeleton key={i} />)
           : stats.map((el) => <InstitutionCard key={el.type} {...el} />)}
       </ul>
-      <section className="grid w-full   grid-cols-6 gap-5.5">
+      <section className="grid w-full  grid-cols-6 gap-5.5">
         {isLoading ? (
           <>
             <PatientsChart.Skeleton />
@@ -97,10 +98,12 @@ export default function InstitutionDashboard({
           </>
         ) : (
           <>
-            <PatientsChart data={charts?.patients_attended} />
-            <PatientsOverview data={charts} />
-            <Activities data={activities ?? []} />
-            <AlertBox data={[]} />
+            <section className="w-full flex items-center gap-5 col-span-6">
+              <PatientsChart id={id ?? user?.institution_id ?? ""} />
+              <PatientsOverview data={charts} />
+            </section>
+            <Activities />
+            <AlertBox />
           </>
         )}
       </section>
@@ -111,6 +114,7 @@ export default function InstitutionDashboard({
         total_count={total_count ?? 0}
         nextPage={nextPage}
         prevPage={prevPage}
+        institution_id={(id ?? user?.institution_id) || undefined}
       />
     </section>
   );

@@ -21,7 +21,7 @@ type SIZE = "small" | "regular" | "full";
 type VARIANT = "regular" | "themed" | "secondary";
 
 type SelectProps<Z> = {
-  data: OptionsType<Z>[];
+  data?: OptionsType<Z>[];
   placeholder?: string;
   label?: string;
   error?: boolean;
@@ -183,7 +183,7 @@ function SelectUI<Z>(props: PropsWithChildren & SelectProps<Z>) {
           </p>
         )}
         <Popover.Menu>
-          <Popover.Trigger disabled={isLoading || disabled}>
+          <Popover.Trigger disabled={isLoading || disabled || !data}>
             <button
               disabled={disabled}
               className={`${variants[variant]} disabled:cursor-not-allowed py-2 group px-3 rounded-md  w-full flex-between gap-2 ${isLoading ? "cursor-wait" : "cursor-pointer"}`}
@@ -199,7 +199,7 @@ function SelectUI<Z>(props: PropsWithChildren & SelectProps<Z>) {
 
           <Popover.Content className="shadow-xl!">
             {(closepopover) => (
-              <div className="flex flex-col gap-2 min-w-20">
+              <div className="flex flex-col gap-2 min-w-30">
                 {hasSearch && (
                   <div className="relative px-2 py-1">
                     <input

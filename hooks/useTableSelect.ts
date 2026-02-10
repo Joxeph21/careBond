@@ -56,11 +56,14 @@ export default function useTableSelect<T extends Identifiable>({
     }
   };
 
+  const clearSelected = () => setSelected([]);
+
   return {
     selected,
     handleRowSelect,
     filteredData,
     isAllSelected,
     handleSelectAll,
+    clearSelected,
   };
 }

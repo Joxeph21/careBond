@@ -1,49 +1,108 @@
-import { formatDateTime } from "@/utils/helper-functions";
+import { formatRelativeTime } from "@/utils/helper-functions";
 import { Icon } from "@iconify/react";
-import React from "react";
+import { useOptimistic, useTransition } from "react";
+import { Modal } from "@/ui/Modal";
+import useNotifications from "@/hooks/institution/useNotifications";
 
-export function ActivityList({ activity, createdAt, title }: Activity) {
+export function ActivityList({
+  activity,
+  setSelected,
+}: {
+  activity: Activity;
+  setSelected?: (id: string) => void;
+}) {
   return (
-    <li className="w-full ring-1 flex  gap-3 ring-[#0059FF40] rounded-lg py-5 px-2">
-      <span className="rounded-full relative mt-1 size-9 bg-primary flex-center text-white">
-        <Icon icon={"si:info-fill"} fontSize={20} />
-      </span>
-      <div className="flex flex-col gap-3">
-        <div>
-          <h4 className="text-base text-[#474747] font-bold">{title}</h4>
-          <p className="text-[#646B72] text-xs">{formatDateTime(createdAt)}</p>
+    <Modal.Trigger
+      name="activity-details"
+      onClick={() => setSelected?.(activity.id)}
+    >
+      <li className="w-full ring-1 flex cursor-pointer gap-3 ring-[#0059FF40] rounded-lg py-3 px-2 hover:bg-gray-50 transition-colors">
+        <span className="rounded-full relative mt-1 size-9 bg-primary flex-center text-white">
+          <Icon icon={"si:info-fill"} fontSize={20} />
+        </span>
+        <div className="flex w-full flex-col ">
+          <div className="flex items-center justify-between">
+            <h4 className="text-base text-[#474747] font-bold">
+              {activity.action}
+            </h4>
+            <p className="text-[#646B72] text-xs">
+              {formatRelativeTime(activity.timestamp)}
+            </p>
+          </div>
+          <p className="text-[#191919] text-sm">
+            {activity.user_name} : {activity.action}
+          </p>
         </div>
-        <p className="text-[#191919]">{activity}</p>
-      </div>
-    </li>
+      </li>
+    </Modal.Trigger>
   );
 }
 
-export function AlertList({ createdAt, description, title, type }: Alert) {
-  const renderIconStyle = () => {
-    switch (type) {
-      case "warning":
-        return "text-[#E04F16] bg-[#FE9F4359]";
-      case "error":
-        return "text-[#FF0000] bg-[#D9343475]";
-      case "success":
-        return "text-[#08A960] bg-[#34D98775]";
+export function NotificationList({
+  title,
+  message,
+  id,
+  created_at,
+  category,
+  is_read,
+}: UserNotification) {
+  const { read } = useNotifications();
+  const getIcon = () => {
+    switch (category) {
+      case "alerts":
+        return "si:warning-fill";
+      case "messages":
+        return "solar:chat-round-dots-bold";
+      case "reports":
+        return "flowbite:clipboard-solid";
       default:
-        return "text-[#08A960] bg-[#34D98775]";
+        return "solar:bell-bold";
     }
   };
 
+  const [optimisticIsRead, setOptimisticIsRead] = useOptimistic(
+    is_read,
+    (_, newState: boolean) => newState,
+  );
+  const [, startTransition] = useTransition();
+
+  const icon = getIcon();
+
+ const handleNotificationRead = () => {
+  if (optimisticIsRead) return;
+
+  startTransition(() => {
+    setOptimisticIsRead(true);
+  });
+
+  read({ id, data: { is_read: true } });
+};
   return (
-    <li className="w-full ring-1 flex  relative gap-3 ring-[#FFC70040] rounded-lg py-5 px-2">
-      <span className={`rounded-full relative mt-1 size-9  flex-center ${renderIconStyle()}`}>
-        <Icon icon={type === "success" ? "tabler:check" : "si:warning-fill"} fontSize={20} />
+    <li
+      role="button"
+      aria-label="Read notification"
+      onClick={handleNotificationRead}
+      className={`flex gap-3 p-3 rounded-lg my-px transition-colors cursor-pointer border-b border-grey last:border-0 ${optimisticIsRead ? "bg-blue-50/30" : "bg-primary/10"}`}
+    >
+      <span
+        className={`size-9 rounded-full shrink-0 flex-center text-primary bg-primary/10`}
+      >
+        <Icon icon={icon} fontSize={20} />
       </span>
-      <div className="flex flex-col gap-3">
-        <div>
-          <h4 className="text-base text-[#474747] font-bold">{title}</h4>
-          <p className="text-[#646B72] text-xs">{formatDateTime(createdAt)}</p>
+      <div className="flex flex-col gap-1 flex-1">
+        <div className="flex justify-between items-start gap-2">
+          <h5
+            className={`text-sm font-semibold  line-clamp-1 ${optimisticIsRead ? "text-[#1C1C1C]/50" : "text-primary"}`}
+          >
+            {title}
+          </h5>
+          <span className="text-[10px] text-grey-dark whitespace-nowrap mt-0.5">
+            {formatRelativeTime(created_at)}
+          </span>
         </div>
-        <p className="text-[#191919]">{description}</p>
+        <p className="text-xs text-grey-dark line-clamp-2 leading-relaxed">
+          {message}
+        </p>
       </div>
     </li>
   );

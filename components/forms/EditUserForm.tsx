@@ -4,7 +4,6 @@ import Button from "@/components/common/Button";
 import Switch from "@/components/common/Switch";
 import Family_and_Devices from "@/components/institution/family-devices";
 import ActionPopup from "@/ui/ActionPopup";
-import React, { useState } from "react";
 import VitalsOverview from "../institution/vitals-overview";
 import { Modal } from "@/ui/Modal";
 

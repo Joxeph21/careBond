@@ -1,31 +1,23 @@
 "use client";
 import { useState, useMemo } from "react";
 import {
-  RAW_INSTITUTIONS_DATA,
-  RAW_MMR_DATA,
-  RAW_USERS_DATA,
+  RAW_USERS_DATA_24H,
+  RAW_USERS_DATA_7D,
+  RAW_USERS_DATA_30D,
+  RAW_USERS_DATA_1Y,
   RawMetricData,
 } from "@/utils/dummy";
 import Select from "../common/Select";
 import { useSearchParams } from "next/navigation";
 import { useFilter } from "@/hooks/useFilter";
-import { useAmChart } from "@/hooks/useAMCharts";
-import { filterMetricsData } from "@/utils/helper-functions";
-
-const chartData: OptionsType<RawMetricData[]>[] = [
-  {
-    label: "Users",
-    value: RAW_USERS_DATA,
-  },
-  {
-    label: "Institutions",
-    value: RAW_INSTITUTIONS_DATA,
-  },
-  {
-    label: "MMR",
-    value: RAW_MMR_DATA,
-  },
-];
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 const sortOptions = [
   {
@@ -34,79 +26,80 @@ const sortOptions = [
   },
   {
     label: "Today",
-    value: "today",
+    value: "24H",
   },
   {
     label: "This Week",
-    value: "week",
+    value: "7D",
   },
   {
     label: "This Year",
-    value: "year",
-  },
-  {
-    label: "All Time",
-    value: "allTime",
+    value: "1Y",
   },
 ];
 
 export default function OverviewChart() {
   const searchParams = useSearchParams();
-  const sortBy = searchParams.get("sortBy");
-  const [data, setData] = useState(chartData[0]);
-
+  const sortBy = searchParams.get("sortBy") || "";
   const { options, handleFilter } = useFilter({
     filterOptions: sortOptions,
     paramKey: "sortBy",
     hasInitial: false,
   });
 
-  const processedData = useMemo(() => {
-    if (Array.isArray(data.value)) {
-      const filtered = filterMetricsData(data.value, );
-
-
-      return filtered.map((item) => {
-        const dateObj = new Date(item.date);
-
-        return {
-          ...item,
-          name:
-            item.name ??
-            dateObj.toLocaleDateString("en-US", {
-              month: "short",
-              day:
-                sortBy === "year" || sortBy === "allTime"
-                  ? undefined
-                  : "numeric",
-            }),
-        };
-      });
+  const chartData = useMemo(() => {
+    switch (sortBy) {
+      case "24H":
+        return RAW_USERS_DATA_24H;
+      case "7D":
+        return RAW_USERS_DATA_7D;
+      case "":
+        return RAW_USERS_DATA_30D;
+      case "1Y":
+      default:
+        return RAW_USERS_DATA_1Y;
     }
-    return [];
-  }, [data, sortBy]);
-
-  useAmChart("overview-chart", "line", processedData);
-
- 
+  }, [sortBy]);
 
   return (
-    <section className="w-full py-3 px-4 bg-white rounded-lg min-h-96 ring ring-grey">
+    <section className="w-full py-3 px-4 flex flex-col gap-5 bg-white rounded-lg min-h-96 ring ring-grey">
       <div className="flex-between w-full">
-        <Select
-        defaultValue={data.value}
-          data={chartData}
-          onChange={(_, val) => val && setData(val as OptionsType<RawMetricData[]>)}
-          variant="themed"
-        />
+        <Select placeholder="New Users" variant="themed" />
         <Select
           onChange={(_, v) => handleFilter(v?.value ?? "")}
           data={options}
+          defaultValue={sortBy}
           variant="regular"
+          type="optimistic"
         />
       </div>
 
-      <div id="overview-chart" className="w-full aspect-video h-[400px]"></div>
+      <AreaChart
+        data={chartData}
+        style={{
+          width: "100%",
+          height: "100%",
+          marginTop: "auto",
+          aspectRatio: 3.4,
+        }}
+        responsive
+      >
+        <CartesianGrid
+          strokeDasharray="3 0"
+          stroke="#E8E8E8"
+          vertical={false}
+        />
+        <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+        <YAxis width="auto" tick={{ fontSize: 12 }} dataKey={"value"} />
+        <Tooltip />
+        <Area
+          type="monotone"
+          dataKey="value"
+          strokeWidth={2}
+          stroke="#3A6FF8"
+          fill="#3A6FF81A"
+        />
+      </AreaChart>
     </section>
   );
 }

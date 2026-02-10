@@ -98,16 +98,52 @@ export interface RawMetricData {
   name?: string;
 }
 
-export const RAW_USERS_DATA: RawMetricData[] = [
-  { id: "u1", date: "2024-11-05T10:20:00Z", value: 10 },
-  { id: "u2", date: "2024-11-15T14:45:30Z", value: 15 },
-  { id: "u3", date: "2024-12-01T09:00:00Z", value: 25 },
-  { id: "u4", date: "2024-12-10T11:30:00Z", value: 30 },
-  { id: "u5", date: "2024-12-20T18:15:00Z", value: 35 },
-  { id: "u6", date: "2025-01-05T08:20:00Z", value: 45 },
-  { id: "u7", date: "2025-01-15T12:00:00Z", value: 50 },
-  { id: "u8", date: "2025-02-01T10:00:00Z", value: 65 },
+export const RAW_USERS_DATA_24H: RawMetricData[] = [
+  { id: "h1", date: "00-03", value: 10 },
+  { id: "h2", date: "03-06", value: 5 },
+  { id: "h3", date: "06-09", value: 20 },
+  { id: "h4", date: "09-12", value: 45 },
+  { id: "h5", date: "12-15", value: 30 },
+  { id: "h6", date: "15-18", value: 55 },
+  { id: "h7", date: "18-21", value: 40 },
+  { id: "h8", date: "21-00", value: 15 },
 ];
+
+export const RAW_USERS_DATA_7D: RawMetricData[] = [
+  { id: "d1", date: "Sun", value: 150 },
+  { id: "d2", date: "Mon", value: 230 },
+  { id: "d3", date: "Tue", value: 180 },
+  { id: "d4", date: "Wed", value: 290 },
+  { id: "d5", date: "Thu", value: 250 },
+  { id: "d6", date: "Fri", value: 320 },
+  { id: "d7", date: "Sat", value: 210 },
+];
+
+export const RAW_USERS_DATA_30D: RawMetricData[] = [
+  { id: "m1", date: "1-5", value: 500 },
+  { id: "m2", date: "6-10", value: 750 },
+  { id: "m3", date: "11-15", value: 600 },
+  { id: "m4", date: "16-20", value: 900 },
+  { id: "m5", date: "21-25", value: 850 },
+  { id: "m6", date: "26-31", value: 1100 },
+];
+
+export const RAW_USERS_DATA_1Y: RawMetricData[] = [
+  { id: "u1", date: "Jan", value: 400 },
+  { id: "u2", date: "Feb", value: 300 },
+  { id: "u3", date: "Mar", value: 200 },
+  { id: "u4", date: "Apr", value: 278 },
+  { id: "u5", date: "May", value: 189 },
+  { id: "u6", date: "Jun", value: 239 },
+  { id: "u7", date: "Jul", value: 349 },
+  { id: "u8", date: "Aug", value: 400 },
+  { id: "u9", date: "Sep", value: 300 },
+  { id: "u10", date: "Oct", value: 200 },
+  { id: "u11", date: "Nov", value: 278 },
+  { id: "u12", date: "Dec", value: 189 },
+];
+
+export const RAW_USERS_DATA = RAW_USERS_DATA_1Y;
 
 export const RAW_INSTITUTIONS_DATA: RawMetricData[] = [
   { id: "i1", name: "St. Williams", date: "2024-10-12T12:00:00Z", value: 5 },
@@ -127,33 +163,6 @@ export const RAW_MMR_DATA: RawMetricData[] = [
   { id: "t6", date: "2025-01-15T00:00:00Z", value: 2800 },
   { id: "t7", date: "2025-02-01T00:00:00Z", value: 3200 },
   { id: "t8", date: "2025-02-15T00:00:00Z", value: 3500 },
-];
-export const dummy_activities: Activity[] = [
-  {
-    title: "New Patient Admission",
-    activity: "Patient John Doe admitted to Ward A",
-    createdAt: "2024-02-19T09:00:00Z",
-  },
-  {
-    title: "Staff Schedule Update",
-    activity: "Nurse shift schedule updated for March",
-    createdAt: "2024-02-18T14:30:00Z",
-  },
-  {
-    title: "Equipment Maintenance",
-    activity: "MRI Machine scheduled for maintenance",
-    createdAt: "2024-02-18T10:00:00Z",
-  },
-  {
-    title: "Discharge Summary",
-    activity: "Discharge summary completed for Jane Smith",
-    createdAt: "2024-02-17T16:45:00Z",
-  },
-  {
-    title: "Inventory Restock",
-    activity: "Medical supplies restocked in ICU",
-    createdAt: "2024-02-17T11:20:00Z",
-  },
 ];
 
 export const dummy_alerts: Alert[] = [
@@ -180,105 +189,6 @@ export const dummy_alerts: Alert[] = [
     createdAt: "2024-02-20T10:30:00Z",
     description: "Abnormal vitals detected for Patient ID #4021.",
     type: "error",
-  },
-];
-
-export const dummy_users: User[] = [
-  {
-    avatar: "/user.png",
-    full_name: "John Doe",
-    id: "#23454GH6J7YT6",
-    display_id: "USR-23454",
-    role: "proffessional",
-    role_display: "Professional",
-    associated_users_count: 5,
-    connected_devices_count: 3,
-    created_at: "2023-01-15T09:00:00Z",
-    email: "john.doe@example.com",
-    is_active: true,
-    institution_id: "1",
-    institution_name: "St Williams Hospital",
-    phone: "+234 810 123 4567",
-    last_login: "2025-05-27T09:25:00Z",
-    address: "123 Medical Way, New York, NY",
-    dob: "1980-05-15",
-    gender: "Male",
-    description: "Senior medical professional with 10 years experience.",
-    assigned_professionals: [],
-    assigned_family_members: [],
-    assigned_patients: [],
-  },
-  {
-    avatar: "/user2.png",
-    full_name: "Jane Smith",
-    id: "#89234KL1M7XQ9",
-    display_id: "USR-89234",
-    role: "patient",
-    role_display: "Patient",
-    associated_users_count: 2,
-    connected_devices_count: 1,
-    created_at: "2024-03-10T14:30:00Z",
-    email: "jane.smith@example.com",
-    is_active: true,
-    institution_id: "2",
-    institution_name: "City Medical Center",
-    phone: "+234 810 987 6543",
-    last_login: "2025-05-19T14:42:00Z",
-    address: "45 Victoria Island, Lagos",
-    dob: "1992-08-20",
-    gender: "Female",
-    description: "Patient undergoing regular checkups.",
-    assigned_professionals: [],
-    assigned_family_members: [],
-    assigned_patients: [],
-  },
-  {
-    avatar: "/user.png",
-    full_name: "Michael Brown",
-    id: "#12874PO9L3KA1",
-    display_id: "USR-12874",
-    role: "family",
-    role_display: "Family",
-    associated_users_count: 1,
-    connected_devices_count: 2,
-    created_at: "2023-11-22T10:15:00Z",
-    email: "m.brown@example.com",
-    is_active: false,
-    institution_id: "1",
-    institution_name: "St Williams Hospital",
-    phone: "+234 703 456 7890",
-    last_login: "2025-01-15T12:00:00Z",
-    address: "88 Baker Street, London",
-    dob: "1975-11-30",
-    gender: "Male",
-    description: "Family member managing account for patient.",
-    assigned_professionals: [],
-    assigned_family_members: [],
-    assigned_patients: [],
-  },
-  {
-    avatar: "/user2.png",
-    full_name: "Emily Davis",
-    id: "#76345UY2T8RE4",
-    display_id: "USR-76345",
-    role: "proffessional",
-    role_display: "Professional",
-    associated_users_count: 8,
-    connected_devices_count: 5,
-    created_at: "2024-01-05T08:45:00Z",
-    email: "emily.davis@example.com",
-    is_active: true,
-    institution_id: "3",
-    institution_name: "General Health Trust",
-    phone: "+234 902 345 6789",
-    last_login: "2025-02-05T14:30:00Z",
-    address: "15 Marina Check, Singapore",
-    dob: "1988-03-12",
-    gender: "Female",
-    description: "Specialist in elder care.",
-    assigned_professionals: [],
-    assigned_family_members: [],
-    assigned_patients: [],
   },
 ];
 

@@ -4,6 +4,7 @@ import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
 import React from "react";
 import Switch from "../common/Switch";
+import { useRouter } from "next/navigation";
 
 export default function UserListItem({
   handleRowSelect,
@@ -29,6 +30,7 @@ export default function UserListItem({
   role_display: string;
   patients_id?: string;
 }) {
+  const router = useRouter();
   const { toggle_camera_access, isPending } = useToggleCameraAccess(
     patients_id!,
     can_view_stream!,
@@ -74,11 +76,18 @@ export default function UserListItem({
             disabled={isPending}
             checked={can_view_stream}
             onChange={() =>
-              toggle_camera_access({
-                can_view_stream: !can_view_stream,
-                user_id: id,
-                role: rest.role! as "family" | "professional",
-              })
+              toggle_camera_access(
+                {
+                  can_view_stream: !can_view_stream,
+                  user_id: id,
+                  role: rest.role! as "family" | "professional",
+                },
+                {
+                  onSuccess: () => {
+                    router.refresh();
+                  },
+                },
+              )
             }
           />
         )}

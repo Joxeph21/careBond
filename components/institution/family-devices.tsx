@@ -14,7 +14,7 @@ import AssignUserForm from "../forms/assign-user";
 import AddMemberForm from "../forms/add-member-form";
 
 export default function Family_and_Devices({ data }: { data: User }) {
-  console.log(data);
+ 
   return (
     <Card className="px-6 h-full! py-6.5">
       <header className="w-full flex items-center gap-2">

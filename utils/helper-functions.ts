@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns";
+import { format, parseISO, formatDistanceToNow } from "date-fns";
 import { RawMetricData } from "./dummy";
 import { parse } from "psl";
 import toast from "react-hot-toast";
@@ -188,4 +188,45 @@ export function downloadJsonFile<T>(data: T, filename: string = "data.json") {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+export const getDeviceDetails = (userAgent: string) => {
+  if (!userAgent) return "Unknown Device";
+
+  // 1. Check for common API tools first
+  if (userAgent.includes("PostmanRuntime")) {
+    const version = userAgent.split("/")[1] || "";
+    return `Postman ${version}`.trim();
+  }
+
+  // 2. Identify the Operating System
+  let os = "Unknown OS";
+  if (userAgent.includes("Windows NT 10.0")) os = "Windows 10/11";
+  else if (userAgent.includes("Windows NT 6.1")) os = "Windows 7";
+  else if (userAgent.includes("Linux")) os = "Linux";
+  else if (userAgent.includes("iPhone")) os = "iPhone";
+  else if (userAgent.includes("iPad")) os = "iPad";
+  else if (userAgent.includes("Macintosh")) os = "macOS";
+  else if (userAgent.includes("Android")) os = "Android";
+
+  // 3. Identify the Browser
+  let browser = "Unknown Browser";
+  if (userAgent.includes("Firefox")) browser = "Firefox";
+  else if (userAgent.includes("SamsungBrowser")) browser = "Samsung Browser";
+  else if (userAgent.includes("Opera") || userAgent.includes("OPR"))
+    browser = "Opera";
+  else if (userAgent.includes("Edge") || userAgent.includes("Edg"))
+    browser = "Edge";
+  else if (userAgent.includes("Chrome")) browser = "Chrome";
+  else if (userAgent.includes("Safari") && !userAgent.includes("Chrome"))
+    browser = "Safari";
+
+  return `${browser} on ${os}`;
+};
+
+
+export function formatRelativeTime(date: string | Date) {
+  return formatDistanceToNow(new Date(date), {
+    addSuffix: true, // "5 minutes ago"
+  });
 }

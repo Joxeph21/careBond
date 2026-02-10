@@ -2,6 +2,7 @@ import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import { PropsWithChildren } from "react";
 import { type Metadata } from "next";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { UserProvider } from "@/context/UserContext";
 export const metadata: Metadata = {
   title: {
@@ -28,6 +29,7 @@ export default function DashboardLayout({
           {children}
         </section>
       </main>
+      <ReactQueryDevtools initialIsOpen={false} />
     </UserProvider>
   );
 }

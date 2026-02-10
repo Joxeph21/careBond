@@ -19,8 +19,12 @@ import {
 } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { get_user_schema, UserFormData } from "@/schema/user-schema";
-import { useCreateIUser } from "@/hooks/institution/useInstitutionsUsers";
+import {
+  useCreateIUser,
+  useEditIUser,
+} from "@/hooks/institution/useInstitutionsUsers";
 import { useRouter } from "next/navigation";
+import useAdmin from "@/hooks/auth/useAdmin";
 
 const ROLES: OptionsType<string>[] = [
   { label: "Professional", value: "professional" },
@@ -36,7 +40,9 @@ export default function UserForm({
   isEdit?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const { data: adminData } = useAdmin();
   const { createUser, isCreating } = useCreateIUser();
+  const { editUser, isEditing } = useEditIUser(adminData?.institution_id ?? "");
   const router = useRouter();
 
   // Extract first and last name from full_name if available
@@ -69,6 +75,15 @@ export default function UserForm({
   const onSubmit: SubmitHandler<UserFormData> = (formData) => {
     console.log("Form Data:", formData);
     if (isEdit) {
+      if (!data) return;
+      editUser(
+        { id: data.id, data: formData as unknown as Partial<User> },
+        {
+          onSuccess: () => {
+            router.refresh();
+          },
+        },
+      );
     } else {
       createUser(formData, {
         onSuccess: () => {
@@ -153,17 +168,19 @@ export default function UserForm({
                   error={!!errors.email}
                   errorMessage={errors.email?.message}
                 />
-             {!isEdit &&   <InputText
-                  config={{
-                    placeholder: "Enter password",
-                    type: "password",
-                    className: "py-2!",
-                    ...register("password"),
-                  }}
-                  label="Create Password"
-                  error={!!errors.password}
-                  errorMessage={errors.password?.message}
-                />}
+                {!isEdit && (
+                  <InputText
+                    config={{
+                      placeholder: "Enter password",
+                      type: "password",
+                      className: "py-2!",
+                      ...register("password"),
+                    }}
+                    label="Create Password"
+                    error={!!errors.password}
+                    errorMessage={errors.password?.message}
+                  />
+                )}
                 <InputText
                   config={{
                     placeholder: "Enter first name",
@@ -262,8 +279,9 @@ export default function UserForm({
         <Button
           config={{
             type: "submit",
-            disabled: !isValid || !isDirty || isCreating,
+            disabled: !isValid || !isDirty || isCreating || isEditing,
           }}
+          isLoading={isCreating || isEditing}
         >
           Submit
         </Button>
