@@ -1,11 +1,12 @@
-import { Pie, PieChart, Tooltip, } from "recharts";
+import { Pie, PieChart, Tooltip } from "recharts";
 import React, { useMemo } from "react";
 import Card from "../common/Card";
 import { Icon } from "@iconify/react";
 import { ICON } from "@/utils/icon-exports";
 // import Select from "../common/Select";
-import Skeleton from "../common/Skeleton";
 import { useGetCameras } from "@/hooks/institution/usePatients";
+import Skeleton from "../common/Skeleton";
+import { useGetConsultationVolume } from "@/hooks/institution/useAnalytics";
 
 export default function PatientsOverview({
   data,
@@ -31,7 +32,6 @@ export default function PatientsOverview({
   );
 
   if (isLoading) return <PatientsOverview.Skeleton />;
-
 
   return (
     <Card className="max-w-[35%] h-full!">
@@ -101,7 +101,48 @@ export default function PatientsOverview({
                   outerRadius="80%"
                   innerRadius="60%"
                 />
-                <Tooltip />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white p-3 border border-grey rounded-lg shadow-md text-sm">
+                          {payload.map(
+                            (
+                              entry: {
+                                payload: { fill: string };
+                                name: string;
+                                value: number;
+                              },
+                              index: number,
+                            ) => (
+                              <div
+                                key={index}
+                                className="flex items-center w-max gap-2 mb-1"
+                              >
+                                <span
+                                  className="size-2.5 rounded-full"
+                                  style={{
+                                    backgroundColor: entry.payload.fill,
+                                  }}
+                                />
+                                <span className="text-secondary">
+                                 {entry.name === "Inactive"
+                              ? "All Cameras"
+                              : "Active Cameras"}
+                            :
+                                </span>
+                                <span className="font-medium">
+                                  {entry.value}
+                                </span>
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
               </PieChart>
             </div>
             <ul className="flex-center min-w-[60%] h-24 gap-6">

@@ -1,62 +1,140 @@
-import React from "react";
+import React, { useEffect } from "react";
 import FormInput from "../common/FormInput";
 import InputText from "../common/InputText";
 import Button from "../common/Button";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FieldErrors } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { CAMERA_SCHEMA, CameraFormData } from "@/schema/camera-schema";
+import {
+  CAMERA_SCHEMA,
+  CAMERA_EDIT_SCHEMA,
+  CameraFormData,
+  CameraEditFormData,
+} from "@/schema/camera-schema";
 import Select from "../common/Select";
 import usePaginatorParams from "@/hooks/usePaginatorParams";
-import usePatients, { useAddCameras } from "@/hooks/institution/usePatients";
+import {
+  useAddCameras,
+  useUpdateCamera,
+} from "@/hooks/institution/usePatients";
 import Switch from "../common/Switch";
 import useAdmin from "@/hooks/auth/useAdmin";
+import { useGetIUsers } from "@/hooks/institution/useInstitutionsUsers";
+import useIUsers from "@/hooks/superadmin/useIUsers";
 
-export default function AddCameraForm({ onCloseModal }: onCloseModal) {
-  const { data: institution } = useAdmin();
+export default function AddCameraForm({
+  onCloseModal,
+  type = "create",
+  data,
+}: {
+  type?: "create" | "edit";
+  data?: Camera;
+} & onCloseModal) {
+  const { isSuperAdmin, data: adminData } = useAdmin();
   const { add_camera, isPending } = useAddCameras();
+  const { update_camera, isPending: isUpdating } = useUpdateCamera();
+
   const { query } = usePaginatorParams({ searchKey: "sq" });
+
   const {
-    patients,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = usePatients({ query });
+    users: superAdminPatients,
+    isLoading: isSuperLoading,
+    total_count: superAdminCount,
+  } = useIUsers(isSuperAdmin, { query, role: "patient" });
+
+  const {
+    users: institutionPatients,
+    isLoading: isInstLoading,
+    total_count: institutionCount,
+  } = useGetIUsers(!isSuperAdmin ? adminData?.institution_id : null, {
+    query,
+    role: "patient",
+  });
+
+  const patients = isSuperAdmin ? superAdminPatients : institutionPatients;
+  const isLoading = isSuperAdmin ? isSuperLoading : isInstLoading;
+  const count = isSuperAdmin ? superAdminCount : institutionCount;
+
+  const isEdit = type === "edit";
 
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isValid, isDirty },
-  } = useForm<CameraFormData>({
+    reset,
+  } = useForm<CameraFormData | CameraEditFormData>({
     mode: "all",
-    resolver: yupResolver(CAMERA_SCHEMA),
+    resolver: yupResolver(isEdit ? CAMERA_EDIT_SCHEMA : CAMERA_SCHEMA),
     defaultValues: {
-      name: "",
-      location: "",
-      brand: "",
-      protocol: "",
-      host: "",
-      rtsp_port: "",
-      onvif_port: "",
-      username: "",
-      password: "",
-      patient_id: "",
-      fall_detection_enabled: false,
+      name: data?.name ?? "",
+      location: data?.location ?? "",
+      brand: data?.brand ?? "",
+      protocol: data?.protocol ?? "",
+      host: data?.host ?? "",
+      rtsp_port: data?.rtsp_port?.toString() ?? "",
+      onvif_port: data?.onvif_port?.toString() ?? "",
+      ...(isEdit
+        ? {}
+        : {
+            username: "",
+            password: "",
+          }),
+      patient_id: data?.patient ?? "",
+      fall_detection_enabled: data?.fall_detection_enabled ?? false,
     },
   });
 
-  const onSubmit = (data: CameraFormData) => {
-    if (!institution?.institution_id) return;
-    add_camera(
-      { institution_id: institution.institution_id, data },
-      {
-        onSuccess: () => {
-          onCloseModal?.();
+  useEffect(() => {
+    if (data) {
+      reset({
+        name: data.name ?? "",
+        location: data.location ?? "",
+        brand: data.brand ?? "",
+        protocol: data.protocol ?? "",
+        host: data.host ?? "",
+        rtsp_port: data.rtsp_port?.toString() ?? "",
+        onvif_port: data.onvif_port?.toString() ?? "",
+        ...(isEdit
+          ? {}
+          : {
+              username: "",
+              password: "",
+            }),
+        patient_id: data.patient ?? "",
+        fall_detection_enabled: data.fall_detection_enabled ?? false,
+      });
+    }
+  }, [data, reset, isEdit]);
+
+  const onSubmit = (formData: CameraFormData | CameraEditFormData) => {
+    if (!adminData?.institution_id) return;
+
+    if (type === "edit") {
+      if (!data?.id) return;
+      update_camera(
+        { id: data.id, data: formData as CameraEditFormData },
+        {
+          onSuccess: () => {
+            onCloseModal?.();
+          },
         },
-      },
-    );
+      );
+    } else {
+      add_camera(
+        {
+          institution_id: adminData.institution_id,
+          data: formData as CameraFormData,
+        },
+        {
+          onSuccess: () => {
+            onCloseModal?.();
+          },
+        },
+      );
+    }
   };
+
+  const isMutating = isPending || isUpdating;
 
   return (
     <FormInput
@@ -90,9 +168,6 @@ export default function AddCameraForm({ onCloseModal }: onCloseModal) {
               size="full"
               defaultValue={field.value}
               onChange={(val) => field.onChange(val)}
-              hasInfinteQuery={hasNextPage}
-              fetchingNextPage={isFetchingNextPage}
-              onIntersect={() => fetchNextPage()}
               data={
                 patients?.map(({ id, full_name, ...rest }) => ({
                   label: full_name,
@@ -100,6 +175,7 @@ export default function AddCameraForm({ onCloseModal }: onCloseModal) {
                   metadata: rest,
                 })) ?? []
               }
+              totalCount={count}
               placeholder="Select Patient"
               label="Select Patient"
               error={!!errors.patient_id}
@@ -172,28 +248,36 @@ export default function AddCameraForm({ onCloseModal }: onCloseModal) {
         error={!!errors.onvif_port}
         errorMessage={errors.onvif_port?.message}
       />
-      <InputText
-        config={{
-          className: "py-3!",
-          placeholder: "Enter username",
-          ...register("username"),
-        }}
-        label="Username"
-        error={!!errors.username}
-        errorMessage={errors.username?.message}
-      />
-      <InputText
-        config={{
-          className: "py-3!",
-          placeholder: "Enter password",
-          type: "password",
-          ...register("password"),
-        }}
-        label="Password"
-        error={!!errors.password}
-        errorMessage={errors.password?.message}
-      />
-      <div className="flex-row-reverse flex col-span-2 items-center justify-end gap-2 p-3  rounded-lg">
+      {!isEdit && (
+        <InputText
+          config={{
+            className: "py-3!",
+            placeholder: "Enter username",
+            ...register("username"),
+          }}
+          label="Username"
+          error={!!(errors as FieldErrors<CameraFormData>).username}
+          errorMessage={
+            (errors as FieldErrors<CameraFormData>).username?.message
+          }
+        />
+      )}
+      {!isEdit && (
+        <InputText
+          config={{
+            className: "py-3!",
+            placeholder: "Enter password",
+            type: "password",
+            ...register("password"),
+          }}
+          label="Password"
+          error={!!(errors as FieldErrors<CameraFormData>).password}
+          errorMessage={
+            (errors as FieldErrors<CameraFormData>).password?.message
+          }
+        />
+      )}
+      <div className="flex-row-reverse flex col-span-2 items-center justify-end gap-2 p-3 rounded-lg">
         <label
           htmlFor="fall_detection_enabled"
           className="cursor-pointer font-medium text-[#353B45]"
@@ -211,15 +295,21 @@ export default function AddCameraForm({ onCloseModal }: onCloseModal) {
           )}
         />
       </div>
-      <div className="col-span-2 mt-4 flex justify-end">
+      <div className="col-span-2 mt-4 flex justify-end gap-3">
         <Button
-          isLoading={isPending}
+          variants="outlined"
+          config={{ type: "button", onClick: () => reset() }}
+        >
+          Reset
+        </Button>
+        <Button
+          isLoading={isMutating}
           config={{
             type: "submit",
-            disabled: !isValid || !isDirty || isPending,
+            disabled: !isValid || !isDirty || isMutating,
           }}
         >
-          Add Camera
+          {type === "edit" ? "Save Changes" : "Add Camera"}
         </Button>
       </div>
     </FormInput>

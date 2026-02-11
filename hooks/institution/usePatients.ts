@@ -8,6 +8,8 @@ import {
   toggleCameraAccess,
   Camera_access_request,
   getPatientVitals,
+  UpdateCamera,
+  DeleteCamera,
 } from "@/services/patient.service";
 import {
   useInfiniteQuery,
@@ -17,7 +19,7 @@ import {
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-export default function usePatients(params?: Paginator) {
+export default function usePatients(isSuperAdmin: boolean, params?: Paginator) {
   const {
     data,
     isLoading,
@@ -189,10 +191,49 @@ export function useGetPatientVitals(id: string) {
   });
 
   return {
-    vitals: data?.data,
+    vitals: data?.data?.at(0),
     isLoading,
     error,
     refetch,
     isRefetching,
   };
+}
+
+export function useUpdateCamera() {
+  const queryClient = useQueryClient();
+  const { mutate: update_camera, isPending } = useMutation({
+    mutationFn: UpdateCamera,
+    onSuccess: (_, variables) => {
+      toast.success("Camera updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["Cameras"] });
+      queryClient.invalidateQueries({
+        queryKey: ["institution-user", variables.data.patient_id],
+      });
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update camera",
+      );
+    },
+  });
+
+  return { update_camera, isPending };
+}
+
+export function useDeleteCamera() {
+  const queryClient = useQueryClient();
+  const { mutate: delete_camera, isPending } = useMutation({
+    mutationFn: DeleteCamera,
+    onSuccess: () => {
+      toast.success("Camera deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["Cameras"] });
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete camera",
+      );
+    },
+  });
+
+  return { delete_camera, isPending };
 }

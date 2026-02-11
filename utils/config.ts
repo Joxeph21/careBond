@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 
 interface ErrorData {
   message?: string;
+  error?: string;
   errors?: {
     non_field_errors?: string[];
     [key: string]: string[] | undefined;
@@ -28,7 +29,8 @@ export const CONFIG = {
 export function ThrowError(err: unknown) {
   if (err instanceof AxiosError && err.response) {
     const responseData = err.response.data as ErrorData;
-
+    
+    console.log(responseData);
     const specificErrors = responseData?.errors?.non_field_errors;
 
     if (specificErrors && specificErrors.length > 0) {
@@ -37,6 +39,10 @@ export function ThrowError(err: unknown) {
 
     if (responseData?.message) {
       throw new Error(responseData.message);
+    }
+
+    if (responseData?.error) {
+      throw new Error(responseData.error);
     }
 
     if (err.response.status) {
@@ -49,6 +55,6 @@ export function ThrowError(err: unknown) {
   }
 
   throw new Error(
-    "An unexpected application error occurred. Please try again."
+    "An unexpected application error occurred. Please try again.",
   );
 }

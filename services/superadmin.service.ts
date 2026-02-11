@@ -104,7 +104,7 @@ export async function EditPlan(id: string, params: EditPlan) {
   }
 }
 
-export async function getUsers(option?: Paginator) {
+export async function getUsers(option?: Paginator & {role?: USER_ROLE}) {
   try {
     const res = await HttpClient.get<
       BaseBackendResponse<null, Pagination & { results: IUser[] }>
@@ -112,6 +112,7 @@ export async function getUsers(option?: Paginator) {
       params: {
         search: option?.query,
         page: option?.page ?? 1,
+        ...option
       },
     });
 
@@ -219,11 +220,14 @@ export async function getCloudLogs(
   }
 }
 
-export async function getCloudStats() {
+export async function getCloudStats(params?: {range?: string}) {
   try {
     const res =
       await HttpClient.get<BaseBackendResponse<CloudStatsResponse[]>>(
         "/logs/stats/",
+        {params: {
+          time_range: params?.range
+        }}
       );
     return res.data.data?.at(0);
   } catch (err) {
@@ -239,5 +243,16 @@ export async function getAdminConfigurations() {
     return res.data.data?.at(0);
   } catch (err) {
     ThrowError(err);
+  }
+}
+export async function modifyAdminConfig(id: string, data: Partial<Admin_Config>) {
+  try {
+    const res = await HttpClient.patch<BaseBackendResponse<Admin_Config>>(
+      `/admin/configurations/${id}/`,
+      data,
+    );
+    return res.data;
+  } catch (error) {
+    ThrowError(error);
   }
 }

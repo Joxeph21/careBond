@@ -6,25 +6,66 @@ import Switch from "@/components/common/Switch";
 import { ICON } from "@/utils/icon-exports";
 import useTabs from "@/hooks/useTabs";
 import useAdminConfig from "@/hooks/superadmin/useAConfig";
+import useAdmin from "@/hooks/auth/useAdmin";
+import { useModifyConfig } from "@/hooks/useModifyConfig";
+import toast from "react-hot-toast";
 
 const tabs = ["general_settings", "user's_settings", "maintenance", "security"];
 
 export default function SuperAdminSettings() {
   const { tab, setTab, containerRef, tabRef, tabWidth } = useTabs(tabs[0]);
   const { config, isLoading } = useAdminConfig();
+  const { data, isSuperAdmin } = useAdmin();
+  const { mutateAsync: updateConfig, isPending: isUpdatingConfig } =
+    useModifyConfig(data?.id ?? "", isSuperAdmin);
+
+  const handleUpdate = async (
+    update: Partial<Admin_Config | InstitutionConfig>,
+  ) => {
+    try {
+      await updateConfig(update);
+      toast.success("Settings updated successfully");
+    } catch {
+      toast.error("Failed to update settings");
+    }
+  };
 
   const renderTab = () => {
     switch (tab) {
       case "general_settings":
-        return <AllSettings {...config} isLoading={isLoading} />;
+        return (
+          <AllSettings
+            {...config}
+            isLoading={isLoading || isUpdatingConfig}
+            handleUpdate={handleUpdate}
+          />
+        );
       case "user's_settings":
-        return <UserSettings {...config} isLoading={isLoading} />;
+        return (
+          <UserSettings
+            {...config}
+            isLoading={isLoading || isUpdatingConfig}
+            handleUpdate={handleUpdate}
+          />
+        );
       case "maintenance":
-        return <MaintenanceSettings {...config} isLoading={isLoading} />;
+        return (
+          <MaintenanceSettings
+            {...config}
+            isLoading={isLoading || isUpdatingConfig}
+            handleUpdate={handleUpdate}
+          />
+        );
       case "security":
-        return <SecuritySettings {...config} isLoading={isLoading} />;
+        return (
+          <SecuritySettings
+            {...config}
+            isLoading={isLoading || isUpdatingConfig}
+            handleUpdate={handleUpdate}
+          />
+        );
       default:
-        return <AllSettings {...config} />;
+        return <AllSettings {...config} handleUpdate={handleUpdate} />;
     }
   };
 
@@ -73,14 +114,36 @@ export default function SuperAdminSettings() {
 
 function AllSettings({
   isLoading,
+  handleUpdate,
   ...config
-}: { isLoading?: boolean } & Partial<Admin_Config>) {
+}: {
+  isLoading?: boolean;
+  handleUpdate: (
+    data: Partial<Admin_Config | InstitutionConfig>,
+  ) => Promise<void>;
+} & Partial<Admin_Config>) {
   return (
     <>
-      <GeneralSettings isLoading={isLoading} {...config} />
-      <UserSettings isLoading={isLoading} {...config} />
-      <MaintenanceSettings isLoading={isLoading} {...config} />
-      <SecuritySettings isLoading={isLoading} {...config} />
+      <GeneralSettings
+        isLoading={isLoading}
+        handleUpdate={handleUpdate}
+        {...config}
+      />
+      <UserSettings
+        isLoading={isLoading}
+        handleUpdate={handleUpdate}
+        {...config}
+      />
+      <MaintenanceSettings
+        isLoading={isLoading}
+        handleUpdate={handleUpdate}
+        {...config}
+      />
+      <SecuritySettings
+        isLoading={isLoading}
+        handleUpdate={handleUpdate}
+        {...config}
+      />
     </>
   );
 }
@@ -93,7 +156,13 @@ export function GeneralSettings({
   allow_system_notifications,
   security_notifications_frequency,
   isLoading,
-}: Partial<Admin_Config> & { isLoading?: boolean }) {
+  handleUpdate,
+}: Partial<Admin_Config | InstitutionConfig> & {
+  isLoading?: boolean;
+  handleUpdate?: (
+    data: Partial<Admin_Config | InstitutionConfig>,
+  ) => Promise<void>;
+}) {
   return (
     <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">General</h3>
@@ -111,13 +180,7 @@ export function GeneralSettings({
             { label: "English", value: "English" },
           ]}
           label="System Language"
-          onChange={async (newValue) => {
-            console.log("🚀 Starting update to:", newValue);
-
-            await new Promise((resolve) => setTimeout(resolve, 3000));
-
-            console.log("✅ Update complete!");
-          }}
+          onChange={(newValue) => handleUpdate?.({ system_language: newValue })}
         />
         <li className="w-full flex flex-col gap-2">
           <h3 className="pb-2 text-[#353B45] border-b border-primary">
@@ -129,12 +192,9 @@ export function GeneralSettings({
               type="optimistic"
               disabled={isLoading}
               checked={allow_user_signup}
-              onChange={async (newValue) => {
-                console.log("Saving...", newValue);
-                // Create a 3-second delay
-                await new Promise((resolve) => setTimeout(resolve, 3000));
-                console.log("Saved successfully!");
-              }}
+              onChange={(newValue) =>
+                handleUpdate?.({ allow_user_signup: newValue })
+              }
             />
           </div>
         </li>
@@ -150,6 +210,9 @@ export function GeneralSettings({
             { label: "English", value: "English" },
           ]}
           label="Default App Language"
+          onChange={(newValue) =>
+            handleUpdate?.({ default_app_language: newValue })
+          }
         />
         <Select
           isLoading={isLoading}
@@ -160,6 +223,7 @@ export function GeneralSettings({
           themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
           data={[{ label: "USD ($)", value: "USD ($)" }]}
           label="Currency"
+          onChange={(newValue) => handleUpdate?.({ currency: newValue })}
         />
         <li className="w-full flex flex-col gap-2">
           <h3 className="pb-2 text-[#353B45] border-b border-primary">
@@ -167,7 +231,13 @@ export function GeneralSettings({
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow system notifications</p>
-            <Switch checked={allow_system_notifications} disabled={isLoading} />
+            <Switch
+              checked={allow_system_notifications}
+              disabled={isLoading}
+              onChange={(newValue) =>
+                handleUpdate?.({ allow_system_notifications: newValue })
+              }
+            />
           </div>
         </li>
         <Select
@@ -183,6 +253,9 @@ export function GeneralSettings({
             { label: "Yearly", value: "Yearly" },
           ]}
           label="Security Checks Notifications Frequency"
+          onChange={(newValue) =>
+            handleUpdate?.({ security_notifications_frequency: newValue })
+          }
         />
       </ul>
     </section>
@@ -193,7 +266,13 @@ export function UserSettings({
   isLoading,
   allow_profile_edit,
   send_notifications_to_users,
-}: { isLoading?: boolean } & Partial<Admin_Config>) {
+  handleUpdate,
+}: {
+  isLoading?: boolean;
+  handleUpdate?: (
+    data: Partial<Admin_Config | InstitutionConfig>,
+  ) => Promise<void>;
+} & Partial<Admin_Config>) {
   return (
     <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">User&apos;s Settings</h3>
@@ -204,7 +283,13 @@ export function UserSettings({
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow profile pictures</p>
-            <Switch disabled={isLoading} checked={allow_profile_pictures} />
+            <Switch
+              disabled={isLoading}
+              checked={allow_profile_pictures}
+              onChange={(newValue) =>
+                handleUpdate?.({ allow_profile_pictures: newValue })
+              }
+            />
           </div>
         </li>
         <li className="w-full flex flex-col gap-2">
@@ -213,7 +298,13 @@ export function UserSettings({
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow users to edit their profile</p>
-            <Switch disabled={isLoading} checked={allow_profile_edit} />
+            <Switch
+              disabled={isLoading}
+              checked={allow_profile_edit}
+              onChange={(newValue) =>
+                handleUpdate?.({ allow_profile_edit: newValue })
+              }
+            />
           </div>
         </li>
         <li className="w-full flex flex-col gap-2">
@@ -225,6 +316,9 @@ export function UserSettings({
             <Switch
               disabled={isLoading}
               checked={send_notifications_to_users}
+              onChange={(newValue) =>
+                handleUpdate?.({ send_notifications_to_users: newValue })
+              }
             />
           </div>
         </li>
@@ -232,13 +326,19 @@ export function UserSettings({
     </section>
   );
 }
-function MaintenanceSettings({
+export function MaintenanceSettings({
   isLoading,
   enable_log_backup,
   allow_admins_view_logs,
   maintenance_frequency,
   maintenance_time,
-}: { isLoading?: boolean } & Partial<Admin_Config>) {
+  handleUpdate,
+}: {
+  isLoading?: boolean;
+  handleUpdate?: (
+    data: Partial<Admin_Config | InstitutionConfig>,
+  ) => Promise<void>;
+} & Partial<Admin_Config>) {
   return (
     <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">Maintainance</h3>
@@ -249,7 +349,13 @@ function MaintenanceSettings({
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Enable Backup of logs</p>
-            <Switch disabled={isLoading} checked={enable_log_backup} />
+            <Switch
+              disabled={isLoading}
+              checked={enable_log_backup}
+              onChange={(newValue) =>
+                handleUpdate?.({ enable_log_backup: newValue })
+              }
+            />
           </div>
         </li>
         <li className="w-full flex flex-col gap-2">
@@ -258,7 +364,13 @@ function MaintenanceSettings({
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Allow Admins to view logs</p>
-            <Switch disabled={isLoading} checked={allow_admins_view_logs} />
+            <Switch
+              disabled={isLoading}
+              checked={allow_admins_view_logs}
+              onChange={(newValue) =>
+                handleUpdate?.({ allow_admins_view_logs: newValue })
+              }
+            />
           </div>
         </li>
         <Select
@@ -274,6 +386,9 @@ function MaintenanceSettings({
             { label: "Yearly", value: "Yearly" },
           ]}
           label="Scheduled Maintenance Frequency"
+          onChange={(newValue) =>
+            handleUpdate?.({ maintenance_frequency: newValue })
+          }
         />
         <li className="w-full flex flex-col gap-2">
           <h3 className="pb-2 text-[#353B45] border-b border-primary">
@@ -289,7 +404,13 @@ export function SecuritySettings({
   require_2fa,
   max_login_attempts,
   isLoading,
-}: { isLoading?: boolean } & Partial<Admin_Config>) {
+  handleUpdate,
+}: {
+  isLoading?: boolean;
+  handleUpdate?: (
+    data: Partial<Admin_Config | InstitutionConfig>,
+  ) => Promise<void>;
+} & Partial<Admin_Config>) {
   return (
     <section className="w-full flex flex-col pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">Security</h3>
@@ -300,12 +421,17 @@ export function SecuritySettings({
           </h3>
           <div className="w-full flex-between">
             <p className="text-[#667185]">Require Two Factor Authentication</p>
-            <Switch disabled={isLoading} checked={require_2fa} />
+            <Switch
+              disabled={isLoading}
+              checked={require_2fa}
+              onChange={(newValue) => handleUpdate?.({ require_2fa: newValue })}
+            />
           </div>
         </li>
         <Select
           icon={ICON.CARET_DOWN3}
           size="full"
+          isLoading={isLoading}
           defaultValue={max_login_attempts}
           variant="themed"
           themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
@@ -315,6 +441,9 @@ export function SecuritySettings({
             { label: "7", value: 7 },
           ]}
           label="Login Attempts before Account Lockout"
+          onChange={(newValue) =>
+            handleUpdate?.({ max_login_attempts: newValue })
+          }
         />
       </ul>
     </section>

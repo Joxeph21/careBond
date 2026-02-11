@@ -4,6 +4,7 @@ import { ThrowError } from "@/utils/config";
 export type AnalyticsData = {
   label: string;
   value: number;
+  previous_value: number;
 };
 
 export type AnalyticsParams = {

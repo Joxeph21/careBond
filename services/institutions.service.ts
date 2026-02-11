@@ -13,7 +13,7 @@ export async function getInstitutionById(id: string) {
   }
 }
 
-export async function getInstitutionUsers(id: string, option?: Paginator) {
+export async function getInstitutionUsers(id: string, option?: Paginator & {role?: USER_ROLE}) {
   try {
     const res = await HttpClient.get<
       BaseBackendResponse<null, Pagination & { results: IUser[] }>
@@ -21,6 +21,7 @@ export async function getInstitutionUsers(id: string, option?: Paginator) {
       params: {
         search: option?.query,
         page: option?.page,
+        ...option
       },
     });
 
@@ -89,3 +90,28 @@ export async function createInstitutionUser(data: UserFormData) {
   }
 }
 
+export async function getInstitutionConfig() {
+  try {
+    const res = await HttpClient.get<
+      BaseBackendResponse<InstitutionConfig[]>
+    >(`/institution/configurations/
+`);
+    return res.data.data?.at(0);
+  } catch (res) {
+    ThrowError(res);
+  }
+}
+export async function modifyInsitutionConfig(
+  id: string,
+  data: Partial<InstitutionConfig>,
+) {
+  try {
+    const res = await HttpClient.patch<BaseBackendResponse<InstitutionConfig>>(
+      `/institution/configurations/${id}/`,
+      data,
+    );
+    return res.data;
+  } catch (error) {
+    ThrowError(error);
+  }
+}

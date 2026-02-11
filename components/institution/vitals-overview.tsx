@@ -1,97 +1,342 @@
 import { useGetPatientVitals } from "@/hooks/institution/usePatients";
 import { Icon } from "@iconify/react";
 import React, { useMemo, useState } from "react";
+import Skeleton from "../common/Skeleton";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import Select from "../common/Select";
+import { useFilter } from "@/hooks/useFilter";
+import { useSearchParams } from "next/navigation";
+import { sortOptions } from "../superadmin/OverviewChart";
 
-export default function VitalsOverview({id}: {id: string}) {
-  const { vitals } = useGetPatientVitals(id);
-  console.log(vitals)
+export default function VitalsOverview({ id }: { id: string }) {
+  const searchParams = useSearchParams();
+  const sortBy = searchParams.get("sortBy") || "";
+  const { options, handleFilter } = useFilter({
+    filterOptions: sortOptions,
+    paramKey: "sortBy",
+    hasInitial: false,
+  });
+  const { vitals, isLoading } = useGetPatientVitals(id);
+
   const VitalStats = useMemo(() => {
     return [
       {
-        id: "",
+        id: "heart_rate",
         title: "Heart Rate",
-        value: 0,
+        value: vitals?.heart_rate ?? "--",
         unit: "bpm",
         icon: "system-uicons:heart-rate",
       },
       {
-        id: "3",
+        id: "oxygen_saturation",
         title: "Oxygen Saturation",
-        value: 0,
-        unit: "mmol/L",
+        value: vitals?.oxygen_saturation ?? "--",
+        unit: "%",
         icon: "material-symbols-light:oxygen-saturation-outline",
       },
       {
-        id: "3",
+        id: "systolic_bp",
         title: "Systolic BP",
-        value: 0,
+        value: vitals?.systolic_bp ?? "--",
         unit: "mmHg",
         icon: "material-symbols-light:blood-pressure-outline-rounded",
       },
       {
-        id: "4",
+        id: "diastolic_bp",
         title: "Diastolic BP",
-        value: 0,
+        value: vitals?.diastolic_bp ?? "--",
         unit: "mmHg",
         icon: "material-symbols-light:blood-pressure-outline-rounded",
       },
       {
-        id: "5",
+        id: "temperature",
         title: "Temperature",
-        value: 0,
+        value: vitals?.temperature ?? "--",
         unit: "°C",
         icon: "ph:fire",
       },
       {
-        id: "6",
+        id: "respiratory_rate",
         title: "Respiratory Rate",
-        value: 0,
+        value: vitals?.respiratory_rate ?? "--",
         unit: "breaths/min",
         icon: "material-symbols-light:air-outline",
       },
     ];
-  }, []);
+  }, [vitals]);
 
   const [selected, setSelected] = useState<string>(VitalStats?.at(0)?.id ?? "");
+
+  const chartData = useMemo(() => {
+    const labels =
+      sortBy === "24H"
+        ? [
+            "00-03",
+            "03-06",
+            "06-09",
+            "09-12",
+            "12-15",
+            "15-18",
+            "18-21",
+            "21-00",
+          ]
+        : sortBy === "7D"
+          ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+          : sortBy === "1Y"
+            ? [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+              ]
+            : ["1-5", "6-10", "11-15", "16-20", "21-25", "26-31"];
+
+    const getRange = (id: string) => {
+      switch (id) {
+        case "heart_rate":
+          return [60, 100];
+        case "oxygen_saturation":
+          return [95, 100];
+        case "systolic_bp":
+          return [110, 140];
+        case "diastolic_bp":
+          return [70, 90];
+        case "temperature":
+          return [36.1, 37.5];
+        case "respiratory_rate":
+          return [12, 20];
+        default:
+          return [0, 100];
+      }
+    };
+
+    const [min, max] = getRange(selected);
+
+    // Deterministic pseudo-random for dummy data to satisfy React purity rules
+    const seed = (str: string) => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return (Math.abs(hash) % 1000) / 1000;
+    };
+
+    return labels.map((label) => {
+      const random = seed(label + selected + sortBy);
+      return {
+        date: label,
+        value: Math.floor(random * (max - min + 1)) + min,
+      };
+    });
+  }, [selected, sortBy]);
+
+  const groupedHistory = useMemo(() => {
+    const vital = VitalStats.find((v) => v.id === selected);
+    // Deterministic pseudo-random for dummy data
+    const seed = (str: string) => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return (Math.abs(hash) % 1000) / 1000;
+    };
+
+    return [
+      {
+        date: "Feb 10, 2025",
+        items: Array.from({ length: 3 }).map((_, i) => {
+          const random = seed(`h1-${i}-${selected}`);
+          return {
+            id: `h1-${i}`,
+            title: vital?.title,
+            value: Math.floor(random * 20 + 70),
+            unit: vital?.unit,
+            time: `1${i}:30 AM`,
+            status: "Normal",
+          };
+        }),
+      },
+      {
+        date: "Feb 09, 2025",
+        items: Array.from({ length: 2 }).map((_, i) => {
+          const random = seed(`h2-${i}-${selected}`);
+          return {
+            id: `h2-${i}`,
+            title: vital?.title,
+            value: Math.floor(random * 20 + 70),
+            unit: vital?.unit,
+            time: `0${i + 8}:15 PM`,
+            status: "Normal",
+          };
+        }),
+      },
+    ];
+  }, [selected, VitalStats]);
 
   return (
     <section className="grid max-w-[95%] mx-auto grid-cols-[65%_35%] w-full gap-5">
       <ul className="w-full flex items-center gap-4 justify-between col-span-2">
-        {VitalStats.map((item, id) => {
-          const isActiveTab = item.id === selected;
+        {isLoading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <li
+                key={i}
+                className="w-full flex flex-col justify-between p-4 h-30 rounded-3xl bg-[#EEF2FF]"
+              >
+                <header className="w-full flex-between">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-6 w-6 rounded-full" />
+                </header>
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-3 w-10" />
+              </li>
+            ))
+          : VitalStats.map((item, id) => {
+              const isActiveTab = item.id === selected;
 
-          return (
-            <li
-              role="radio"
-              aria-checked={isActiveTab}
-              onClick={() => setSelected(item.id)}
-              key={id}
-              className={`w-full flex flex-col justify-between p-4 cursor-pointer h-30 rounded-3xl ${isActiveTab ? "bg-primary text-white" : "bg-[#EEF2FF]"}`}
-            >
-              <header className="w-full flex-between">
-                <p className="font-medium text-xs">{item.title}</p>
-                <span>
-                  <Icon icon={item.icon} fontSize={20} />
-                </span>
-              </header>
-              <h4 className="text-2xl font-bold">{item.value}</h4>
-              <p className="text-xs font-medium">{item.unit}</p>
-            </li>
-          );
-        })}
+              return (
+                <li
+                  role="radio"
+                  aria-checked={isActiveTab}
+                  onClick={() => setSelected(item.id)}
+                  key={id}
+                  className={`w-full flex flex-col justify-between p-4 cursor-pointer h-30 rounded-3xl ${isActiveTab ? "bg-primary text-white" : "bg-[#EEF2FF]"}`}
+                >
+                  <header className="w-full flex-between">
+                    <p className="font-medium text-xs">{item.title}</p>
+                    <span>
+                      <Icon icon={item.icon} fontSize={20} />
+                    </span>
+                  </header>
+                  <h4 className="text-2xl font-bold">{item.value}</h4>
+                  <p className="text-xs font-medium">{item.unit}</p>
+                </li>
+              );
+            })}
       </ul>
-      <section className="w-full h-80 bg-blue-400 rounded-md"></section>
-      <ul className="w-full flex flex-col gap-3 items-center max-h-80 overflow-y-auto p-4 bg-[#EEF2FF] rounded-md">
-        <li className="w-full p-2 text-[#0A1B39] rounded-md flex-between bg-white">
-          <div className="space-y-2">
-            <p>Bilbuin Totals</p>
-            <p className="text-xs font-light text-[#444444]">12 Dec 3035</p>
-          </div>
-          <div className="space-y-2">
-            <p>227, mmlolH</p>
-            <p className="text-xs font-light text-[#444444]">High</p>
-          </div>
-        </li>
+      <section className="w-full flex flex-col gap-3 h-96 bg-white rounded-md">
+        <Select
+          onChange={(_, v) => handleFilter(v?.value ?? "")}
+          data={options}
+          defaultValue={sortBy}
+          variant="regular"
+          type="optimistic"
+        />
+        <AreaChart
+          data={chartData}
+          style={{
+            width: "100%",
+            height: "100%",
+            marginTop: "auto",
+            aspectRatio: 3.4,
+          }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 0"
+            stroke="#E8E8E8"
+            vertical={false}
+          />
+          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+          <YAxis width="auto" tick={{ fontSize: 12 }} dataKey={"value"} />
+          <Tooltip
+            cursor={false}
+            content={({ active, payload, label }) => {
+              if (active && payload && payload.length) {
+                const vital = VitalStats.find((v) => v.id === selected);
+                return (
+                  <div className="bg-white p-3 border border-grey rounded-lg shadow-md text-sm">
+                    <p className="font-semibold mb-2">{label}</p>
+                    {payload.map(
+                      (
+                        entry: { stroke: string; value: number },
+                        index: number,
+                      ) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 mb-1"
+                        >
+                          <span
+                            className="size-2.5 rounded-full"
+                            style={{ backgroundColor: entry.stroke }}
+                          />
+                          <span className="text-secondary">
+                            {vital?.title}:
+                          </span>
+                          <span className="font-medium">
+                            {entry.value} {vital?.unit}
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+          <Area
+            type="monotone"
+            dataKey="value"
+            strokeWidth={2}
+            stroke="#3A6FF8"
+            fill="#3A6FF81A"
+          />
+        </AreaChart>
+      </section>
+      <ul className="w-full flex flex-col gap-6 max-h-96 overflow-y-auto p-4 bg-[#EEF2FF] rounded-md">
+        {groupedHistory.map((group) => (
+          <li key={group.date} className="w-full flex flex-col gap-3">
+            <div className="flex items-center gap-2 w-full">
+              <span className="text-primary font-medium text-xs whitespace-nowrap">
+                {group.date}
+              </span>
+              <div className="h-px bg-primary/20 flex-1" />
+            </div>
+
+            <ul className="flex flex-col gap-2 w-full">
+              {group.items.map((item) => (
+                <li
+                  key={item.id}
+                  className="w-full p-3 text-[#0A1B39] rounded-xl flex-between bg-white shadow-sm"
+                >
+                  <div className="space-y-1">
+                    <p className="font-semibold text-sm">{item.title}</p>
+                    <p className="text-[10px] font-medium text-[#646464]">
+                      {item.time}
+                    </p>
+                  </div>
+                  <div className="space-y-1 text-right">
+                    <p className="font-bold text-sm text-primary">
+                      {item.value}{" "}
+                      <span className="text-[10px] font-normal text-[#646464]">
+                        {item.unit}
+                      </span>
+                    </p>
+                    <p className="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full inline-block">
+                      {item.status}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
       </ul>
     </section>
   );

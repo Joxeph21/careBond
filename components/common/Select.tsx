@@ -44,6 +44,8 @@ type SelectProps<Z> = {
   hasInfinteQuery?: boolean;
   fetchingNextPage?: boolean;
   onIntersect?: () => void;
+  contentClassName?: string;
+  totalCount?: number;
 };
 
 export default function Select<Z>(props: PropsWithChildren & SelectProps<Z>) {
@@ -111,6 +113,8 @@ function SelectUI<Z>(props: PropsWithChildren & SelectProps<Z>) {
     hasInfinteQuery,
     fetchingNextPage,
     onIntersect,
+    contentClassName,
+    totalCount
   } = props;
   const router = useRouter();
   const pathname = usePathname();
@@ -197,9 +201,9 @@ function SelectUI<Z>(props: PropsWithChildren & SelectProps<Z>) {
             </button>
           </Popover.Trigger>
 
-          <Popover.Content className="shadow-xl!">
+          <Popover.Content className={`shadow-xl! ${contentClassName}`}>
             {(closepopover) => (
-              <div className="flex flex-col gap-2 min-w-30">
+              <div className="flex flex-col gap-2 min-w-30 relative">
                 {hasSearch && (
                   <div className="relative px-2 py-1">
                     <input
@@ -259,6 +263,9 @@ function SelectUI<Z>(props: PropsWithChildren & SelectProps<Z>) {
                     )
                   )}
                 </ul>
+               {totalCount && <p className="text-end text-sm text-gray-400 italic">
+                  {totalCount} results
+                </p>}
               </div>
             )}
           </Popover.Content>

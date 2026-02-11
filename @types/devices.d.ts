@@ -18,3 +18,25 @@ declare type Camera = {
   last_seen: string | null;
   created_at: string;
 };
+declare type DeviceReading = {
+  id: string;
+  device: string;
+  value: string;
+  unit: string;
+  reading_type: string;
+  recorded_at: string;
+};
+
+declare type Device = {
+  id: string;
+  patient: string;
+  device_name: string;
+  device_type: string;
+  status: "online" | "offline" | string;
+  battery_level: number;
+  is_active: boolean;
+  last_sync: string | null;
+  created_at: string;
+  updated_at: string;
+  readings: DeviceReading[];
+};

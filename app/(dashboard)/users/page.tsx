@@ -14,23 +14,24 @@ interface Props {
   data?: IUser;
   query?: string;
   page?: number;
+  role?: USER_ROLE;
 }
 
 export default function Page() {
   const { isSuperAdmin, data } = useAdmin();
-  const { query, page } = usePaginatorParams({ searchKey: "table-q" });
+  const params = usePaginatorParams({ searchKey: "table-q", roleKey: "role" });
 
   const dataProps = {
     isSuperAdmin,
     data,
-    query,
-    page,
+    ...params,
   };
   return (
-   
     <section className="w-full pb-5 bg-white section-container col-start gap-5 px-4">
       <DashTitle title="Users">
-        <Button link href="/users/create" icon={ICON.PLUS}>Create User</Button>
+        <Button link href="/users/create" icon={ICON.PLUS}>
+          Create User
+        </Button>
       </DashTitle>
       {isSuperAdmin ? (
         <AllUsersTable {...dataProps} />
@@ -41,12 +42,13 @@ export default function Page() {
   );
 }
 
-function AllUsersTable({ isSuperAdmin, query, page }: Props) {
+function AllUsersTable({ isSuperAdmin, query, page, role }: Props) {
   const { users, isLoading, total_count, prevPage, nextPage } = useIUsers(
     isSuperAdmin,
     {
       query,
       page,
+      role,
     },
   );
   return (
@@ -60,10 +62,10 @@ function AllUsersTable({ isSuperAdmin, query, page }: Props) {
   );
 }
 
-function IUsersTable({ data, query, page }: Props) {
-  const { users, isLoading, total_count, prevPage, nextPage } = useGetIUsers(
+function IUsersTable({ data, query, page, role }: Props) {
+  const { users, isLoading, total_count, prevPage, nextPage, } = useGetIUsers(
     data?.institution_id,
-    {query, page}
+    { query, page, role },
   );
   return (
     <UsersTable

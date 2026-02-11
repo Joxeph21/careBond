@@ -6,13 +6,31 @@ import Select from "@/components/common/Select";
 import { ICON } from "@/utils/icon-exports";
 import TrafficPage from "@/components/superadmin/TrafficPage";
 import EventsPage from "@/components/superadmin/EventsPage";
+import { useFilter } from "@/hooks/useFilter";
+import { sortOptions } from "@/components/superadmin/OverviewChart";
+import { useSearchParams } from "next/navigation";
 
 const tabs = ["Traffic", "Events"];
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  const sortBy = searchParams.get("sortBy") || "";
   const [tab, setTab] = useState(tabs[0]);
   const containerRef = useRef(null);
   const tabRef = useRef(null);
+
+  const newOptions = sortOptions.map((el) => {
+    if (el.label === "Today") return { ...el, value: "" };
+    if (el.label === "Monthly") return { ...el, value: "30D" };
+    return el;
+  });
+
+  const { options, handleFilter } = useFilter({
+    filterOptions: newOptions,
+    paramKey: "sortBy",
+    hasInitial: false,
+  });
+
   const [tabWidth, setTabWidth] = useState({
     width: 0,
     left: 0,
@@ -36,11 +54,11 @@ export default function Page() {
   const renderTab = () => {
     switch (tab) {
       case "Traffic":
-        return <TrafficPage />;
+        return <TrafficPage range={sortBy} />;
       case "Events":
-        return <EventsPage />;
+        return <EventsPage  />;
       default:
-        return <TrafficPage />;
+        return <TrafficPage range={sortBy} />;
     }
   };
 
@@ -82,8 +100,8 @@ export default function Page() {
         </div>
       </header>
 
-      <div className="pb-4 border-b-[1.5px] w-full flex-between border-grey">
-        <Button
+      <div className="pb-4 border-b-[1.5px] w-full flex-between  border-grey">
+        {/* <Button
           config={{
             className: "ring-primary! gap-1! text-primary",
           }}
@@ -93,10 +111,13 @@ export default function Page() {
           variants="outlined"
         >
           Add filter
-        </Button>
+        </Button> */}
         <Select
+          onChange={(_, v) => handleFilter(v?.value ?? "")}
+          data={options}
+          defaultValue={sortBy}
           variant="regular"
-          data={[{ label: "Previous 24 Hours", value: "24h" }]}
+          type="optimistic"
         />
       </div>
 

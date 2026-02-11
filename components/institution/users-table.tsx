@@ -15,8 +15,14 @@ import {
   useDeleteIUser,
   useEditIUser,
 } from "@/hooks/institution/useInstitutionsUsers";
+import { useFilter } from "@/hooks/useFilter";
 
-const tabs = ["all-users", "profesionals", "patients", "families"];
+const tabs = [
+  { label: "All Users", value: "" },
+  { label: "Professionals", value: "professional" },
+  { label: "Patients", value: "patient" },
+  { label: "Families", value: "family" },
+];
 
 export default function UsersTable({
   users,
@@ -38,7 +44,11 @@ export default function UsersTable({
   const { deleteUser } = useDeleteIUser(inst_id);
   const { editUser } = useEditIUser(inst_id);
 
-  const [tab, setTab] = useState(tabs[0]);
+  const { handleFilter, currentFilterValue } = useFilter({
+    filterOptions: tabs,
+    paramKey: "role",
+  });
+
   const containerRef = useRef(null);
   const tabRef = useRef(null);
   const [tabWidth, setTabWidth] = useState({
@@ -46,19 +56,6 @@ export default function UsersTable({
     left: 0,
   });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  const data = useMemo(() => {
-    if (tab === "all-users") return users;
-
-    if (tab === "profesionals")
-      return users.filter((el) => el.role === "professional");
-
-    if (tab === "patients") return users.filter((el) => el.role === "patient");
-
-    if (tab === "families") return users.filter((el) => el.role === "family");
-
-    return [];
-  }, [tab, users]);
 
   const {
     isAllSelected,
@@ -68,7 +65,7 @@ export default function UsersTable({
     filteredData,
     clearSelected,
   } = useTableSelect({
-    data,
+    data: users,
   });
 
   const handleBulkDelete = () => {
@@ -116,7 +113,7 @@ export default function UsersTable({
         left: tabRect.left - containerRect.left,
       });
     }
-  }, [tab]);
+  }, [currentFilterValue]);
 
   return (
     <Modal>
@@ -125,14 +122,16 @@ export default function UsersTable({
           <div className="w-full flex items-center gap-3">
             {tabs.map((el, i) => (
               <button
-                ref={tab === el ? tabRef : null}
-                onClick={() => setTab(el)}
+                ref={currentFilterValue === el.value ? tabRef : null}
+                onClick={() => handleFilter(el.value)}
                 key={i}
                 className={`px-5 py-2 cursor-pointer capitalize transition-colors ${
-                  tab === el ? "text-primary font-medium" : "text-gray-500"
+                  currentFilterValue === el.value
+                    ? "text-primary font-medium"
+                    : "text-gray-500"
                 }`}
               >
-                {el.split("-").join(" ")}
+                {el.label}
               </button>
             ))}
           </div>

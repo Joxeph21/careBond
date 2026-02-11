@@ -24,7 +24,7 @@ interface ModalContextType {
 
 const ModalContext = createContext<ModalContextType | null>(null);
 
-const useModal = () => {
+export const useModal = () => {
   const context = useContext(ModalContext);
   if (!context) {
     throw new Error("Modal cannot be used outside its ModalProvider");
@@ -115,7 +115,9 @@ type ModalWindowProps = {
   className?: string;
   hasClose?: boolean;
   closeFunc?: () => void;
+  backFunc?: () => void;
   hasBack?: boolean;
+
   text?: string;
   children?:
     | React.ReactElement<{
@@ -134,6 +136,7 @@ Modal.Window = function Window({
   className,
   noClose,
   hasBack,
+  backFunc,
   textStyle,
   text,
   onClose,
@@ -190,7 +193,7 @@ Modal.Window = function Window({
                       icon={ICON.CARET_LEFT}
                       fontSize={30}
                       className="shrink-0 cursor-pointer"
-                      onClick={closeFunc}
+                      onClick={() => backFunc?.()}
                     />
                   )}
                   <h2 className={`text-[#060B1E] font-medium  text-2xl ${titleLeft ? "text-left" : "text-center"}`}>

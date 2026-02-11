@@ -16,7 +16,7 @@ import { useEffect, useMemo } from "react";
 
 export function useGetIUsers(
   id: string | null | undefined,
-  option?: Paginator,
+  option?: Paginator & { role?: USER_ROLE },
 ) {
   const queryClient = useQueryClient();
   const {
@@ -32,6 +32,7 @@ export function useGetIUsers(
     queryFn: () => getInstitutionUsers(id!, option),
     placeholderData: keepPreviousData,
     staleTime: 5000,
+    enabled: !!id,
   });
 
   const total_count = data?.count;

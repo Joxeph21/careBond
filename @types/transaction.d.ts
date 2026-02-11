@@ -4,7 +4,7 @@ declare type TransactionStatus =
   | "Cancelled"
   | "Failed";
 
-declare type PaymentMethod = "PayPal" | "Cheque" | "Card" | "Bank Transfer";
+declare type PaymentMethodType = "PayPal" | "Cheque" | "Card" | "Bank Transfer";
 
 declare type PLANS = "Standard" | "Premium" | "Enterprise";
 
@@ -18,7 +18,7 @@ declare interface Transaction {
   amount: string;
   transaction_date: string;
   clear_date: string;
-  payment_method: PaymentMethod;
+  payment_method: PaymentMethodType;
   status: TransactionStatus;
   created_at: string;
 }

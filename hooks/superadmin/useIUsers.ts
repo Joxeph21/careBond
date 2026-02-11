@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 
-export default function useIUsers(isSuperAdmin: boolean, option?: Paginator) {
+export default function useIUsers(isSuperAdmin: boolean, option?: Paginator & {role?: USER_ROLE}) {
   const queryClient = useQueryClient();
   const { data, isLoading, isPlaceholderData, refetch, error } = useQuery({
     queryKey: ["I-Users", option, isSuperAdmin],

@@ -25,72 +25,73 @@ const filters = [
   },
   {
     label: "1Y",
-    value: "year",
+    value: "1Y",
   },
 ];
 
 export default function PatientsChart({ id }: { id: string }) {
-  const { query } = usePaginatorParams({ searchKey: "sortBy" });
-  const { consultationVolume, isLoading } = useGetConsultationVolume({
-    institution_id: id,
-    range: query as "30d" | "24h" | "7d" | "1y",
-  });
   const { handleFilter, currentFilterValue } = useFilter({
     filterOptions: filters,
     hasInitial: false,
     paramKey: "sortBy",
   });
+  const { consultationVolume, isLoading } = useGetConsultationVolume({
+    institution_id: id,
+    range: currentFilterValue as "30d" | "24h" | "7d" | "1y",
+  });
 
-  const data = useMemo(() => {
-    switch (currentFilterValue) {
-      case "24H":
-        return [
-          { month: "00-03", value: 10, previous_value: 8 },
-          { month: "03-06", value: 5, previous_value: 12 },
-          { month: "06-09", value: 20, previous_value: 15 },
-          { month: "09-12", value: 45, previous_value: 30 },
-          { month: "12-15", value: 30, previous_value: 25 },
-          { month: "15-18", value: 55, previous_value: 40 },
-          { month: "18-21", value: 40, previous_value: 35 },
-          { month: "21-00", value: 15, previous_value: 10 },
-        ];
-      case "7D":
-        return [
-          { month: "Sun", value: 150, previous_value: 120 },
-          { month: "Mon", value: 230, previous_value: 180 },
-          { month: "Tue", value: 180, previous_value: 200 },
-          { month: "Wed", value: 290, previous_value: 240 },
-          { month: "Thu", value: 250, previous_value: 210 },
-          { month: "Fri", value: 320, previous_value: 280 },
-          { month: "Sat", value: 210, previous_value: 190 },
-        ];
-      case "year":
-        return [
-          { month: "Jan", value: 400, previous_value: 240 },
-          { month: "Feb", value: 300, previous_value: 139 },
-          { month: "Mar", value: 500, previous_value: 980 },
-          { month: "Apr", value: 278, previous_value: 390 },
-          { month: "May", value: 189, previous_value: 480 },
-          { month: "Jun", value: 239, previous_value: 380 },
-          { month: "Jul", value: 349, previous_value: 430 },
-          { month: "Aug", value: 400, previous_value: 240 },
-          { month: "Sep", value: 300, previous_value: 139 },
-          { month: "Oct", value: 200, previous_value: 980 },
-          { month: "Nov", value: 278, previous_value: 390 },
-          { month: "Dec", value: 189, previous_value: 480 },
-        ];
-      case "":
-      default:
-        return [
-          { month: "1-5", value: 500, previous_value: 450 },
-          { month: "6-10", value: 750, previous_value: 600 },
-          { month: "11-15", value: 600, previous_value: 700 },
-          { month: "16-20", value: 900, previous_value: 800 },
-          { month: "21-25", value: 850, previous_value: 750 },
-          { month: "26-31", value: 1100, previous_value: 950 },
-        ];
-    }
-  }, [currentFilterValue]);
+  console.log(consultationVolume);
+
+  // const data = useMemo(() => {
+  //   switch (currentFilterValue) {
+  //     case "24H":
+  //       return [
+  //         { month: "00-03", value: 10, previous_value: 8 },
+  //         { month: "03-06", value: 5, previous_value: 12 },
+  //         { month: "06-09", value: 20, previous_value: 15 },
+  //         { month: "09-12", value: 45, previous_value: 30 },
+  //         { month: "12-15", value: 30, previous_value: 25 },
+  //         { month: "15-18", value: 55, previous_value: 40 },
+  //         { month: "18-21", value: 40, previous_value: 35 },
+  //         { month: "21-00", value: 15, previous_value: 10 },
+  //       ];
+  //     case "7D":
+  //       return [
+  //         { month: "Sun", value: 150, previous_value: 120 },
+  //         { month: "Mon", value: 230, previous_value: 180 },
+  //         { month: "Tue", value: 180, previous_value: 200 },
+  //         { month: "Wed", value: 290, previous_value: 240 },
+  //         { month: "Thu", value: 250, previous_value: 210 },
+  //         { month: "Fri", value: 320, previous_value: 280 },
+  //         { month: "Sat", value: 210, previous_value: 190 },
+  //       ];
+  //     case "year":
+  //       return [
+  //         { month: "Jan", value: 400, previous_value: 240 },
+  //         { month: "Feb", value: 300, previous_value: 139 },
+  //         { month: "Mar", value: 500, previous_value: 980 },
+  //         { month: "Apr", value: 278, previous_value: 390 },
+  //         { month: "May", value: 189, previous_value: 480 },
+  //         { month: "Jun", value: 239, previous_value: 380 },
+  //         { month: "Jul", value: 349, previous_value: 430 },
+  //         { month: "Aug", value: 400, previous_value: 240 },
+  //         { month: "Sep", value: 300, previous_value: 139 },
+  //         { month: "Oct", value: 200, previous_value: 980 },
+  //         { month: "Nov", value: 278, previous_value: 390 },
+  //         { month: "Dec", value: 189, previous_value: 480 },
+  //       ];
+  //     case "":
+  //     default:
+  //       return [
+  //         { month: "1-5", value: 500, previous_value: 450 },
+  //         { month: "6-10", value: 750, previous_value: 600 },
+  //         { month: "11-15", value: 600, previous_value: 700 },
+  //         { month: "16-20", value: 900, previous_value: 800 },
+  //         { month: "21-25", value: 850, previous_value: 750 },
+  //         { month: "26-31", value: 1100, previous_value: 950 },
+  //       ];
+  //   }
+  // }, [currentFilterValue]);
 
   return (
     <Card className="max-w-[65%] shrink-0 min-h-96">
@@ -128,7 +129,10 @@ export default function PatientsChart({ id }: { id: string }) {
             </h4>
             <p className="text-[#212B36] font-bold text-xl">
               {KFormatter(
-                data.reduce((acc, curr) => acc + curr.previous_value, 0),
+                consultationVolume?.reduce(
+                  (acc, curr) => acc + curr.previous_value,
+                  0,
+                ) ?? 0,
               )}
             </p>
           </li>
@@ -139,7 +143,12 @@ export default function PatientsChart({ id }: { id: string }) {
               Period
             </h4>
             <p className="text-[#212B36] font-bold text-xl">
-              {KFormatter(data.reduce((acc, curr) => acc + curr.value, 0))}
+              {KFormatter(
+                consultationVolume?.reduce(
+                  (acc, curr) => acc + curr.value,
+                  0,
+                ) ?? 0,
+              )}
             </p>
           </li>
         </ul>
@@ -150,7 +159,7 @@ export default function PatientsChart({ id }: { id: string }) {
             aspectRatio: 1.618,
           }}
           responsive
-          data={data}
+          data={consultationVolume}
           margin={{
             top: 20,
             right: 0,
@@ -158,8 +167,47 @@ export default function PatientsChart({ id }: { id: string }) {
             bottom: 1,
           }}
         >
-          <Tooltip contentStyle={{ backgroundColor: "#fff" }} cursor={false} />
-          <XAxis dataKey="month" tick={{ fontSize: 12 }} interval={0} />
+          <Tooltip
+            cursor={false}
+            content={({ active, payload, label }) => {
+              if (active && payload && payload.length) {
+                return (
+                  <div className="bg-white p-3 border border-grey rounded-lg shadow-md text-sm">
+                    <p className="font-semibold mb-2">{label}</p>
+                    {payload.map(
+                      (
+                        entry: {
+                          dataKey: string;
+                          color: string;
+                          value: number;
+                        },
+                        index: number,
+                      ) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 mb-1"
+                        >
+                          <span
+                            className="size-2.5 rounded-full"
+                            style={{ backgroundColor: entry.color }}
+                          />
+                          <span className="text-secondary">
+                            {entry.dataKey === "value"
+                              ? "Current Period"
+                              : "Previous Period"}
+                            :
+                          </span>
+                          <span className="font-medium">{entry.value}</span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+          <XAxis dataKey="label" tick={{ fontSize: 12 }} interval={0} />
           <YAxis tick={{ fontSize: 12 }} />
           <Bar
             dataKey="value"

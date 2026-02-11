@@ -44,7 +44,7 @@ export async function AuthForgotPasswordRequest(data: { email: string }) {
   }
 }
 
-export async function AuthChangePassword(data: ChangePasswordData) {
+export async function AuthChangePassword(data: ChangePasswordRequest) {
   try {
     const res = await HttpClient.post<BaseBackendResponse<{ message: string }>>(
       "/auth/change-password/",

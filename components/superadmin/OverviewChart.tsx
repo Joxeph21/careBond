@@ -1,11 +1,10 @@
 "use client";
-import { useState, useMemo } from "react";
+import {  useMemo } from "react";
 import {
   RAW_USERS_DATA_24H,
   RAW_USERS_DATA_7D,
   RAW_USERS_DATA_30D,
   RAW_USERS_DATA_1Y,
-  RawMetricData,
 } from "@/utils/dummy";
 import Select from "../common/Select";
 import { useSearchParams } from "next/navigation";
@@ -19,7 +18,7 @@ import {
   Tooltip,
 } from "recharts";
 
-const sortOptions = [
+export const sortOptions = [
   {
     label: "Monthly",
     value: "",

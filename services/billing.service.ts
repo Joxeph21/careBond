@@ -12,7 +12,11 @@ export async function setActivePaymentMethod(id: string) {
   }
 }
 
-export async function addPaymentMethod(data: "") {
+export async function addPaymentMethod(data: {
+  payment_method_id: string;
+  institution_id: string;
+  set_as_default?: boolean;
+}) {
   try {
     const res = await HttpClient.post<BaseBackendResponse>(
       "/billing/add-payment-method/",
@@ -27,7 +31,7 @@ export async function addPaymentMethod(data: "") {
 export async function cancelSubscription() {
   try {
     const res = await HttpClient.post<BaseBackendResponse>(
-      "/api/billing/cancel-subscription/",
+      "/billing/cancel-subscription/",
     );
     return res?.data;
   } catch (err) {
@@ -42,7 +46,7 @@ export async function createSubscription(data: {
 }) {
   try {
     const res = await HttpClient.post<BaseBackendResponse>(
-      "/api/billing/create-subscription/",
+      "/billing/create-subscription/",
       data,
     );
     return res?.data;
@@ -51,17 +55,20 @@ export async function createSubscription(data: {
   }
 }
 
-export async function getBillingHistory(param?: Paginator) {
+export async function getBillingHistory(
+  param?: Paginator & { institution_id: string },
+) {
   try {
     const res = await HttpClient.get<
       BaseBackendResponse<
         null,
         Pagination & { results: BillingHistoryResponse[] }
       >
-    >("/api/billing/history/", {
+    >("/billing/history/", {
       params: {
         search: param?.query,
         page: param?.page,
+        ...param,
       },
     });
     return res?.data;
@@ -73,7 +80,7 @@ export async function getBillingHistory(param?: Paginator) {
 export async function getBillingOverview() {
   try {
     const res =
-      await HttpClient.get<BaseBackendResponse<BillingOverviewResponse>>(
+      await HttpClient.get<BillingOverviewResponse>(
         "/billing/overview/",
       );
     return res?.data;
@@ -84,8 +91,9 @@ export async function getBillingOverview() {
 
 export async function getPaymentMethods() {
   try {
-    const res = await HttpClient.get<BaseBackendResponse<PaymentMethod[]>>(
+    const res = await HttpClient.get<PaymentMethod[]>(
       "/billing/payment-methods/",
+      {},
     );
     return res?.data;
   } catch (err) {
@@ -113,6 +121,17 @@ export async function getStripeSecretKey() {
     const res = await HttpClient.post<
       BaseBackendResponse<undefined, { client_secret: string; status: string }>
     >("/billing/setup-intent/");
+    return res?.data;
+  } catch (err) {
+    ThrowError(err);
+  }
+}
+
+export async function deletePaymentMethod(id: string) {
+  try {
+    const res = await HttpClient.delete<BaseBackendResponse>(
+      `/billing/${id}/delete/`,
+    );
     return res?.data;
   } catch (err) {
     ThrowError(err);

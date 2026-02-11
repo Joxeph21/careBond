@@ -8,36 +8,41 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { stripePromise } from "@/lib/stripe";
-
-const client_secret =
-  "seti_1SxTAbDU77RQlXKXX36NG2UL_secret_TvJogFgjEJ82k4ybq53GNBLNpt27Fyi";
+import useAdmin from "@/hooks/auth/useAdmin";
+import {
+  useAddPaymentMethod,
+} from "@/hooks/institution/useBilling";
+import toast from "react-hot-toast";
+import { useState } from "react";
 
 export default function StripeProvider({
   isLoading,
   retry,
   x_secret_key,
+  onCloseModal,
 }: {
   isLoading?: boolean;
   retry?: () => void;
   x_secret_key?: string;
+  onCloseModal?: () => void;
 }) {
-  if (isLoading)
+  if (isLoading || !x_secret_key)
     return (
       <section className="w-full flex-center min-h-60">
         <ActivityIndicator className="text-primary" />
       </section>
     );
 
-  if (x_secret_key && !isLoading) {
+  if (!x_secret_key && !isLoading) {
     return <Errored retry={retry} />;
   }
 
   return (
     <Elements
       stripe={stripePromise}
-      options={{ clientSecret: client_secret, appearance: { theme: "stripe" } }}
+      options={{ clientSecret: x_secret_key, appearance: { theme: "stripe" } }}
     >
-      <CardForm />
+      <CardForm onCloseModal={onCloseModal} />
     </Elements>
   );
 }
@@ -68,14 +73,61 @@ function Errored({ retry }: { retry?: () => void }) {
 }
 
 function CardForm({ onCloseModal }: onCloseModal) {
-  const handleSubmit = (e: React.FormEvent) => {
+  const { data } = useAdmin();
+  const { mutate, isLoading: isPending } = useAddPaymentMethod();
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!stripe || !elements) return;
+
+    try {
+      setLoading(true);
+      const { error, setupIntent } = await stripe.confirmSetup({
+        elements,
+        redirect: "if_required",
+      });
+
+      if (error) {
+        console.log(error);
+        toast.error(error.message ?? "Failed to add card");
+      }
+
+      if (setupIntent?.status === "succeeded") {
+        mutate(
+          {
+            institution_id: data?.institution_id ?? "",
+            payment_method_id: (setupIntent?.payment_method as string) ?? "",
+            set_as_default: true,
+          },
+          {
+            onSuccess: () => {
+              toast.success("Card added successfully");
+              onCloseModal?.();
+            },
+            onError: () => {
+              toast.error("Failed to add card");
+            },
+          },
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form className="pb-3 w-full flex flex-col gap-4" onSubmit={handleSubmit}>
       <PaymentElement className="w-full" />
       <Button
+        isLoading={loading || isPending}
         config={{
           type: "submit",
         }}

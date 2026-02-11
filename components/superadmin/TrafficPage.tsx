@@ -1,18 +1,30 @@
 "use client";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
-import { Activity, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Button from "../common/Button";
 import Table from "@/ui/Table";
-import { DUMMY_LOGS } from "@/utils/dummy";
 import Pagination from "../common/Pagination";
-import { useCloudStats } from "@/hooks/superadmin/useLogs";
+import useCloudLogs, { useCloudStats } from "@/hooks/superadmin/useLogs";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { formatFullDateTime, getRootDomain } from "@/utils/helper-functions";
 
-export default function TrafficPage() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { data, isLoading } = useCloudStats();
-
-  const suspicious_activity = [];
+export default function TrafficPage({ range }: { range: string }) {
+  const { data, isLoading } = useCloudStats({ range });
+  const {
+    logs,
+    total_count,
+    nextPage,
+    prevPage,
+    isLoading: loadingLogs,
+  } = useCloudLogs();
 
   const activity_head = useMemo(() => {
     return [
@@ -33,7 +45,7 @@ export default function TrafficPage() {
 
   return (
     <section className="section-container flex pb-8 flex-col gap-3">
-      <header className="w-full py-4 border-b-2 space-y-1 border-grey">
+      {/* <header className="w-full py-4 border-b-2 space-y-1 border-grey">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex focus:outline cursor-pointer text-lg items-center gap-2"
@@ -59,7 +71,7 @@ export default function TrafficPage() {
             )}
           </div>
         </Activity>
-      </header>
+      </header> */}
 
       {/* Chart */}
       <section className="w-full flex flex-col gap-3">
@@ -80,11 +92,45 @@ export default function TrafficPage() {
                 )}
                 {item.title}
               </p>
-              <p className="text-[#0A0A0A] text-2xl">{isLoading ? "--:--" :item.value}</p>
+              <p className="text-[#0A0A0A] text-2xl">
+                {isLoading ? "--:--" : item.value}
+              </p>
             </li>
           ))}
         </ul>
-        <div className="w-full h-96"></div>
+        <div className="w-full h-96">
+            <LineChart
+              style={{
+                width: "100%",
+
+                height: "100%",
+
+                aspectRatio: 1.618,
+              }}
+              responsive
+              data={data?.graph}
+              margin={{
+                top: 5,
+                right: 0,
+                left: 0,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 0"
+                stroke="#E8E8E8"
+                vertical={false}
+              />
+              <Tooltip
+                contentStyle={{ backgroundColor: "#fff" }}
+                cursor={false}
+              />
+              <XAxis dataKey="label" tick={{ fontSize: 12 }} interval={0} />
+              <YAxis tick={{ fontSize: 12 }} />
+              <Line type="linear" dataKey="previous_value" stroke="#E46E0A" />
+              <Line type="linear" dataKey="value" stroke="#104858" />
+            </LineChart>
+        </div>
       </section>
 
       {/* Table */}
@@ -131,36 +177,26 @@ export default function TrafficPage() {
           </Table.Header>
 
           <Table.Body
-            data={DUMMY_LOGS}
+            isLoading={loadingLogs}
+            data={logs ?? []}
             render={(log, i) => (
               <Table.Row key={i}>
-                <p className="text-[#0051C3]">{log.time}</p>
-                <p>
-                  {log.source_ip.value}
-
-                  <a
-                    href={log.source_ip.url}
-                    className="text-primary inline-flex  cursor-pointer"
-                  >
-                    <Icon icon={ICON.EXTERNAL_LINK} />
-                  </a>
+                <p className="text-[#0051C3]">
+                  {formatFullDateTime(log.timestamp)}
                 </p>
-                <p>
-                  {log.host.value}{" "}
-                  <a
-                    href={log.host.url}
-                    className="text-primary inline-flex  cursor-pointer"
-                  >
-                    <Icon icon={ICON.EXTERNAL_LINK} />
-                  </a>
-                </p>
+                <p>{log.ip_address}</p>
+                <p>{getRootDomain(window.location.hostname)}</p>
                 <p className="text-truncate">{log.path}</p>
               </Table.Row>
             )}
           />
 
           <Table.Footer>
-            <Pagination />
+            <Pagination
+              totalCount={total_count}
+              nextPage={nextPage}
+              prevPage={prevPage}
+            />
           </Table.Footer>
         </Table>
       </section>

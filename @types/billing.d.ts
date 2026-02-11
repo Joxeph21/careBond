@@ -15,7 +15,7 @@ declare type BillingHistoryResponse = {
 
 declare type BillingOverviewResponse = {
   plan: Plan;
-  status: "incomplete" | "complete" | string;
+  status: "active" | "inactive" | string;
   days_remaining: number;
   active_until: string;
   grace_period_ends: string;
@@ -24,10 +24,11 @@ declare type BillingOverviewResponse = {
 
 declare type PaymentMethod = {
   id: string;
-  brand: string;
+  brand: "visa" | "mastercard" | "amex" | "discover" | "diners_club" | "jcb" | "unionpay" | "unknown";
   last4: string;
   exp_month: number;
   exp_year: number;
   is_active: boolean;
   created_at: string;
+  stripe_payment_method_id: string;
 };

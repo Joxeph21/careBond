@@ -2,16 +2,21 @@
 import Button from "@/components/common/Button";
 import DashTitle from "@/components/common/DashTitle";
 import AddCameraForm from "@/components/forms/Add-camera-form";
-import { useGetCameras } from "@/hooks/institution/usePatients";
+import {
+  useDeleteCamera,
+  useGetCameras,
+} from "@/hooks/institution/usePatients";
 import useTableSelect from "@/hooks/useTableSelect";
 import useTabs from "@/hooks/useTabs";
+import ActionPopup from "@/ui/ActionPopup";
 import { Modal } from "@/ui/Modal";
+import Popover from "@/ui/Popover";
 import Table from "@/ui/Table";
 import TableOptions from "@/ui/TableOptions";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import React, { Activity } from "react";
+import React, { Activity, useState } from "react";
 
 const tabs = ["camera", "others"];
 
@@ -80,6 +85,9 @@ export default function DevicesPage() {
 
 function CameraTable() {
   const { cameras, isLoading } = useGetCameras();
+  const { delete_camera, isPending: isDeleting } = useDeleteCamera();
+  const [selectedItem, setSelectedItem] = useState<Camera | null>(null);
+
   const {
     filteredData,
     selected,
@@ -90,7 +98,6 @@ function CameraTable() {
     data: cameras ?? [],
   });
 
-  console.log(filteredData);
   return (
     <section className="w-full flex flex-col gap-2">
       {selected.length > 0 && <TableOptions ids={selected} />}
@@ -153,11 +160,77 @@ function CameraTable() {
                   {item.status_display}
                 </span>
               </p>
-              <div></div>
+              <Popover>
+                <Popover.Menu>
+                  <Popover.Trigger>
+                    <button
+                      type="button"
+                      className="cursor-pointer flex-center"
+                    >
+                      <Icon icon={ICON.MENU} fontSize={20} />
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Content className="left-auto! shadow-card-shadow right-0! min-w-20!">
+                    {(closepopover) => (
+                      <ul className="flex flex-col gap-2">
+                        <Modal.Trigger name="edit-camera">
+                          <button
+                            type="button"
+                            className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded-md transition-colors w-full text-left"
+                            onClick={() => {
+                              setSelectedItem(item);
+                              closepopover();
+                            }}
+                          >
+                            <Icon icon={ICON.EDIT} fontSize={18} />
+                            Edit
+                          </button>
+                        </Modal.Trigger>
+
+                        <Modal.Trigger name="delete-camera">
+                          <button
+                            type="button"
+                            className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded-md transition-colors w-full text-left text-danger"
+                            onClick={() => {
+                              setSelectedItem(item);
+                              closepopover();
+                            }}
+                          >
+                            <Icon icon={ICON.TRASH} fontSize={18} />
+                            Delete
+                          </button>
+                        </Modal.Trigger>
+                      </ul>
+                    )}
+                  </Popover.Content>
+                </Popover.Menu>
+              </Popover>
             </Table.Row>
           )}
         />
       </Table>
+
+      <Modal.Window
+        className="max-w-2xl w-full!"
+        hasClose
+        title="Edit Camera"
+        name="edit-camera"
+      >
+        <AddCameraForm type="edit" data={selectedItem!} />
+      </Modal.Window>
+
+      <Modal.Window className="py-2! gap-0! px-1!" name="delete-camera">
+        <ActionPopup
+          isLoading={isDeleting}
+          onConfirm={() => {
+            if (selectedItem) {
+              delete_camera(selectedItem.id);
+            }
+          }}
+          type="delete"
+          name="Camera"
+        />
+      </Modal.Window>
     </section>
   );
 }

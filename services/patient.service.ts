@@ -79,6 +79,35 @@ export async function AddPatientCamera({
   }
 }
 
+export async function UpdateCamera({
+  id,
+  data,
+}: {
+  id: string;
+  data: Partial<CameraFormData>;
+}) {
+  try {
+    const res = await HttpClient.patch<BaseBackendResponse>(
+      `/cameras/${id}/`,
+      data,
+    );
+
+    return res.data;
+  } catch (err) {
+    ThrowError(err);
+  }
+}
+
+export async function DeleteCamera(id: string) {
+  try {
+    const res = await HttpClient.delete<BaseBackendResponse>(`/cameras/${id}/`);
+
+    return res.data;
+  } catch (err) {
+    ThrowError(err);
+  }
+}
+
 export async function getCameras(params?: Paginator) {
   try {
     const res = await HttpClient.get<
@@ -121,7 +150,7 @@ export async function toggleCameraAccess(
 
 export async function getPatientVitals(id: string) {
   try {
-    const res = await HttpClient.get<BaseBackendResponse<Vitals>>(
+    const res = await HttpClient.get<BaseBackendResponse<Vitals[]>>(
       `/patients/${id}/vitals/`,
     );
 

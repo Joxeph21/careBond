@@ -7,9 +7,9 @@ import PatientsChart from "@/components/institution/patients-chart";
 import PatientsOverview from "@/components/institution/patients-overview";
 import UsersTable from "@/components/institution/users-table";
 import { useSession } from "@/context/UserContext";
-import { useGetActivities } from "@/hooks/institution/useActivities";
 import { useGetIUsers } from "@/hooks/institution/useInstitutionsUsers";
 import { useGetInstitutionDashboard } from "@/hooks/superadmin/useInstitutions";
+import usePaginatorParams from "@/hooks/usePaginatorParams";
 import { ICON } from "@/utils/icon-exports";
 import React, { useMemo } from "react";
 
@@ -21,23 +21,21 @@ export default function InstitutionDashboard({
   data?: IUser | Institution;
 }) {
   const { user } = useSession();
-  const inst_id = id ?? user?.institution_id ?? ""; // Ensure inst_id is always a string
+  const inst_id = id ?? user?.institution_id ?? ""; 
+  const param = usePaginatorParams({searchKey: "table-q", roleKey: "role"})
   const {
     users,
     isLoading: isPending,
     total_count,
     prevPage,
     nextPage,
-  } = useGetIUsers(inst_id);
+  } = useGetIUsers(inst_id, param);
   const name = user?.full_name?.split(" ")?.[0] ?? "";
-
-  const {} = useGetActivities();
 
   const {
     stats: dashboardStats,
     charts,
     isLoading,
-    activities,
   } = useGetInstitutionDashboard();
 
   const stats = useMemo(() => {

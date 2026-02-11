@@ -33,10 +33,10 @@ export default function useCloudLogs(
   };
 }
 
-export function useCloudStats(){
+export function useCloudStats(params?: {range?: string}){
 const {data, isLoading, refetch, error} = useQuery({
-  queryKey: ["cloud-stats"],
-  queryFn: getCloudStats,
+  queryKey: ["cloud-stats", params],
+  queryFn: () => getCloudStats(params),
 })
 
 return {
