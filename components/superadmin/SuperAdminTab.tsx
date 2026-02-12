@@ -3,7 +3,6 @@ import { Pie, PieChart, Tooltip } from "recharts";
 import {
   KFormatter,
   formatDuration,
-  getStatusByColor,
   getDeviceDetails,
 } from "@/utils/helper-functions";
 import { ICON } from "@/utils/icon-exports";
@@ -20,40 +19,57 @@ import usePaginatorParams from "@/hooks/usePaginatorParams";
 import Pagination from "../common/Pagination";
 import SearchBox from "../common/SearchBox";
 import ActivityIndicator from "../common/ActivityIndicator";
-
-const stats = [
-  {
-    title: "Total Uptime",
-    value: 123231,
-    type: "duration",
-  },
-  {
-    title: "Total Devices",
-    value: 12,
-    type: "decimal",
-  },
-  {
-    title: "Total Plans",
-    value: 8,
-  },
-];
-
-const data = [
-  { name: "Group A", value: 200, fill: "#FF8E26" },
-  { name: "Group B", value: 500, fill: "#3F8EF3" },
-  { name: "Group C", value: 300, fill: "#14CC26" },
-];
+import { useGetCameras } from "@/hooks/institution/usePatients";
+import useAdmin from "@/hooks/auth/useAdmin";
+import { useS_Dashboard } from "@/hooks/superadmin/useS_Dashboard";
 
 export default function SuperAdminTab() {
+  const {data: admin} = useAdmin()
   const { activities, isLoading } = useGetActivities();
   const [selected, setSelected] = useState<string | null>(null);
   const { activity, isLoading: activityLoading } = useGetActivityById(
     selected!,
   );
+  const {stats: s} = useS_Dashboard()
+  const {
+    active_cameras_count,
+    total_count,
+  } = useGetCameras();
 
-  const totalDuration = formatDuration(
-    data.reduce((acc, el) => acc + el.value, 0),
-  );
+  const stats = useMemo(() => {
+    return [
+      {
+        title: "Total Camera",
+        value: total_count ?? 0,
+        type: "decimal",
+      },
+      {
+        title: "Total Devices",
+        value: s?.stats?.total_devices ?? 0,
+        type: "decimal",
+      },
+      {
+        title: "Total Plans",
+        value: s?.stats?.total_plans ?? 0,
+        type: "decimal",
+      },
+    ];
+  }, [total_count, s?.stats]);
+
+  const data = useMemo(() => {
+    return [
+      {
+        name: "Active Cameras",
+        value: active_cameras_count ?? 0,
+        fill: "#14CC26",
+      },
+      {
+        name: "Inactive Cameras",
+        value: (total_count ?? 0) - (active_cameras_count ?? 0),
+        fill: "#3F8EF3",
+      },
+    ];
+  }, [active_cameras_count, total_count]);
 
   const groupedActivities = useMemo(() => {
     if (!activities) return {};
@@ -89,7 +105,7 @@ export default function SuperAdminTab() {
         <div className="col-center gap-3">
           <figure className="bg-[#EEF3FF] rounded-full size-20 relative overflow-hidden">
             <Image
-              src={"/user.png"}
+              src={admin?.profile_image_url || "/profile.png"}
               fill
               className="object-center object-cover"
               alt="Admin_profile_picture"
@@ -326,8 +342,8 @@ export default function SuperAdminTab() {
       {/* Chart Tab */}
       <footer className="col-start gap-5 w-full min-h-44 items-start!">
         <div className="space-y-1">
-          <h4 className="text-lg font-medium text-[#4A4A4A]">Uptime History</h4>
-          <p className="text-[#999999]">Last 90 days</p>
+          <h4 className="text-lg font-medium text-[#4A4A4A]">Cameras</h4>
+          <p className="text-[#999999]">Current usage</p>
         </div>
 
         {/* Pie chart on the left label on the right */}
@@ -337,7 +353,7 @@ export default function SuperAdminTab() {
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-xs text-[#676767]">Total</span>
               <span className="text-base font-medium text-primary">
-                {totalDuration}
+                {total_count ?? 0}
               </span>
             </div>
             <PieChart
@@ -370,14 +386,17 @@ export default function SuperAdminTab() {
           {/* Label */}
           <ul className="flex flex-col w-[35%] gap-3">
             {data.map((item) => (
-              <li key={item.name} className="flex items-center gap-3">
+              <li key={item.name} className="flex items-center gap-2">
                 <span
-                  className="size-2.5 rounded-sm"
+                  className="size-2.5 rounded-sm shrink-0"
                   style={{ backgroundColor: item.fill }}
                 />
-                <span className="text-[#676767] text-sm ">
-                  {getStatusByColor(item.fill)}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-[#676767] text-xs">{item.name}</span>
+                  <span className="text-[#1C1C1C] text-sm font-medium">
+                    {item.value}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>

@@ -61,7 +61,7 @@ export default function UserList({
         >
           <Image
             fill
-            src={"/user.png"}
+            src={rest?.profile_image_url || "/profile.png"}
             alt={`${full_name}_avatar`}
             className="object-cover object-center w-full h-full"
           />

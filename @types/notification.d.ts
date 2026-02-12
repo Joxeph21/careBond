@@ -7,9 +7,18 @@ declare type UserNotification = {
   level: NotificationLevel;
   category: NotificationCategory;
   is_read: boolean;
-  extra_data: string;
+  extra_data: {
+    type: string;
+    sender_id?: string;
+    sender_name?: string;
+    [key: string]: unknown;
+  };
   created_at: string;
 };
 
-declare type NotificationLevel = "critical" | "important" | "warning" | "normal";
+declare type NotificationLevel =
+  | "critical"
+  | "important"
+  | "warning"
+  | "normal";
 declare type NotificationCategory = "reports" | "alerts" | "messages" | "other";

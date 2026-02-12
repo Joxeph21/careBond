@@ -1,10 +1,10 @@
 "use client";
-import {  useMemo } from "react";
+import { useMemo } from "react";
 import {
   RAW_USERS_DATA_24H,
   RAW_USERS_DATA_7D,
   RAW_USERS_DATA_30D,
-  RAW_USERS_DATA_1Y,
+  RAW_USERS_DATA_1y,
 } from "@/utils/dummy";
 import Select from "../common/Select";
 import { useSearchParams } from "next/navigation";
@@ -17,6 +17,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
+import { useGetUserGrowth } from "@/hooks/institution/useAnalytics";
 
 export const sortOptions = [
   {
@@ -24,41 +25,30 @@ export const sortOptions = [
     value: "",
   },
   {
-    label: "Today",
+    label: "24 hours",
     value: "24H",
   },
   {
-    label: "This Week",
+    label: "Week",
     value: "7D",
   },
   {
-    label: "This Year",
-    value: "1Y",
+    label: "Year",
+    value: "1y",
   },
 ];
 
 export default function OverviewChart() {
   const searchParams = useSearchParams();
   const sortBy = searchParams.get("sortBy") || "";
+  const { userGrowth } = useGetUserGrowth({
+    range: sortBy as "1y" | "24h" | "30d" | "7d",
+  });
   const { options, handleFilter } = useFilter({
     filterOptions: sortOptions,
     paramKey: "sortBy",
     hasInitial: false,
   });
-
-  const chartData = useMemo(() => {
-    switch (sortBy) {
-      case "24H":
-        return RAW_USERS_DATA_24H;
-      case "7D":
-        return RAW_USERS_DATA_7D;
-      case "":
-        return RAW_USERS_DATA_30D;
-      case "1Y":
-      default:
-        return RAW_USERS_DATA_1Y;
-    }
-  }, [sortBy]);
 
   return (
     <section className="w-full py-3 px-4 flex flex-col gap-5 bg-white rounded-lg min-h-96 ring ring-grey">
@@ -74,7 +64,7 @@ export default function OverviewChart() {
       </div>
 
       <AreaChart
-        data={chartData}
+        data={userGrowth}
         style={{
           width: "100%",
           height: "100%",
@@ -88,8 +78,8 @@ export default function OverviewChart() {
           stroke="#E8E8E8"
           vertical={false}
         />
-        <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-        <YAxis width="auto" tick={{ fontSize: 12 }} dataKey={"value"} />
+        <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+        <YAxis tick={{ fontSize: 12 }} dataKey={"value"}  />
         <Tooltip />
         <Area
           type="monotone"

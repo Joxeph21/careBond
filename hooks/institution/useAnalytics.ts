@@ -20,9 +20,10 @@ export function useGetUserGrowth(params: AnalyticsParams) {
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["user-growth", params],
     queryFn: () => getUserGrowth(params),
-    enabled: !!params.institution_id,
     staleTime: 1000 * 30,
   });
+
+console.log(data)
 
   return { userGrowth: data, isLoading, error, refetch, isRefetching };
 }

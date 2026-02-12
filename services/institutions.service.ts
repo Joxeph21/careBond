@@ -54,8 +54,8 @@ export async function editInstitutionUser(
   data: Partial<User>,
 ) {
   try {
-    const res = await HttpClient.put<BaseBackendResponse<User>>(
-      `/institution/${institution_id}/users/${user_id}/`,
+    const res = await HttpClient.patch<BaseBackendResponse<User>>(
+      `/institution/users/${user_id}/`,
       data,
     );
     return res.data;

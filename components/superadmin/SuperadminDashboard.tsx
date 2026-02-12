@@ -18,7 +18,7 @@ export default function SuperadminDashboard() {
         title: "MMR",
         icon: <MMRIcon />,
         type: "currency",
-        value: stats?.stats?.mmr ?? 0,
+        value: stats?.stats?.total_revenue ?? 0,
         trend: "positive",
         trendValue: 0,
       },

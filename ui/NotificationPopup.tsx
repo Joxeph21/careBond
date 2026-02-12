@@ -22,11 +22,19 @@ const tabs: { label: string; value: NotificationLevel | undefined }[] = [
   },
 ];
 
-export default function NotificationPopup({defaultTab, id}: {defaultTab?: NotificationLevel | undefined, id?: string}) {
+export default function NotificationPopup({
+  defaultTab,
+  id,
+  setSelected,
+}: {
+  defaultTab?: NotificationLevel | undefined;
+  id?: string;
+  setSelected?: (notif: UserNotification) => void;
+}) {
   const [activeTab, setActiveTab] = useState<NotificationLevel | undefined>(
     defaultTab,
   );
-  
+
   const {
     notifications,
     isLoading,
@@ -87,7 +95,11 @@ export default function NotificationPopup({defaultTab, id}: {defaultTab?: Notifi
           ) : (
             <ul className="flex w-full flex-col gap-1">
               {notifications.map((notif) => (
-                <NotificationList key={notif.id} {...notif} />
+                <NotificationList
+                  key={notif.id}
+                  {...notif}
+                  setSelected={setSelected}
+                />
               ))}
             </ul>
           )}

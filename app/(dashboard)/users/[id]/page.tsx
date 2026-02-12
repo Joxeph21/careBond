@@ -47,16 +47,16 @@ async function Page({ params }: PageProps) {
     <section className="section-container gap-3 px-3 pb-4 flex flex-col bg-white">
       <DashTitle href="/users" title={capitalize(user?.full_name)} />
       <section className="w-full ring flex flex-col gap-3 ring-grey p-6 pb-3 rounded-2xl">
-        <p>Name and Photo</p>
+        {/* <p>Name and Photo</p> */}
         {/* <p>Change your name and photo on Atlassian</p> */}
 
         <div className="flex mt-5 mb-10 gap-4 items-center">
-          <figure className="rounded-full relative overflow-hidden bg-primary/30 size-32">
+          <figure className="rounded-full relative overflow-hidden bg-gray-100 size-32">
             <Image
-              src={user?.avatar || "/user.png"}
+              src={user?.profile_image_url || "/profile.png"}
               className="object-center w-full h-full object-cover"
               fill
-              alt="user"
+              alt="user_profile_picture"
             />
           </figure>
           <div className="space-y-3">

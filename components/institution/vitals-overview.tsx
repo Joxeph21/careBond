@@ -1,4 +1,8 @@
-import { useGetPatientVitals } from "@/hooks/institution/usePatients";
+import {
+  useGetPatientVitals,
+  useGetPatientsChart,
+  useGetPatientsHistory,
+} from "@/hooks/institution/usePatients";
 import { Icon } from "@iconify/react";
 import React, { useMemo, useState } from "react";
 import Skeleton from "../common/Skeleton";
@@ -23,7 +27,26 @@ export default function VitalsOverview({ id }: { id: string }) {
     paramKey: "sortBy",
     hasInitial: false,
   });
+  const {
+    history,
+    total_count: historyCount,
+    isLoading: historyLoading,
+    fetchNextPage: fetchNextHistory,
+    hasNextPage: hasNextHistory,
+    isFetchingNextPage: isFetchingNextHistory,
+  } = useGetPatientsHistory({
+    patient_id: id,
+  });
   const { vitals, isLoading } = useGetPatientVitals(id);
+  const { data, isLoading: chartLoading } = useGetPatientsChart({
+    patient_id: id,
+    period: sortBy,
+    vital_type: "heart_rate",
+  });
+
+  console.log(data);
+  console.log({ vitals });
+  console.log({ history });
 
   const VitalStats = useMemo(() => {
     return [
@@ -89,7 +112,7 @@ export default function VitalsOverview({ id }: { id: string }) {
           ]
         : sortBy === "7D"
           ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-          : sortBy === "1Y"
+          : sortBy === "1y"
             ? [
                 "Jan",
                 "Feb",

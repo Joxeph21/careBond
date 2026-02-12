@@ -159,3 +159,41 @@ export async function getPatientVitals(id: string) {
     ThrowError(err);
   }
 }
+
+export async function getPatientsVitalsChart(params: {
+  patient_id: string;
+  period: string;
+  vital_type: string;
+}) {
+  try {
+    const res = await HttpClient.get<BaseBackendResponse<{label: string, value: number}[]>>(
+      `/vitals/chart-data`,
+      {
+        params,
+      },
+    );
+
+    return res?.data.data;
+  } catch (err) {
+    ThrowError(err);
+  }
+}
+
+export async function getPatientsVitalsHistory(params: {
+  end_date?: string,
+  start_date?: string,
+  patient_id: string,
+} & Paginator){
+  try {
+    const res = await HttpClient.get<BaseBackendResponse<undefined, Pagination & { results: Vitals[] }>>(
+      `/vitals/history/`,
+      {
+        params,
+      },
+    );
+
+    return res.data;
+  } catch (err) {
+    ThrowError(err);
+  }
+}

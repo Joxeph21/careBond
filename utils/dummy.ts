@@ -128,7 +128,7 @@ export const RAW_USERS_DATA_30D: RawMetricData[] = [
   { id: "m6", date: "26-31", value: 1100 },
 ];
 
-export const RAW_USERS_DATA_1Y: RawMetricData[] = [
+export const RAW_USERS_DATA_1y: RawMetricData[] = [
   { id: "u1", date: "Jan", value: 400 },
   { id: "u2", date: "Feb", value: 300 },
   { id: "u3", date: "Mar", value: 200 },
@@ -143,7 +143,7 @@ export const RAW_USERS_DATA_1Y: RawMetricData[] = [
   { id: "u12", date: "Dec", value: 189 },
 ];
 
-export const RAW_USERS_DATA = RAW_USERS_DATA_1Y;
+export const RAW_USERS_DATA = RAW_USERS_DATA_1y;
 
 export const RAW_INSTITUTIONS_DATA: RawMetricData[] = [
   { id: "i1", name: "St. Williams", date: "2024-10-12T12:00:00Z", value: 5 },

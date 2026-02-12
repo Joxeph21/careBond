@@ -52,7 +52,9 @@ export default function RecentPlanTransaction() {
             render={(item) => (
               <Table.Row key={item.id}>
                 <div className="flex items-center gap-2">
-                  <figure className="size-8 rounded-md bg-[#EEF3FF] shrink-0"></figure>
+                  <figure className="size-8 flex-center rounded-md bg-[#EEF3FF] shrink-0">
+                    <Icon icon={"solar:hospital-line-duotone"} className="text-primary" fontSize={18} />
+                  </figure>
                   <h4 className="truncate text-[#1C1C1C] text-xs font-semibold capitalize">
                     {item.name}
                   </h4>

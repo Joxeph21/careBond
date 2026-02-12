@@ -26,6 +26,7 @@ import TableOptions from "@/ui/TableOptions";
 import Popover from "@/ui/Popover";
 import ActionPopup from "@/ui/ActionPopup";
 import ActionLoader from "@/ui/ActionLoader";
+import CreateInstitutionAdminForm from "@/components/forms/create-institution-admin";
 
 const FILTER_OPTIONS = [
   { label: "Newest", value: "newest" },
@@ -61,7 +62,7 @@ export default function InstitutionContent() {
 
   const handleBulkSuspend = () => {
     selected.forEach((id) => {
-      const inst = institutions?.find((item) => item.id === id);
+      const inst = institutions?.find((item: Institution) => item.id === id);
       if (inst) {
         edit({
           id: inst.id,
@@ -75,7 +76,7 @@ export default function InstitutionContent() {
   };
 
   const { canSuspend, isInactive } = useMemo(() => {
-    const selectedItems = institutions?.filter((item) =>
+    const selectedItems = institutions?.filter((item: Institution) =>
       selected.includes(item.id),
     );
     if (!selectedItems || selectedItems.length === 0)
@@ -83,7 +84,9 @@ export default function InstitutionContent() {
     const firstStatus = selectedItems[0].status;
     const isInactive = firstStatus !== "Active";
     return {
-      canSuspend: selectedItems.every((item) => item.status === firstStatus),
+      canSuspend: selectedItems.every(
+        (item: Institution) => item.status === firstStatus,
+      ),
       isInactive,
     };
   }, [selected, institutions]);
@@ -92,11 +95,16 @@ export default function InstitutionContent() {
     <Modal>
       <DashTitle title="Institutions">
         <div className="flex-center gap-4">
-          <button className="icon-btn">
+          {/* <button className="icon-btn">
             <FilmIcon />
-          </button>
+          </button> */}
           <Modal.Trigger name="create-institution">
             <Button icon={ICON.PLUS}>Create Institution</Button>
+          </Modal.Trigger>
+          <Modal.Trigger name="create-institution-admin">
+            <Button variants="outlined" icon={ICON.PLUS}>
+              Create Institution Admin
+            </Button>
           </Modal.Trigger>
         </div>
       </DashTitle>
@@ -313,6 +321,15 @@ export default function InstitutionContent() {
           type="delete"
           name="Institution"
         />
+      </Modal.Window>
+
+      <Modal.Window
+        hasClose
+        className="max-w-2xl w-full!"
+        title="Create Institution Admin"
+        name="create-institution-admin"
+      >
+        <CreateInstitutionAdminForm />
       </Modal.Window>
     </Modal>
   );

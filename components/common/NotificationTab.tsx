@@ -5,8 +5,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import useNotifications from "@/hooks/institution/useNotifications";
 import { NotificationList } from "./List";
-import { Modal } from "@/ui/Modal";
+import { Modal, useModal } from "@/ui/Modal";
 import NotificationPopup from "@/ui/NotificationPopup";
+import { useBrowserNotification } from "@/hooks/useBrowserNotification";
+import { useEffect, useRef } from "react";
 
 type NotifcationProps = {
   hasUnread?: number;
@@ -17,8 +19,36 @@ export default function NotificationTab({
 }: NotifcationProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { notifications, isLoading } = useNotifications();
+  const [selectedNotif, setSelectedNotif] = useState<UserNotification | null>(
+    null,
+  );
+  const { permission, requestPermission, sendNotification } =
+    useBrowserNotification();
+  const notifiedIds = useRef<Set<string>>(new Set());
 
   const hasUnread = initialHasUnread || notifications.some((n) => !n.is_read);
+
+  useEffect(() => {
+    if (permission === "default") {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
+
+  useEffect(() => {
+    if (notifications.length > 0 && permission === "granted") {
+      const latestUnread = notifications.filter((n) => !n.is_read);
+
+      latestUnread.forEach((notif) => {
+        if (!notifiedIds.current.has(notif.id)) {
+          sendNotification(notif.title, {
+            body: notif.message,
+            icon: "/logo.svg",
+          });
+          notifiedIds.current.add(notif.id);
+        }
+      });
+    }
+  }, [notifications, permission, sendNotification]);
 
   return (
     <Modal>
@@ -52,6 +82,20 @@ export default function NotificationTab({
                 <h4 className="font-bold text-[#212B36] text-base">
                   Notifications
                 </h4>
+
+                {/* Dummy button to Trigger test Notifications */}
+                {/* <button
+                  type="button"
+                  onClick={() =>
+                    sendNotification("Test Notification", {
+                      body: "This is a dummy notification to test browser functionality!",
+                      icon: "/logo.svg",
+                    })
+                  }
+                  className="text-[10px] font-bold text-primary uppercase px-2 py-0.5 bg-primary/10 rounded border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer"
+                >
+                  Test
+                </button> */}
               </header>
 
               <div className="max-h-[350px] overflow-y-auto scrollbar-hide bg-white">
@@ -71,7 +115,11 @@ export default function NotificationTab({
                 ) : (
                   <ul className="flex flex-col">
                     {notifications.slice(0, 6).map((notif) => (
-                      <NotificationList key={notif.id} {...notif} />
+                      <NotificationList
+                        setSelected={setSelectedNotif}
+                        key={notif.id}
+                        {...notif}
+                      />
                     ))}
                   </ul>
                 )}
@@ -92,17 +140,101 @@ export default function NotificationTab({
         </AnimatePresence>
       </div>
 
-      <NotificationWindow />
+      <NotificationWindow setSelected={setSelectedNotif} />
+
+      <Modal.Window
+        className="w-xl!"
+        hasClose
+        name="notification-details"
+        title={selectedNotif?.title || "Notification Details"}
+      >
+        {selectedNotif && <NotificationDetails notif={selectedNotif} />}
+      </Modal.Window>
     </Modal>
+  );
+}
+
+function NotificationDetails({ notif }: { notif: UserNotification }) {
+  const { read } = useNotifications();
+  const { closeModal } = useModal();
+
+  const handleMarkUnread = () => {
+    read({ id: notif.id, data: { is_read: false } });
+    closeModal?.("notification-details");
+  };
+
+  return (
+    <div className="flex flex-col gap-6 p-4">
+      <div className="flex items-center gap-4">
+        <span className="size-12 rounded-full flex-center bg-primary/10 text-primary">
+          <Icon
+            icon={
+              notif.category === "alerts"
+                ? "si:warning-fill"
+                : notif.category === "messages"
+                  ? "solar:chat-round-dots-bold"
+                  : notif.category === "reports"
+                    ? "flowbite:clipboard-solid"
+                    : "solar:bell-bold"
+            }
+            fontSize={28}
+          />
+        </span>
+        <div className="flex flex-col">
+          <h3 className="text-lg font-bold text-[#212B36]">{notif.title}</h3>
+          <p className="text-xs text-grey-dark">
+            {new Date(notif.created_at).toLocaleDateString()} at{" "}
+            {new Date(notif.created_at).toLocaleTimeString()}
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 p-4 rounded-xl border border-grey flex flex-col gap-4">
+        <p className="text-[#474747] leading-relaxed whitespace-pre-wrap">
+          {notif.message}
+        </p>
+
+        {notif.is_read && (
+          <button
+            onClick={handleMarkUnread}
+            className="w-fit text-primary py-1 px-3 rounded-md hover:bg-primary/5 transition-colors text-sm font-semibold cursor-pointer border border-primary/20"
+          >
+            Mark as unread
+          </button>
+        )}
+      </div>
+
+      {notif.extra_data && Object.keys(notif.extra_data).length > 0 && (
+        <div className="space-y-3">
+          <h4 className="text-sm font-bold text-grey-dark uppercase tracking-wider">
+            Additional Information
+          </h4>
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(notif.extra_data).map(([key, value]) => (
+              <div key={key} className="space-y-1">
+                <p className="text-xs text-grey-dark capitalize">
+                  {key.replace("_", " ")}
+                </p>
+                <p className="text-sm font-medium text-[#212B36]">
+                  {String(value)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
 export function NotificationWindow({
   defaultTab,
   id,
+  setSelected,
 }: {
   defaultTab?: NotificationLevel | undefined;
   id?: string;
+  setSelected?: (notif: UserNotification) => void;
 }) {
   return (
     <Modal.Window
@@ -113,7 +245,11 @@ export function NotificationWindow({
       hasClose
       name="all-notifications"
     >
-      <NotificationPopup defaultTab={defaultTab} id={id} />
+      <NotificationPopup
+        setSelected={setSelected}
+        defaultTab={defaultTab}
+        id={id}
+      />
     </Modal.Window>
   );
 }

@@ -21,7 +21,7 @@ export default function Page() {
 
   const newOptions = sortOptions.map((el) => {
     if (el.label === "Today") return { ...el, value: "" };
-    if (el.label === "Monthly") return { ...el, value: "30D" };
+    if (el.label === "Monthly") return { ...el, value: "30d" };
     return el;
   });
 
@@ -56,7 +56,7 @@ export default function Page() {
       case "Traffic":
         return <TrafficPage range={sortBy} />;
       case "Events":
-        return <EventsPage  />;
+        return <EventsPage />;
       default:
         return <TrafficPage range={sortBy} />;
     }

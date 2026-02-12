@@ -10,6 +10,8 @@ import {
   getPatientVitals,
   UpdateCamera,
   DeleteCamera,
+  getPatientsVitalsChart,
+  getPatientsVitalsHistory,
 } from "@/services/patient.service";
 import {
   useInfiniteQuery,
@@ -190,6 +192,8 @@ export function useGetPatientVitals(id: string) {
     enabled: !!id,
   });
 
+
+
   return {
     vitals: data?.data?.at(0),
     isLoading,
@@ -236,4 +240,60 @@ export function useDeleteCamera() {
   });
 
   return { delete_camera, isPending };
+}
+
+export function useGetPatientsChart(params: {
+  patient_id: string;
+  period: string;
+  vital_type: string;
+}) {
+  const { data, isLoading, refetch, error } = useQuery({
+    queryKey: ["patients-chart", params],
+    queryFn: () => getPatientsVitalsChart(params),
+  });
+
+  return {
+    data,
+    isLoading,
+    refetch,
+    error,
+  };
+}
+
+export function useGetPatientsHistory(
+  params: {
+    patient_id: string;
+    start_date?: string;
+    end_date?: string;
+  } & Paginator,
+) {
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    error,
+  } = useInfiniteQuery({
+    queryKey: ["patients-history", params],
+    queryFn: ({ pageParam = 1 }) =>
+      getPatientsVitalsHistory({ ...params, page: pageParam }),
+    getNextPageParam: (lastPage) => lastPage?.next ?? undefined,
+    initialPageParam: 1,
+  });
+
+  const history = data?.pages.flatMap((page) => page?.results ?? []) ?? [];
+  const total_count = data?.pages[0]?.count ?? 0;
+
+  return {
+    history,
+    total_count,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    error,
+  };
 }

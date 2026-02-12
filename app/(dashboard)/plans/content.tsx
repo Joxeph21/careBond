@@ -15,7 +15,6 @@ export default function PlansContent() {
     width: 0,
   });
 
-  console.log(plans);
 
   useEffect(() => {
     if (!activeRef.current || !containerRef.current) return;

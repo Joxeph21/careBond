@@ -10,7 +10,10 @@ export async function getS_Admin_Stats() {
             mmr: number;
             total_users: number;
             active_institutions: number;
-            uptime: string;
+            total_cameras: number
+            total_revenue: number
+            total_devices: number
+            total_plans: number
           };
           recent_logs: [];
         }[]
@@ -23,7 +26,7 @@ export async function getS_Admin_Stats() {
   }
 }
 
-export async function getS_Admin_Institutions() {
+export async function getS_Admin_Institutions(option?: Paginator) {
   try {
     const res = await HttpClient.get<
       BaseBackendResponse<
@@ -32,7 +35,12 @@ export async function getS_Admin_Institutions() {
           results: Institution[];
         }
       >
-    >("/admin/institutions/");
+    >("/admin/institutions/", {
+      params: {
+        search: option?.query,
+        page: option?.page ?? 1,
+      },
+    });
 
     const data = res?.data;
 
@@ -104,7 +112,7 @@ export async function EditPlan(id: string, params: EditPlan) {
   }
 }
 
-export async function getUsers(option?: Paginator & {role?: USER_ROLE}) {
+export async function getUsers(option?: Paginator & { role?: USER_ROLE }) {
   try {
     const res = await HttpClient.get<
       BaseBackendResponse<null, Pagination & { results: IUser[] }>
@@ -112,7 +120,7 @@ export async function getUsers(option?: Paginator & {role?: USER_ROLE}) {
       params: {
         search: option?.query,
         page: option?.page ?? 1,
-        ...option
+        ...option,
       },
     });
 
@@ -220,15 +228,16 @@ export async function getCloudLogs(
   }
 }
 
-export async function getCloudStats(params?: {range?: string}) {
+export async function getCloudStats(params?: { range?: string }) {
   try {
-    const res =
-      await HttpClient.get<BaseBackendResponse<CloudStatsResponse[]>>(
-        "/logs/stats/",
-        {params: {
-          time_range: params?.range
-        }}
-      );
+    const res = await HttpClient.get<BaseBackendResponse<CloudStatsResponse[]>>(
+      "/logs/stats/",
+      {
+        params: {
+          time_range: params?.range,
+        },
+      },
+    );
     return res.data.data?.at(0);
   } catch (err) {
     ThrowError(err);
@@ -245,7 +254,10 @@ export async function getAdminConfigurations() {
     ThrowError(err);
   }
 }
-export async function modifyAdminConfig(id: string, data: Partial<Admin_Config>) {
+export async function modifyAdminConfig(
+  id: string,
+  data: Partial<Admin_Config>,
+) {
   try {
     const res = await HttpClient.patch<BaseBackendResponse<Admin_Config>>(
       `/admin/configurations/${id}/`,
@@ -254,5 +266,23 @@ export async function modifyAdminConfig(id: string, data: Partial<Admin_Config>)
     return res.data;
   } catch (error) {
     ThrowError(error);
+  }
+}
+
+export async function createInstitutionAdmin(data: {
+  email: string;
+  password: string;
+  full_name: string;
+  phone: string;
+  institution_id: string;
+}) {
+  try {
+    const res = await HttpClient.post<BaseBackendResponse<IUser>>(
+      "/auth/register-institution/", data,
+
+    );
+    return res.data
+  } catch (err) {
+    ThrowError(err);
   }
 }

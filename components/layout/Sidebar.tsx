@@ -62,15 +62,11 @@ export default function Sidebar() {
   const links = () => {
     if (isSuperAdmin) return Links.filter((el) => el.href !== "/devices");
 
-    return Links.filter((el) => !superAdminLinks.includes(el.href))
+    return Links.filter((el) => !superAdminLinks.includes(el.href));
   };
 
   return (
-    <aside
-      className="row-span-2 col-start w-full 
-    px-11.5 pr-9 pt-10 gap-[66px]
-    h-full border-r border-grey items-start!"
-    >
+    <aside className="flex flex-col px-11.5 pr-9 pt-10 gap-[66px] h-full items-start!">
       <Logo />
       <nav className="w-full gap-6 col-start">
         {links().map((el, i) => {

@@ -19,6 +19,7 @@ declare interface IUser {
   assigned_patients?: Patient[];
   associated_users_count?: number;
   connected_devices_count?: number;
+  profile_image_url: string
 }
 
 declare type STATUS_TYPE =
@@ -31,7 +32,7 @@ declare type STATUS_TYPE =
 declare type USER_ROLE = "professional" | "patient" | "family";
 
 declare type User = {
-  avatar?: string;
+  profile_image_url: string;
   id: string;
   display_id: string;
   email: string;

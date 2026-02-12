@@ -38,14 +38,11 @@ export function ActivityList({
   );
 }
 
-export function NotificationList({
-  title,
-  message,
-  id,
-  created_at,
-  category,
-  is_read,
-}: UserNotification) {
+export function NotificationList(
+  props: UserNotification & { setSelected?: (notif: UserNotification) => void },
+) {
+  const { title, message, id, created_at, category, is_read, setSelected } =
+    props;
   const { read } = useNotifications();
   const getIcon = () => {
     switch (category) {
@@ -68,42 +65,50 @@ export function NotificationList({
 
   const icon = getIcon();
 
- const handleNotificationRead = () => {
-  if (optimisticIsRead) return;
+  const handleNotificationRead = () => {
+    if (optimisticIsRead) return;
 
-  startTransition(() => {
-    setOptimisticIsRead(true);
-  });
+    startTransition(() => {
+      setOptimisticIsRead(true);
+    });
 
-  read({ id, data: { is_read: true } });
-};
+    read({ id, data: { is_read: true } });
+  };
+
   return (
-    <li
-      role="button"
-      aria-label="Read notification"
-      onClick={handleNotificationRead}
-      className={`flex gap-3 p-3 rounded-lg my-px transition-colors cursor-pointer border-b border-grey last:border-0 ${optimisticIsRead ? "bg-blue-50/30" : "bg-primary/10"}`}
+    <Modal.Trigger
+      name="notification-details"
+      onClick={() => {
+        handleNotificationRead();
+        setSelected?.(props);
+      }}
     >
-      <span
-        className={`size-9 rounded-full shrink-0 flex-center text-primary bg-primary/10`}
+      <li
+        role="button"
+        aria-label="Read notification"
+        className={`flex gap-3 p-3 rounded-lg my-px transition-colors cursor-pointer border-b border-grey last:border-0 ${optimisticIsRead ? "bg-blue-50/30" : "bg-primary/10"}`}
       >
-        <Icon icon={icon} fontSize={20} />
-      </span>
-      <div className="flex flex-col gap-1 flex-1">
-        <div className="flex justify-between items-start gap-2">
-          <h5
-            className={`text-sm font-semibold  line-clamp-1 ${optimisticIsRead ? "text-[#1C1C1C]/50" : "text-primary"}`}
-          >
-            {title}
-          </h5>
-          <span className="text-[10px] text-grey-dark whitespace-nowrap mt-0.5">
-            {formatRelativeTime(created_at)}
-          </span>
+        <span
+          className={`size-9 rounded-full shrink-0 flex-center text-primary bg-primary/10`}
+        >
+          <Icon icon={icon} fontSize={20} />
+        </span>
+        <div className="flex flex-col gap-1 flex-1">
+          <div className="flex justify-between items-start gap-2">
+            <h5
+              className={`text-sm font-semibold  line-clamp-1 ${optimisticIsRead ? "text-[#1C1C1C]/50" : "text-primary"}`}
+            >
+              {title}
+            </h5>
+            <span className="text-[10px] text-grey-dark whitespace-nowrap mt-0.5">
+              {formatRelativeTime(created_at)}
+            </span>
+          </div>
+          <p className="text-xs text-grey-dark line-clamp-2 leading-relaxed">
+            {message}
+          </p>
         </div>
-        <p className="text-xs text-grey-dark line-clamp-2 leading-relaxed">
-          {message}
-        </p>
-      </div>
-    </li>
+      </li>
+    </Modal.Trigger>
   );
 }

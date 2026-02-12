@@ -2,7 +2,7 @@ import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import { PropsWithChildren } from "react";
 import { type Metadata } from "next";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { UserProvider } from "@/context/UserContext";
 export const metadata: Metadata = {
   title: {
@@ -18,16 +18,19 @@ export default function DashboardLayout({
 }: Readonly<PropsWithChildren>) {
   return (
     <UserProvider>
-
-      <main className="w-full h-screen overflow-hidden grid grid-cols-[250px_1fr] grid-rows-[80px_1fr]">
-        <Sidebar />
-        <Header />
-        <section
-          id="dashboard-main"
-          className="w-full relative h-[calc(100vh-80px)] bg-[#F8F8F8] overflow-y-auto row-span-2"
-        >
-          {children}
-        </section>
+      <main className="w-full h-screen overflow-hidden flex">
+        <div className="w-[250px] h-full shrink-0 border-r border-grey">
+          <Sidebar />
+        </div>
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
+          <Header />
+          <section
+            id="dashboard-main"
+            className="flex-1 w-full relative bg-[#F8F8F8] overflow-y-auto"
+          >
+            {children}
+          </section>
+        </div>
       </main>
       <ReactQueryDevtools initialIsOpen={false} />
     </UserProvider>

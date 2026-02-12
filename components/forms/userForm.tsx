@@ -8,7 +8,7 @@ import { ICON } from "@/utils/icon-exports";
 import Select from "../common/Select";
 import InputText from "../common/InputText";
 import InputTextArea from "../common/InputTextArea";
-import NextImage from "next/image";
+// import NextImage from "next/image";
 
 import {
   useForm,
@@ -73,7 +73,6 @@ export default function UserForm({
   });
 
   const onSubmit: SubmitHandler<UserFormData> = (formData) => {
-    console.log("Form Data:", formData);
     if (isEdit) {
       if (!data) return;
       editUser(
@@ -103,9 +102,9 @@ export default function UserForm({
       }}
     >
       <section className="w-full ring flex flex-col gap-3 ring-grey p-6 rounded-2xl">
-        {data?.full_name && <h4>{data?.full_name}</h4>}
+        {/* {data?.full_name && <h4>{data?.full_name}</h4>} */}
 
-        <div className="w-full flex-center p-4">
+        {/* <div className="w-full flex-center p-4">
           <figure className="bg-[#000000B0] rounded-full size-30.5 overflow-hidden relative">
             <NextImage
               src={"/user.png"}
@@ -114,7 +113,7 @@ export default function UserForm({
               className="object-cover"
             />
           </figure>
-        </div>
+        </div> */}
 
         <Card>
           <Card.Header>

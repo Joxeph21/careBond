@@ -96,7 +96,6 @@ export default function AssignUserForm({
     }
   };
 
-console.log(type)
 
   const users = useMemo(() => {
     return data.filter((el) => el.role === type);

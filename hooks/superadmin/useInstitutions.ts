@@ -1,18 +1,61 @@
 import {
   createInstitution,
+  createInstitutionAdmin,
   deleteInstitution,
   editInstitution,
   getInstitutionDashboard,
 } from "@/services/superadmin.service";
 import { getS_Admin_Institutions } from "@/services/superadmin.service";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-export function useGetInstitutions() {
+export function useInfiniteQueryGetInstitutions(query?: string) {
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    error,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["institutions-infinite", query],
+    queryFn: ({ pageParam = 1 }) =>
+      getS_Admin_Institutions({ query, page: pageParam as number }),
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage?.next) {
+        return allPages.length + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+  });
+
+  const institutions = data?.pages.flatMap((page) => page?.result ?? []) ?? [];
+  const total_count = data?.pages[0]?.count ?? 0;
+
+  return {
+    institutions,
+    total_count,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    error,
+    refetch,
+  };
+}
+
+export function useGetInstitutions(params?: Paginator) {
   const { data, isLoading, error, refetch, isRefetching, isFetched } = useQuery(
     {
-      queryKey: ["institutions"],
-      queryFn: getS_Admin_Institutions,
+      queryKey: ["institutions", params],
+      queryFn: () => getS_Admin_Institutions(params),
     },
   );
 
@@ -150,5 +193,32 @@ export function useEditInstitution(type?: "suspend" | "edit" | "activate") {
     edit,
     isPending,
     error,
+  };
+}
+
+export function useCreateIAdmin() {
+  const queryClient = useQueryClient();
+  const { mutate: create, isPending } = useMutation({
+    mutationFn: createInstitutionAdmin,
+    onSuccess: () => {
+      toast.success("Institution admin created successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["institutions"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["institution-dashboard"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["I-Users"],
+      });
+    },
+    onError: () => {
+      toast.error("Failed to create institution admin");
+    },
+  });
+
+  return {
+    create,
+    isPending,
   };
 }

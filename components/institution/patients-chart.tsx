@@ -1,31 +1,30 @@
 "use client";
-import React, { useMemo } from "react";
 import Card from "../common/Card";
 import { useFilter } from "@/hooks/useFilter";
 import { Icon } from "@iconify/react";
 import { ICON } from "@/utils/icon-exports";
 import Skeleton from "../common/Skeleton";
 import { useGetConsultationVolume } from "@/hooks/institution/useAnalytics";
-import usePaginatorParams from "@/hooks/usePaginatorParams";
+// import usePaginatorParams from "@/hooks/usePaginatorParams";
 import { Bar, BarChart, Tooltip, XAxis, YAxis } from "recharts";
 import { KFormatter } from "@/utils/helper-functions";
 
 const filters = [
   {
     label: "1D",
-    value: "24H",
+    value: "24h",
   },
   {
     label: "1W",
-    value: "7D",
+    value: "7d",
   },
   {
     label: "1M",
     value: "",
   },
   {
-    label: "1Y",
-    value: "1Y",
+    label: "1y",
+    value: "1y",
   },
 ];
 
@@ -40,8 +39,10 @@ export default function PatientsChart({ id }: { id: string }) {
     range: currentFilterValue as "30d" | "24h" | "7d" | "1y",
   });
 
-  console.log(consultationVolume);
+  // Debugging
+  // console.log(consultationVolume);
 
+  // Dummy data
   // const data = useMemo(() => {
   //   switch (currentFilterValue) {
   //     case "24H":

@@ -9,7 +9,7 @@ export type AnalyticsData = {
 
 export type AnalyticsParams = {
   institution_id?: string;
-  range?: "1y" | "24h" | "30d" | "7d";
+  range?: "1y" | "24h" | "30d" | "7d"
 };
 
 export async function getConsultationVolume({
@@ -27,33 +27,27 @@ export async function getConsultationVolume({
       },
     );
 
-    
-
     return res.data.data;
   } catch (err) {
     ThrowError(err);
   }
 }
 
-export async function getUserGrowth({
-  institution_id,
-  range = "30d",
-}: AnalyticsParams) {
+export async function getUserGrowth({ range = "30d" }: AnalyticsParams) {
   try {
     const res = await HttpClient.get<BaseBackendResponse<AnalyticsData[]>>(
       "/analytics/user-growth/",
       {
         params: {
-          institution_id,
           range,
         },
       },
     );
+
+    console.log(res);
 
     return res.data.data;
   } catch (err) {
     ThrowError(err);
   }
 }
-
-

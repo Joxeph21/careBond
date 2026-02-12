@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 
 export function useOutsideClick<T extends HTMLElement = HTMLElement>(
   handler: () => void,
-  ignoreRef?: React.RefObject<HTMLElement>,
-  enabled: boolean = true
+  ignoreRef?: React.RefObject<HTMLElement | null>,
+  enabled: boolean = true,
 ) {
   const ref = useRef<T | null>(null);
 
