@@ -26,11 +26,11 @@ export const sortOptions = [
   },
   {
     label: "24 hours",
-    value: "24H",
+    value: "24h",
   },
   {
     label: "Week",
-    value: "7D",
+    value: "7d",
   },
   {
     label: "Year",

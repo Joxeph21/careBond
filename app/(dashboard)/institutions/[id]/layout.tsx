@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: capitalize(institution?.name) || `Institution - ${id}`,
       description:
-        institution?.descriptor ||
+        institution?.description ||
         `Detailed dashboard and management for institution ${id}.`,
     };
   } catch {

@@ -4,6 +4,7 @@ import { PropsWithChildren } from "react";
 import { type Metadata } from "next";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { UserProvider } from "@/context/UserContext";
+import { DeviceProvider } from "@/providers/DeviceProvider";
 export const metadata: Metadata = {
   title: {
     template: "%s - Carebond",
@@ -18,21 +19,23 @@ export default function DashboardLayout({
 }: Readonly<PropsWithChildren>) {
   return (
     <UserProvider>
-      <main className="w-full h-screen overflow-hidden flex">
-        <div className="w-[250px] h-full shrink-0 border-r border-grey">
-          <Sidebar />
-        </div>
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
-          <Header />
-          <section
-            id="dashboard-main"
-            className="flex-1 w-full relative bg-[#F8F8F8] overflow-y-auto"
-          >
-            {children}
-          </section>
-        </div>
-      </main>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <DeviceProvider>
+        <main className="w-full h-screen max-w-[1920px] mx-auto overflow-hidden flex">
+          <div className="w-[17%] h-full shrink-0 border-r border-grey">
+            <Sidebar />
+          </div>
+          <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <Header />
+            <section
+              id="dashboard-main"
+              className="flex-1 w-full relative bg-[#F8F8F8] overflow-y-auto"
+            >
+              {children}
+            </section>
+          </div>
+        </main>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </DeviceProvider>
     </UserProvider>
   );
 }

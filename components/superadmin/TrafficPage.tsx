@@ -99,37 +99,47 @@ export default function TrafficPage({ range }: { range: string }) {
           ))}
         </ul>
         <div className="w-full h-96">
-            <LineChart
-              style={{
-                width: "100%",
+          <LineChart
+            style={{
+              width: "100%",
 
-                height: "100%",
+              height: "100%",
 
-                aspectRatio: 1.618,
-              }}
-              responsive
-              data={data?.graph}
-              margin={{
-                top: 5,
-                right: 0,
-                left: 0,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 0"
-                stroke="#E8E8E8"
-                vertical={false}
-              />
-              <Tooltip
-                contentStyle={{ backgroundColor: "#fff" }}
-                cursor={false}
-              />
-              <XAxis dataKey="label" tick={{ fontSize: 12 }} interval={0} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Line type="linear" dataKey="previous_value" stroke="#E46E0A" />
-              <Line type="linear" dataKey="value" stroke="#104858" />
-            </LineChart>
+              aspectRatio: 1.618,
+            }}
+            responsive
+            data={data?.graph}
+            margin={{
+              top: 5,
+              right: 0,
+              left: 0,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 0"
+              stroke="#E8E8E8"
+              vertical={false}
+            />
+            <Tooltip
+              contentStyle={{ backgroundColor: "#fff" }}
+              cursor={false}
+            />
+            <XAxis dataKey="label" tick={{ fontSize: 12 }} interval={0} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Line
+              type="linear"
+              dataKey="previous_value"
+              name="Previous"
+              stroke="#E46E0A"
+            />
+            <Line
+              type="linear"
+              dataKey="value"
+              name="Current"
+              stroke="#104858"
+            />
+          </LineChart>
         </div>
       </section>
 

@@ -1,7 +1,6 @@
 "use client";
 import Button from "@/components/common/Button";
 import DashTitle from "@/components/common/DashTitle";
-import FilmIcon from "@/components/icons/FilmIcon";
 import { ICON } from "@/utils/icon-exports";
 import { Modal } from "@/ui/Modal";
 import CreateInstitutionForm from "@/components/forms/CreateInstitutionForm";

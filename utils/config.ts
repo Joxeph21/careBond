@@ -58,3 +58,12 @@ export function ThrowError(err: unknown) {
     "An unexpected application error occurred. Please try again.",
   );
 }
+
+export const SUPER_ADMIN_ROUTES = [
+  "/institutions",
+  "/plans"
+]
+
+export const INSTITUTION_ONLY_ROUTE = [
+  "/devices"
+]

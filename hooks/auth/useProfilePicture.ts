@@ -17,7 +17,6 @@ export function useGetSignedUrl() {
   return { getUploadUrl, isGettingUrl };
 }
 
-// Step 2: Upload the file to S3 using the signed URL
 export function useUploadToS3() {
   const { mutateAsync: uploadToS3, isPending: isUploading } = useMutation({
     mutationFn: ({ uploadUrl, file }: { uploadUrl: string; file: File }) =>
@@ -27,7 +26,6 @@ export function useUploadToS3() {
   return { uploadToS3, isUploading };
 }
 
-// Step 3: Update the user's profile image URL in the database
 export function useUpdateProfilePicture() {
   const queryClient = useQueryClient();
 
@@ -43,7 +41,6 @@ export function useUpdateProfilePicture() {
   return { updateProfilePicture, isUpdating };
 }
 
-// Convenience hook: Orchestrates the full upload flow (Steps 1 → 2 → 3)
 export function useUploadProfilePicture() {
   const { getUploadUrl } = useGetSignedUrl();
   const { uploadToS3 } = useUploadToS3();

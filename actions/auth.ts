@@ -43,7 +43,6 @@ export const auth_refresh_token_action =
     const token = _cookies.get(CONFIG.REFRESH_TOKEN_IDENTIFIER);
 
     if (!token) {
-      console.log("No refresh token found in cookies");
       return { access: null, refresh: null };
     }
 
@@ -68,8 +67,7 @@ export const auth_refresh_token_action =
       }
 
       return { access, refresh };
-    } catch (err) {
-      console.log("Server action refresh error:", err);
+    } catch {
       return { access: null, refresh: null };
     }
   };

@@ -1,10 +1,11 @@
-
-import React, { Suspense } from 'react'
-import ForgotPasswordContent from './content'
+import React, { Suspense } from "react";
+import ForgotPasswordContent from "./content";
+import ActivityIndicator from "@/components/common/ActivityIndicator";
 
 export default function Page() {
-    return <Suspense fallback={<div>Loading...</div>}>
-
-        <ForgotPasswordContent />
+  return (
+    <Suspense fallback={<ActivityIndicator />}>
+      <ForgotPasswordContent />
     </Suspense>
+  );
 }

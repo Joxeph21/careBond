@@ -53,11 +53,11 @@ export default function Family_and_Devices({ data }: { data: User }) {
               {...data}
               assigned_professionals={data.assigned_professionals}
             />
-            <DevicesTable />
+            {/* <DevicesTable /> */}
           </>
         )}
 
-        {data.role === "family" && <DevicesTable />}
+        {/* {data.role === "family" && <DevicesTable />} */}
       </Card.Content>
     </Card>
   );
@@ -339,59 +339,59 @@ function ProfessionalsTable({
   );
 }
 
-const DevicesTable = () => {
-  const {
-    isAllSelected,
-    handleSelectAll,
-    filteredData,
-    selected,
-    handleRowSelect,
-  } = useTableSelect<Devices>({
-    data: dummy_devices.slice(0, 1),
-    searchKeys: ["device_name"],
-  });
-  return (
-    <section className="flex flex-col gap-3.5">
-      <h6 className=" font-bold text-[#23313B]">Devices</h6>
+// const DevicesTable = () => {
+//   const {
+//     isAllSelected,
+//     handleSelectAll,
+//     filteredData,
+//     selected,
+//     handleRowSelect,
+//   } = useTableSelect<Devices>({
+//     data: dummy_devices.slice(0, 1),
+//     searchKeys: ["device_name"],
+//   });
+//   return (
+//     <section className="flex flex-col gap-3.5">
+//       <h6 className=" font-bold text-[#23313B]">Devices</h6>
 
-      <Table columns="20px 1.5fr 1fr 1fr 1.2fr 20px">
-        <Table.Header>
-          <div className="text-left">
-            <input
-              type="checkbox"
-              className="cursor-pointer"
-              name="select-all"
-              id="select-all"
-              checked={isAllSelected}
-              onChange={handleSelectAll}
-            />
-          </div>
-          <p>Name</p>
-          <p>Signing Key</p>
-          <p className="flex gap-1 items-center">
-            Connection Mode
-            <Icon
-              color="#98A2B3"
-              icon={"material-symbols:help-outline-rounded"}
-              fontSize={18}
-            />
-          </p>
-          <div></div>
-          <div></div>
-        </Table.Header>
+//       <Table columns="20px 1.5fr 1fr 1fr 1.2fr 20px">
+//         <Table.Header>
+//           <div className="text-left">
+//             <input
+//               type="checkbox"
+//               className="cursor-pointer"
+//               name="select-all"
+//               id="select-all"
+//               checked={isAllSelected}
+//               onChange={handleSelectAll}
+//             />
+//           </div>
+//           <p>Name</p>
+//           <p>Signing Key</p>
+//           <p className="flex gap-1 items-center">
+//             Connection Mode
+//             <Icon
+//               color="#98A2B3"
+//               icon={"material-symbols:help-outline-rounded"}
+//               fontSize={18}
+//             />
+//           </p>
+//           <div></div>
+//           <div></div>
+//         </Table.Header>
 
-        <Table.Body
-          data={filteredData}
-          render={(item) => (
-            <DeviceList
-              key={item.id}
-              isSelected={selected.includes(item.id)}
-              handleRowSelect={handleRowSelect}
-              {...item}
-            />
-          )}
-        />
-      </Table>
-    </section>
-  );
-};
+//         <Table.Body
+//           data={filteredData}
+//           render={(item) => (
+//             <DeviceList
+//               key={item.id}
+//               isSelected={selected.includes(item.id)}
+//               handleRowSelect={handleRowSelect}
+//               {...item}
+//             />
+//           )}
+//         />
+//       </Table>
+//     </section>
+//   );
+// };

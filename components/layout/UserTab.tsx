@@ -111,8 +111,10 @@ function ProfileDropdown({
       closeModal("change-profile-image");
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch {
-      toast.error("Failed to update profile picture");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update profile picture",
+      );
     }
   };
 

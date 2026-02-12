@@ -91,11 +91,17 @@ export function useForgotPassword() {
 }
 // # 4. Change Password Hook
 export function useChangePassword() {
+  const router = useRouter()
   const { mutate: changePasword, isPending } = useMutation({
     mutationFn: AuthChangePassword,
 
     onSuccess: (data) => {
       toast.success(data?.message ?? "Password changed successfully");
+      
+      setTimeout(() => {
+        toast.success("Login with your new password to continue")
+        router.replace("/login")
+      }, 1000)
     },
 
     onError: (err) => {

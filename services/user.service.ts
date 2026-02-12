@@ -47,17 +47,22 @@ export async function updateUserProfilePicture(data: {
 
 // Step 2: Upload the file directly to S3 using the signed URL
 export async function uploadFileToS3(uploadUrl: string, file: File) {
-  const res = await fetch(uploadUrl, {
-    method: "PUT",
-    headers: {
-      "Content-Type": file.type,
-    },
-    body: file,
-  });
+  try{
 
-  if (!res.ok) {
-    throw new Error("Failed to upload file to S3");
+    const res = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": file.type,
+      },
+      body: file,
+    });
+    
+    if (!res.ok) {
+      throw new Error("Failed to upload file to S3");
+    }
+    
+    return res;
+  }catch(err){
+    ThrowError(err);
   }
-
-  return res;
 }

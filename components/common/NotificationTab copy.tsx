@@ -1,13 +1,14 @@
 "use client";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import useNotifications from "@/hooks/institution/useNotifications";
 import { NotificationList } from "./List";
 import { Modal, useModal } from "@/ui/Modal";
 import NotificationPopup from "@/ui/NotificationPopup";
 import { useBrowserNotification } from "@/hooks/useBrowserNotification";
+import { useEffect, useRef } from "react";
 
 type NotifcationProps = {
   hasUnread?: number;
@@ -17,16 +18,13 @@ export default function NotificationTab({
   hasUnread: initialHasUnread,
 }: NotifcationProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const { notifications, isLoading } = useNotifications();
   const [selectedNotif, setSelectedNotif] = useState<UserNotification | null>(
     null,
   );
-
-  const [mountTime] = useState(() => Date.now());
-  const mountedAt = useRef(mountTime);
-
-  const { notifications, isLoading } = useNotifications();
   const { permission, requestPermission, sendNotification } =
     useBrowserNotification();
+  const notifiedIds = useRef<Set<string>>(new Set());
 
   const hasUnread = initialHasUnread || notifications.some((n) => !n.is_read);
 
@@ -38,72 +36,66 @@ export default function NotificationTab({
 
   useEffect(() => {
     if (notifications.length > 0 && permission === "granted") {
-      const newUnread = notifications.filter((n) => {
-        const isUnread = !n.is_read;
-        const isNew = new Date(n.created_at).getTime() > mountedAt.current;
-        return isUnread && isNew;
-      });
+      const latestUnread = notifications.filter((n) => !n.is_read);
 
-      newUnread.forEach((notif) => {
-        sendNotification(notif.title, {
-          body: notif.message,
-          icon: "/logo.svg",
-        });
+      latestUnread.forEach((notif) => {
+        if (!notifiedIds.current.has(notif.id)) {
+          sendNotification(notif.title, {
+            body: notif.message,
+            icon: "/logo.svg",
+          });
+          notifiedIds.current.add(notif.id);
+        }
       });
-
-      if (newUnread.length > 0) {
-        mountedAt.current = Date.now();
-      }
     }
   }, [notifications, permission, sendNotification]);
-
-  const handleSelectNotification = (notif: UserNotification) => {
-    setSelectedNotif(notif);
-    setIsHovered(false);
-  };
 
   return (
     <Modal>
       <div
-        className="relative z-50 h-full flex items-center"
+        className="relative"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <button
           type="button"
-          className="icon-btn relative"
-          aria-haspopup="true"
-          aria-expanded={isHovered}
-          aria-label="Notifications"
+          className="icon-btn"
+          role="switch"
+          aria-checked={false}
         >
           {hasUnread && (
-            <span className="size-2.5 flex-center text-white absolute top-2 right-2 rounded-full bg-danger z-10"></span>
+            <span className="size-2.5 flex-center text-white absolute top-2 right-2 rounded-full bg-danger z-10 "></span>
           )}
-          <Icon
-            color={isHovered ? "#212B36" : "#A9A9A9"}
-            icon={ICON.BELL}
-            fontSize={24}
-          />
-
-          {isHovered && (
-            <div className="absolute inset-x-0 -bottom-4 h-4 bg-transparent" />
-          )}
+          <Icon color="#A9A9A9" icon={ICON.BELL} fontSize={24} />
         </button>
 
         <AnimatePresence>
           {isHovered && (
             <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 5, scale: 0.98 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              // mt-2 provides visual spacing, but the "Bridge" above handles the interaction
-              className="absolute right-0 top-full mt-2 w-lg bg-white rounded-xl shadow-card-shadow border border-grey overflow-hidden origin-top-right"
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="absolute right-0 mt-2 w-lg bg-white rounded-xl shadow-card-shadow border border-grey overflow-hidden z-50 origin-top-right"
             >
               <header className="px-4 py-3 border-b border-grey flex-between bg-white sticky top-0 z-10">
                 <h4 className="font-bold text-[#212B36] text-base">
                   Notifications
                 </h4>
+
+                {/* Dummy button to Trigger test Notifications */}
+                {/* <button
+                  type="button"
+                  onClick={() =>
+                    sendNotification("Test Notification", {
+                      body: "This is a dummy notification to test browser functionality!",
+                      icon: "/logo.svg",
+                    })
+                  }
+                  className="text-[10px] font-bold text-primary uppercase px-2 py-0.5 bg-primary/10 rounded border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer"
+                >
+                  Test
+                </button> */}
               </header>
 
               <div className="max-h-[350px] overflow-y-auto scrollbar-hide bg-white">
@@ -124,7 +116,7 @@ export default function NotificationTab({
                   <ul className="flex flex-col">
                     {notifications.slice(0, 6).map((notif) => (
                       <NotificationList
-                        setSelected={handleSelectNotification}
+                        setSelected={setSelectedNotif}
                         key={notif.id}
                         {...notif}
                       />
@@ -136,7 +128,7 @@ export default function NotificationTab({
               <footer className="p-2 border-t border-grey bg-gray-50/50">
                 <Modal.Trigger name="all-notifications">
                   <button
-                    onClick={() => setIsHovered(false)}
+                    aria-label="View all notifications"
                     className="block cursor-pointer w-full py-2 text-center text-sm text-[#212B36] font-medium hover:bg-white rounded-lg transition-colors border border-transparent hover:border-grey"
                   >
                     View all notifications

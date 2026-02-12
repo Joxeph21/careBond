@@ -33,9 +33,9 @@ export default function useNotifications(
   const { mutateAsync: read } = useMutation({
     mutationFn: ({ id, data }: { id: string; data: { is_read: boolean } }) =>
       markAsRead({ id, data }),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications", variables] });
+      // queryClient.invalidateQueries({ queryKey: ["notifications", variables] });
     },
   });
 

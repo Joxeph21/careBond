@@ -167,7 +167,7 @@ export default function AssignUserForm({
                   <div className="flex-center gap-3">
                     <figure className="rounded-full size-8 relative overflow-hidden">
                       <Image
-                        src={"/user2.png"}
+                        src={el.profile_image_url || "/profile.png"}
                         alt={`${el.full_name}_profile_picture`}
                         fill
                         className="object-center object-cover"

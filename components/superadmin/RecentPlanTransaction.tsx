@@ -1,16 +1,21 @@
 import Table from "@/ui/Table";
 import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
-import { useGetInstitutions } from "@/hooks/superadmin/useInstitutions";
+import {
+  useDeleteInstitution,
+  useGetInstitutions,
+} from "@/hooks/superadmin/useInstitutions";
 import { formatDate } from "@/utils/helper-functions";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Modal } from "@/ui/Modal";
 import ActionPopup from "@/ui/ActionPopup";
+import Link from "next/link";
+import CreateInstitutionForm from "../forms/CreateInstitutionForm";
+import ActionLoader from "@/ui/ActionLoader";
 
 export default function RecentPlanTransaction() {
+  const { deleteInst, isPending } = useDeleteInstitution();
   const { institutions, isLoading } = useGetInstitutions();
-  const router = useRouter();
   const [selectedInstitution, setSelectedInstitution] =
     useState<Institution | null>(null);
 
@@ -37,6 +42,8 @@ export default function RecentPlanTransaction() {
           </button> */}
         </div>
 
+        {isPending && <ActionLoader />}
+
         <Table border={false} columns="1fr .5fr .5fr .5fr .4fr">
           <Table.Header className="border-b border-grey">
             <p>Institution Name</p>
@@ -51,14 +58,21 @@ export default function RecentPlanTransaction() {
             data={institutions?.slice(0, 10) ?? []}
             render={(item) => (
               <Table.Row key={item.id}>
-                <div className="flex items-center gap-2">
+                <Link
+                  href={`/institutions/${item.id}`}
+                  className="flex hover:underline hover:text-primary text-[#1C1C1C] items-center gap-2"
+                >
                   <figure className="size-8 flex-center rounded-md bg-[#EEF3FF] shrink-0">
-                    <Icon icon={"solar:hospital-line-duotone"} className="text-primary" fontSize={18} />
+                    <Icon
+                      icon={"solar:hospital-line-duotone"}
+                      className="text-primary"
+                      fontSize={18}
+                    />
                   </figure>
-                  <h4 className="truncate text-[#1C1C1C] text-xs font-semibold capitalize">
+                  <h4 className="truncate  text-xs font-semibold capitalize">
                     {item.name}
                   </h4>
-                </div>
+                </Link>
                 <p className="text-[#A9A9A9]">
                   {formatDate(item.last_billed_date, "MMM d, yyyy")}
                 </p>
@@ -69,12 +83,14 @@ export default function RecentPlanTransaction() {
                   {item.plan_status}
                 </p>
                 <div className="flex-center gap-3">
-                  <button
-                    onClick={() => router.push(`/institutions/${item.id}`)}
-                    className="cursor-pointer hover:shadow-card-shadow ease-in transition-all duration-200"
+                  <Modal.Trigger
+                    name="edit-institution"
+                    onClick={() => setSelectedInstitution(item)}
                   >
-                    <Icon icon={ICON.EDIT} fontSize={20} />
-                  </button>
+                    <button className="cursor-pointer hover:shadow-card-shadow ease-in transition-all duration-200">
+                      <Icon icon={ICON.EDIT} fontSize={20} />
+                    </button>
+                  </Modal.Trigger>
                   <Modal.Trigger
                     name="confirm-delete-institution"
                     onClick={() => setSelectedInstitution(item)}
@@ -89,19 +105,25 @@ export default function RecentPlanTransaction() {
           />
         </Table>
 
+      <Modal.Window className="py-2! gap-0! px-1!" name="delete-institution">
+        <ActionPopup
+          onConfirm={() => {
+            if (selectedInstitution) {
+              deleteInst(selectedInstitution.id);
+            }
+          }}
+          type="delete"
+          name="Institution"
+        />
+      </Modal.Window>
+
         <Modal.Window
-          className="py-2! gap-0! px-1!"
-          name="confirm-delete-institution"
+          hasClose
+          className="max-w-2xl w-full!"
+          title="Edit Institution"
+          name="edit-institution"
         >
-          <ActionPopup
-            onConfirm={() => {
-           
-              console.log("Deleting institution", selectedInstitution?.id);
-            }}
-            type="delete"
-            name="Institution"
-            // description={`Are you sure you want to delete ${selectedInstitution?.name}? This action cannot be undone.`}
-          />
+          <CreateInstitutionForm type="edit" data={selectedInstitution!} />
         </Modal.Window>
       </section>
     </Modal>

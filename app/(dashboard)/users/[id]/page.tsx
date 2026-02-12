@@ -43,6 +43,7 @@ async function Page({ params }: PageProps) {
     throw error;
   }
 
+
   return (
     <section className="section-container gap-3 px-3 pb-4 flex flex-col bg-white">
       <DashTitle href="/users" title={capitalize(user?.full_name)} />
@@ -79,7 +80,7 @@ async function Page({ params }: PageProps) {
           </div>
         </div>
       </section>
-      <EditUserForm user={user} isEdit />
+      <EditUserForm user={user} isEdit inst_id={user.institution_id!} />
     </section>
   );
 }
