@@ -55,3 +55,18 @@ export default function useNotifications(
     read,
   };
 }
+
+export function useReadAll(id?: string) {
+  const queryClient = useQueryClient();
+  const { mutate: readAll, isPending } = useMutation({
+    mutationFn: () => markAllAsRead({ institution_id: id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
+  return {
+    readAll,
+    isPending,
+  };
+}

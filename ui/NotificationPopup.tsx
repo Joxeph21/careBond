@@ -118,7 +118,7 @@ export default function NotificationPopup({
                   Loading...
                 </>
               ) : (
-                "Load More Activities"
+                "Load More Notifications"
               )}
             </button>
           </div>

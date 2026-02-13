@@ -3,11 +3,15 @@ import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import useNotifications from "@/hooks/institution/useNotifications";
+import useNotifications, {
+  useReadAll,
+} from "@/hooks/institution/useNotifications";
 import { NotificationList } from "./List";
 import { Modal, useModal } from "@/ui/Modal";
 import NotificationPopup from "@/ui/NotificationPopup";
 import { useBrowserNotification } from "@/hooks/useBrowserNotification";
+import CopyBtn from "./CopyBtn";
+import useAdmin from "@/hooks/auth/useAdmin";
 
 type NotifcationProps = {
   hasUnread?: number;
@@ -20,6 +24,8 @@ export default function NotificationTab({
   const [selectedNotif, setSelectedNotif] = useState<UserNotification | null>(
     null,
   );
+  const { data } = useAdmin();
+  const { readAll, isPending } = useReadAll(data?.institution_id ?? "");
 
   const [mountTime] = useState(() => Date.now());
   const mountedAt = useRef(mountTime);
@@ -65,7 +71,7 @@ export default function NotificationTab({
   return (
     <Modal>
       <div
-        className="relative z-50 h-full flex items-center"
+        className="relative z-30 h-full flex items-center"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -97,13 +103,24 @@ export default function NotificationTab({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 5, scale: 0.98 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              // mt-2 provides visual spacing, but the "Bridge" above handles the interaction
               className="absolute right-0 top-full mt-2 w-lg bg-white rounded-xl shadow-card-shadow border border-grey overflow-hidden origin-top-right"
             >
               <header className="px-4 py-3 border-b border-grey flex-between bg-white sticky top-0 z-10">
                 <h4 className="font-bold text-[#212B36] text-base">
                   Notifications
                 </h4>
+
+                {hasUnread && (
+                  <button
+                    disabled={isPending}
+                    role="button"
+                    onClick={() => readAll()}
+                    type="button"
+                    className="icon-btn text-dark! ring-dark! text-xs!"
+                  >
+                    {isPending ? "..." : "  Mark All as Read"}
+                  </button>
+                )}
               </header>
 
               <div className="max-h-[350px] overflow-y-auto scrollbar-hide bg-white">
@@ -223,9 +240,15 @@ function NotificationDetails({ notif }: { notif: UserNotification }) {
                 <p className="text-xs text-grey-dark capitalize">
                   {key.replace("_", " ")}
                 </p>
-                <p className="text-sm font-medium text-[#212B36]">
-                  {String(value)}
-                </p>
+                <div className="flex items-center">
+                  <CopyBtn
+                    label={key?.replace("_", " ")}
+                    value={String(value)}
+                  />
+                  <p className="text-sm truncate font-medium text-[#212B36]">
+                    {String(value)}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

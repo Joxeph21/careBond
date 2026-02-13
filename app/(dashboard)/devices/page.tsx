@@ -2,6 +2,8 @@
 import Button from "@/components/common/Button";
 import DashTitle from "@/components/common/DashTitle";
 import AddCameraForm from "@/components/forms/Add-camera-form";
+import CopyBtn from "@/components/common/CopyBtn";
+import useDevices, { useDeleteDevice } from "@/hooks/institution/useDevices";
 import {
   useDeleteCamera,
   useGetCameras,
@@ -17,6 +19,8 @@ import { ICON } from "@/utils/icon-exports";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import React, { Activity, useState } from "react";
+import Pagination from "@/components/common/Pagination";
+import usePaginatorParams from "@/hooks/usePaginatorParams";
 
 const tabs = ["camera", "others"];
 
@@ -236,32 +240,279 @@ function CameraTable() {
 }
 
 function Devices() {
+  const { page } = usePaginatorParams();
+  const { devices, isLoading, total_count, prevPage, nextPage } = useDevices({
+    page,
+  });
+  const { delete_device, isPending: isDeleting } = useDeleteDevice();
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+
+  const {
+    filteredData,
+    selected,
+    isAllSelected,
+    handleSelectAll,
+    handleRowSelect,
+  } = useTableSelect<Device>({
+    data: devices ?? [],
+  });
+
   return (
-    <Table columns="20px 1fr .5fr 1fr .5fr .5fr 20px">
-      <Table.Header>
-        <div className="text-left">
-          <input
-            type="checkbox"
-            className="cursor-pointer"
-            name="select-all"
-            id="select-all"
-            // checked={isAllSelected}
-            // onChange={handleSelectAll}
+    <section className="w-full flex flex-col gap-2">
+      <Table columns="20px 1fr 1fr 1fr 1fr 1fr 50px">
+        <Table.Header>
+          <div className="text-left">
+            <input
+              type="checkbox"
+              className="cursor-pointer"
+              name="select-all"
+              id="select-all"
+              checked={isAllSelected}
+              onChange={handleSelectAll}
+            />
+          </div>
+          <p>Device Name</p>
+          <p>Type</p>
+          <p>Status</p>
+          <p>Battery</p>
+          <p>Last Sync</p>
+          <div></div>
+        </Table.Header>
+        <Table.Body
+          isLoading={isLoading}
+          data={filteredData}
+          render={(item) => (
+            <Table.Row isHighlighted={selected.includes(item.id)} key={item.id}>
+              <p>
+                <input
+                  type="checkbox"
+                  className="cursor-pointer"
+                  name="select-row"
+                  id="select-row"
+                  checked={selected.includes(item.id)}
+                  onChange={() => handleRowSelect(item.id)}
+                />
+              </p>
+              <p className="font-medium text-[#212B36]">{item.device_name}</p>
+              <p className="capitalize">{item.device_type}</p>
+              <p>
+                <span
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium w-fit capitalize ${
+                    item.status === "online"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  <span
+                    className={`size-1.5 rounded-full ${
+                      item.status === "online" ? "bg-green-600" : "bg-gray-500"
+                    }`}
+                  />
+                  {item.status}
+                </span>
+              </p>
+              <p>
+                <span
+                  className={`font-medium ${
+                    item.battery_level < 20
+                      ? "text-red-500"
+                      : item.battery_level < 50
+                        ? "text-yellow-600"
+                        : "text-green-600"
+                  }`}
+                >
+                  {item.battery_level}%
+                </span>
+              </p>
+              <p className="text-sm text-gray-500">
+                {item.last_sync
+                  ? new Date(item.last_sync).toLocaleString()
+                  : "Never"}
+              </p>
+
+              <Popover>
+                <Popover.Menu>
+                  <Popover.Trigger>
+                    <button
+                      type="button"
+                      className="cursor-pointer flex-center"
+                    >
+                      <Icon icon={ICON.MENU} fontSize={20} />
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Content className="left-auto! shadow-card-shadow right-0! min-w-20!">
+                    {(closepopover) => (
+                      <ul className="flex flex-col gap-2">
+                        <Modal.Trigger name="device-details">
+                          <button
+                            type="button"
+                            className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded-md transition-colors w-full text-left"
+                            onClick={() => {
+                              setSelectedDevice(item);
+                              closepopover();
+                            }}
+                          >
+                            <Icon icon="solar:eye-bold" fontSize={18} />
+                            View
+                          </button>
+                        </Modal.Trigger>
+
+                        {/* <Modal.Trigger name="edit-device">
+                          <button
+                            type="button"
+                            className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded-md transition-colors w-full text-left"
+                            onClick={() => {
+                              setSelectedDevice(item);
+                              closepopover();
+                            }}
+                          >
+                            <Icon icon={ICON.EDIT} fontSize={18} />
+                            Edit
+                          </button>
+                        </Modal.Trigger> */}
+
+                        <Modal.Trigger name="delete-device">
+                          <button
+                            type="button"
+                            className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded-md transition-colors w-full text-left text-danger"
+                            onClick={() => {
+                              setSelectedDevice(item);
+                              closepopover();
+                            }}
+                          >
+                            <Icon icon={ICON.TRASH} fontSize={18} />
+                            Delete
+                          </button>
+                        </Modal.Trigger>
+                      </ul>
+                    )}
+                  </Popover.Content>
+                </Popover.Menu>
+              </Popover>
+            </Table.Row>
+          )}
+        />
+        <Table.Footer>
+          <Pagination
+            totalCount={total_count ?? 0}
+            prevPage={prevPage}
+            nextPage={nextPage}
           />
+        </Table.Footer>
+      </Table>
+
+      <Modal.Window
+        className="max-w-3xl w-full"
+        hasClose
+        title="Device Details"
+        name="device-details"
+      >
+        {selectedDevice && <DeviceDetails device={selectedDevice} />}
+      </Modal.Window>
+    </section>
+  );
+}
+
+function DeviceDetails({ device }: { device: Device }) {
+  const formatDate = (dateStr: string | null) =>
+    dateStr ? new Date(dateStr).toLocaleString() : "N/A";
+
+  return (
+    <div className="flex flex-col gap-6 p-4 max-h-[80vh] overflow-y-auto">
+      {/* Header Info */}
+      <div className="grid grid-cols-2 gap-4">
+        <DetailItem label="Device Name" value={device.device_name} />
+        <DetailItem label="Device Type" value={device.device_type} />
+        <DetailItem
+          label="Status"
+          value={
+            <span
+              className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium w-fit capitalize ${
+                device.status === "online"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              <span
+                className={`size-1.5 rounded-full ${
+                  device.status === "online" ? "bg-green-600" : "bg-gray-500"
+                }`}
+              />
+              {device.status}
+            </span>
+          }
+        />
+        <DetailItem label="Battery Level" value={`${device.battery_level}%`} />
+        <DetailItem label="Is Active" value={device.is_active ? "Yes" : "No"} />
+        <DetailItem label="Patient ID" value={device.patient} copyable />
+        <DetailItem label="Device ID" value={device.id} copyable />
+        <DetailItem label="Last Sync" value={formatDate(device.last_sync)} />
+        <DetailItem label="Created At" value={formatDate(device.created_at)} />
+        <DetailItem label="Updated At" value={formatDate(device.updated_at)} />
+      </div>
+
+      {/* Readings Section */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-bold text-[#212B36] border-b pb-2">
+          Readings
+        </h3>
+        {device.readings && device.readings.length > 0 ? (
+          <div className="grid gap-3">
+            {device.readings.map((reading) => (
+              <div
+                key={reading.id}
+                className="bg-gray-50 p-3 rounded-lg border border-gray-100 grid grid-cols-2 gap-2 text-sm"
+              >
+                <div className="col-span-2 flex justify-between items-center border-b border-gray-200 pb-1 mb-1">
+                  <span className="font-semibold text-primary capitalize">
+                    {reading.reading_type.replace("_", " ")}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {formatDate(reading.recorded_at)}
+                  </span>
+                </div>
+                <div className="text-gray-600">
+                  Value:{" "}
+                  <span className="font-medium text-gray-900">
+                    {reading.value} {reading.unit}
+                  </span>
+                </div>
+                <div className="text-gray-600 flex items-center gap-1">
+                  ID: <span className="font-mono text-xs">{reading.id}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 italic">No readings recorded.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DetailItem({
+  label,
+  value,
+  copyable = false,
+}: {
+  label: string;
+  value: React.ReactNode;
+  copyable?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs text-gray-500 uppercase font-semibold">
+        {label}
+      </span>
+      <div className="flex items-center gap-2">
+        {copyable && typeof value === "string" && (
+          <CopyBtn label={label} value={value} size={16} />
+        )}
+        <div className="text-sm font-medium max-w-[70%] truncate text-gray-900 truncate">
+          {value}
         </div>
-        <p>Name</p>
-        <p>Signing Key</p>
-        <p className="flex gap-1 items-center">
-          Connection Mode
-          <Icon
-            color="#98A2B3"
-            icon={"material-symbols:help-outline-rounded"}
-            fontSize={18}
-          />
-        </p>
-        <div></div>
-        <div></div>
-      </Table.Header>
-    </Table>
+      </div>
+    </div>
   );
 }
