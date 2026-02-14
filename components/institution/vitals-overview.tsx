@@ -6,6 +6,7 @@ import {
 import { Icon } from "@iconify/react";
 import React, { useMemo, useState } from "react";
 import Skeleton from "../common/Skeleton";
+import { format } from "date-fns";
 import {
   Area,
   AreaChart,
@@ -29,7 +30,6 @@ export default function VitalsOverview({ id }: { id: string }) {
   });
   const {
     history,
-    total_count: historyCount,
     isLoading: historyLoading,
     fetchNextPage: fetchNextHistory,
     hasNextPage: hasNextHistory,
@@ -38,15 +38,16 @@ export default function VitalsOverview({ id }: { id: string }) {
     patient_id: id,
   });
   const { vitals, isLoading } = useGetPatientVitals(id);
+
+  const [selected, setSelected] = useState<string>("heart_rate");
+
   const { data, isLoading: chartLoading } = useGetPatientsChart({
     patient_id: id,
-    period: sortBy,
-    vital_type: "heart_rate",
+    period: sortBy || "24H",
+    vital_type: selected,
   });
 
   console.log(data);
-  console.log({ vitals });
-  console.log({ history });
 
   const VitalStats = useMemo(() => {
     return [
@@ -95,123 +96,105 @@ export default function VitalsOverview({ id }: { id: string }) {
     ];
   }, [vitals]);
 
-  const [selected, setSelected] = useState<string>(VitalStats?.at(0)?.id ?? "");
+  // const chartData = useMemo(() => {
+  //   const labels =
+  //     sortBy === "24H"
+  //       ? [
+  //           "00-03",
+  //           "03-06",
+  //           "06-09",
+  //           "09-12",
+  //           "12-15",
+  //           "15-18",
+  //           "18-21",
+  //           "21-00",
+  //         ]
+  //       : sortBy === "7D"
+  //         ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  //         : sortBy === "1y"
+  //           ? [
+  //               "Jan",
+  //               "Feb",
+  //               "Mar",
+  //               "Apr",
+  //               "May",
+  //               "Jun",
+  //               "Jul",
+  //               "Aug",
+  //               "Sep",
+  //               "Oct",
+  //               "Nov",
+  //               "Dec",
+  //             ]
+  //           : ["1-5", "6-10", "11-15", "16-20", "21-25", "26-31"];
 
-  const chartData = useMemo(() => {
-    const labels =
-      sortBy === "24H"
-        ? [
-            "00-03",
-            "03-06",
-            "06-09",
-            "09-12",
-            "12-15",
-            "15-18",
-            "18-21",
-            "21-00",
-          ]
-        : sortBy === "7D"
-          ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-          : sortBy === "1y"
-            ? [
-                "Jan",
-                "Feb",
-                "Mar",
-                "Apr",
-                "May",
-                "Jun",
-                "Jul",
-                "Aug",
-                "Sep",
-                "Oct",
-                "Nov",
-                "Dec",
-              ]
-            : ["1-5", "6-10", "11-15", "16-20", "21-25", "26-31"];
+  //   const getRange = (id: string) => {
+  //     switch (id) {
+  //       case "heart_rate":
+  //         return [60, 100];
+  //       case "oxygen_saturation":
+  //         return [95, 100];
+  //       case "systolic_bp":
+  //         return [110, 140];
+  //       case "diastolic_bp":
+  //         return [70, 90];
+  //       case "temperature":
+  //         return [36.1, 37.5];
+  //       case "respiratory_rate":
+  //         return [12, 20];
+  //       default:
+  //         return [0, 100];
+  //     }
+  //   };
 
-    const getRange = (id: string) => {
-      switch (id) {
-        case "heart_rate":
-          return [60, 100];
-        case "oxygen_saturation":
-          return [95, 100];
-        case "systolic_bp":
-          return [110, 140];
-        case "diastolic_bp":
-          return [70, 90];
-        case "temperature":
-          return [36.1, 37.5];
-        case "respiratory_rate":
-          return [12, 20];
-        default:
-          return [0, 100];
-      }
-    };
+  //   const [min, max] = getRange(selected);
 
-    const [min, max] = getRange(selected);
+  //   // Deterministic pseudo-random for dummy data to satisfy React purity rules
+  //   const seed = (str: string) => {
+  //     let hash = 0;
+  //     for (let i = 0; i < str.length; i++) {
+  //       hash = (hash << 5) - hash + str.charCodeAt(i);
+  //       hash |= 0;
+  //     }
+  //     return (Math.abs(hash) % 1000) / 1000;
+  //   };
 
-    // Deterministic pseudo-random for dummy data to satisfy React purity rules
-    const seed = (str: string) => {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        hash = (hash << 5) - hash + str.charCodeAt(i);
-        hash |= 0;
-      }
-      return (Math.abs(hash) % 1000) / 1000;
-    };
-
-    return labels.map((label) => {
-      const random = seed(label + selected + sortBy);
-      return {
-        date: label,
-        value: Math.floor(random * (max - min + 1)) + min,
-      };
-    });
-  }, [selected, sortBy]);
+  //   return labels.map((label) => {
+  //     const random = seed(label + selected + sortBy);
+  //     return {
+  //       date: label,
+  //       value: Math.floor(random * (max - min + 1)) + min,
+  //     };
+  //   });
+  // }, [selected, sortBy]);
 
   const groupedHistory = useMemo(() => {
-    const vital = VitalStats.find((v) => v.id === selected);
-    // Deterministic pseudo-random for dummy data
-    const seed = (str: string) => {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        hash = (hash << 5) - hash + str.charCodeAt(i);
-        hash |= 0;
-      }
-      return (Math.abs(hash) % 1000) / 1000;
-    };
+    if (!history) return [];
 
-    return [
-      {
-        date: "Feb 10, 2025",
-        items: Array.from({ length: 3 }).map((_, i) => {
-          const random = seed(`h1-${i}-${selected}`);
-          return {
-            id: `h1-${i}`,
-            title: vital?.title,
-            value: Math.floor(random * 20 + 70),
-            unit: vital?.unit,
-            time: `1${i}:30 AM`,
-            status: "Normal",
-          };
-        }),
-      },
-      {
-        date: "Feb 09, 2025",
-        items: Array.from({ length: 2 }).map((_, i) => {
-          const random = seed(`h2-${i}-${selected}`);
-          return {
-            id: `h2-${i}`,
-            title: vital?.title,
-            value: Math.floor(random * 20 + 70),
-            unit: vital?.unit,
-            time: `0${i + 8}:15 PM`,
-            status: "Normal",
-          };
-        }),
-      },
-    ];
-  }, [selected, VitalStats]);
+    const vital = VitalStats.find((v) => v.id === selected);
+
+    // Group by date
+    const grouped: Record<string, Vitals[]> = {};
+    history.forEach((item) => {
+      const dateStr = format(new Date(item.recorded_at), "MMM dd, yyyy");
+      if (!grouped[dateStr]) grouped[dateStr] = [];
+      grouped[dateStr].push(item);
+    });
+
+    return Object.entries(grouped).map(([date, items]) => ({
+      date,
+      items: items.map((item) => {
+        const val = item[selected as keyof Vitals];
+        return {
+          id: item.id,
+          title: vital?.title,
+          value: val,
+          unit: vital?.unit,
+          time: format(new Date(item.recorded_at), "hh:mm a"),
+        };
+      }),
+    }));
+  }, [selected, VitalStats, history]);
 
   return (
     <section className="grid max-w-[95%] mx-auto grid-cols-[65%_35%] w-full gap-5">
@@ -261,105 +244,142 @@ export default function VitalsOverview({ id }: { id: string }) {
           variant="regular"
           type="optimistic"
         />
-        <AreaChart
-          data={chartData}
-          style={{
-            width: "100%",
-            height: "100%",
-            marginTop: "auto",
-            aspectRatio: 3.4,
-          }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 0"
-            stroke="#E8E8E8"
-            vertical={false}
-          />
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis width="auto" tick={{ fontSize: 12 }} dataKey={"value"} />
-          <Tooltip
-            cursor={false}
-            content={({ active, payload, label }) => {
-              if (active && payload && payload.length) {
-                const vital = VitalStats.find((v) => v.id === selected);
-                return (
-                  <div className="bg-white p-3 border border-grey rounded-lg shadow-md text-sm">
-                    <p className="font-semibold mb-2">{label}</p>
-                    {payload.map(
-                      (
-                        entry: { stroke: string; value: number },
-                        index: number,
-                      ) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 mb-1"
-                        >
-                          <span
-                            className="size-2.5 rounded-full"
-                            style={{ backgroundColor: entry.stroke }}
-                          />
-                          <span className="text-secondary">
-                            {vital?.title}:
-                          </span>
-                          <span className="font-medium">
-                            {entry.value} {vital?.unit}
-                          </span>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                );
-              }
-              return null;
+        {chartLoading ? (
+          <Skeleton className="w-full h-full rounded-md" />
+        ) : (
+          <AreaChart
+            data={data}
+            style={{
+              width: "100%",
+              height: "100%",
+              marginTop: "auto",
+              aspectRatio: 3.4,
             }}
-          />
-          <Area
-            type="monotone"
-            dataKey="value"
-            strokeWidth={2}
-            stroke="#3A6FF8"
-            fill="#3A6FF81A"
-          />
-        </AreaChart>
+          >
+            <CartesianGrid
+              strokeDasharray="3 0"
+              stroke="#E8E8E8"
+              vertical={false}
+            />
+            <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+            <YAxis width="auto" tick={{ fontSize: 12 }} dataKey={"value"} />
+            <Tooltip
+              cursor={false}
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  const vital = VitalStats.find((v) => v.id === selected);
+                  return (
+                    <div className="bg-white p-3 border border-grey rounded-lg shadow-md text-sm">
+                      <p className="font-semibold mb-2">{label}</p>
+                      {payload.map(
+                        (
+                          entry: { stroke: string; value: number },
+                          index: number,
+                        ) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 mb-1"
+                          >
+                            <span
+                              className="size-2.5 rounded-full"
+                              style={{ backgroundColor: entry.stroke }}
+                            />
+                            <span className="text-secondary">
+                              {vital?.title}:
+                            </span>
+                            <span className="font-medium">
+                              {entry.value} {vital?.unit}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="value"
+              strokeWidth={2}
+              stroke="#3A6FF8"
+              fill="#3A6FF81A"
+            />
+          </AreaChart>
+        )}
       </section>
       <ul className="w-full flex flex-col gap-6 max-h-96 overflow-y-auto p-4 bg-[#EEF2FF] rounded-md">
-        {groupedHistory.map((group) => (
-          <li key={group.date} className="w-full flex flex-col gap-3">
-            <div className="flex items-center gap-2 w-full">
-              <span className="text-primary font-medium text-xs whitespace-nowrap">
-                {group.date}
-              </span>
-              <div className="h-px bg-primary/20 flex-1" />
-            </div>
+        {historyLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className="w-full flex flex-col gap-3">
+              <div className="flex items-center gap-2 w-full">
+                <Skeleton className="h-4 w-20" />
+                <div className="h-px bg-primary/20 flex-1" />
+              </div>
+              <Skeleton className="h-16 w-full rounded-xl" />
+            </li>
+          ))
+        ) : groupedHistory.length === 0 ? (
+          <p className="text-center text-gray-500 py-10">
+            No history available
+          </p>
+        ) : (
+          <>
+            {groupedHistory.map((group) => (
+              <li key={group.date} className="w-full flex flex-col gap-3">
+                <div className="flex items-center gap-2 w-full">
+                  <span className="text-primary font-medium text-xs whitespace-nowrap">
+                    {group.date}
+                  </span>
+                  <div className="h-px bg-primary/20 flex-1" />
+                </div>
 
-            <ul className="flex flex-col gap-2 w-full">
-              {group.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="w-full p-3 text-[#0A1B39] rounded-xl flex-between bg-white shadow-sm"
+                <ul className="flex flex-col gap-2 w-full">
+                  {group.items.map((item) => (
+                    <li
+                      key={item.id}
+                      className="w-full p-3 text-[#0A1B39] rounded-xl flex-between bg-white shadow-sm"
+                    >
+                      <div className="space-y-1">
+                        <p className="font-semibold text-sm">{item.title}</p>
+                        <p className="text-[10px] font-medium text-[#646464]">
+                          {item.time}
+                        </p>
+                      </div>
+                      <div className="space-y-1 text-right">
+                        <p className="font-bold text-sm text-primary">
+                          {item.value}{" "}
+                          <span className="text-[10px] font-normal text-[#646464]">
+                            {item.unit}
+                          </span>
+                        </p>
+                        {/* <p className="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full inline-block">
+                          {item.status}
+                        </p> */}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+            {isFetchingNextHistory && (
+              <li className="w-full py-2">
+                <Skeleton className="h-16 w-full rounded-xl" />
+              </li>
+            )}
+            {!isFetchingNextHistory && hasNextHistory && (
+              <li className="w-full flex justify-center py-2">
+                <button
+                  onClick={() => fetchNextHistory()}
+                  className="text-xs text-primary font-medium hover:underline cursor-pointer"
                 >
-                  <div className="space-y-1">
-                    <p className="font-semibold text-sm">{item.title}</p>
-                    <p className="text-[10px] font-medium text-[#646464]">
-                      {item.time}
-                    </p>
-                  </div>
-                  <div className="space-y-1 text-right">
-                    <p className="font-bold text-sm text-primary">
-                      {item.value}{" "}
-                      <span className="text-[10px] font-normal text-[#646464]">
-                        {item.unit}
-                      </span>
-                    </p>
-                    <p className="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full inline-block">
-                      {item.status}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
+                  Load More
+                </button>
+              </li>
+            )}
+          </>
+        )}
       </ul>
     </section>
   );

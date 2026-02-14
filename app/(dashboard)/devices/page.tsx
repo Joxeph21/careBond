@@ -98,13 +98,25 @@ function CameraTable() {
     isAllSelected,
     handleSelectAll,
     handleRowSelect,
+    clearSelected,
   } = useTableSelect<Camera>({
     data: cameras ?? [],
   });
 
+  const handleBulkDelete = () => {
+    selected.forEach((id) => delete_camera(id as string));
+    clearSelected();
+  };
+
   return (
     <section className="w-full flex flex-col gap-2">
-      {selected.length > 0 && <TableOptions ids={selected} />}
+      {selected.length > 0 && (
+        <TableOptions
+          ids={selected as string[]}
+          onConfirmDelete={handleBulkDelete}
+          name="camera"
+        />
+      )}
       <Table columns="20px .5fr .5fr .5fr .5fr .2fr 20px">
         <Table.Header>
           <div className="text-left">
@@ -253,12 +265,25 @@ function Devices() {
     isAllSelected,
     handleSelectAll,
     handleRowSelect,
+    clearSelected,
   } = useTableSelect<Device>({
     data: devices ?? [],
   });
 
+  const handleBulkDelete = () => {
+    selected.forEach((id) => delete_device(id as string));
+    clearSelected();
+  };
+
   return (
     <section className="w-full flex flex-col gap-2">
+      {selected.length > 0 && (
+        <TableOptions
+          ids={selected as string[]}
+          onConfirmDelete={handleBulkDelete}
+          name="device"
+        />
+      )}
       <Table columns="20px 1fr 1fr 1fr 1fr 1fr 50px">
         <Table.Header>
           <div className="text-left">
@@ -409,6 +434,19 @@ function Devices() {
       >
         {selectedDevice && <DeviceDetails device={selectedDevice} />}
       </Modal.Window>
+
+      <Modal.Window className="py-2! gap-0! px-1!" name="delete-device">
+        <ActionPopup
+          isLoading={isDeleting}
+          onConfirm={() => {
+            if (selectedDevice) {
+              delete_device(selectedDevice.id);
+            }
+          }}
+          type="delete"
+          name="Device"
+        />
+      </Modal.Window>
     </section>
   );
 }
@@ -509,7 +547,7 @@ function DetailItem({
         {copyable && typeof value === "string" && (
           <CopyBtn label={label} value={value} size={16} />
         )}
-        <div className="text-sm font-medium max-w-[70%] truncate text-gray-900 truncate">
+        <div className="text-sm font-medium max-w-[70%] truncate text-gray-900">
           {value}
         </div>
       </div>

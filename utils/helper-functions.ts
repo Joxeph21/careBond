@@ -1,4 +1,11 @@
 import { format, parseISO, formatDistanceToNow } from "date-fns";
+import * as chrono from "chrono-node";
+import {
+  getLocalTimeZone,
+  CalendarDateTime,
+  now,
+  parseDateTime,
+} from "@internationalized/date";
 import { RawMetricData } from "./dummy";
 import { parse } from "psl";
 import toast from "react-hot-toast";
@@ -228,4 +235,34 @@ export function formatRelativeTime(date: string | Date) {
   return formatDistanceToNow(new Date(date), {
     addSuffix: true, // "5 minutes ago"
   });
+}
+
+export function normalizeDate(input: string): CalendarDateTime {
+  if (!input) {
+    const currentZoned = now(getLocalTimeZone());
+    return new CalendarDateTime(
+      currentZoned.year, 
+      currentZoned.month, 
+      currentZoned.day, 
+      currentZoned.hour, 
+      currentZoned.minute
+    );
+  }
+
+  const parsedResult = chrono.parseDate(input, new Date());
+
+  if (!parsedResult) {
+    throw new Error("Could not parse date string");
+  }
+
+  const year = parsedResult.getFullYear();
+  const month = String(parsedResult.getMonth() + 1).padStart(2, "0");
+  const day = String(parsedResult.getDate()).padStart(2, "0");
+  const hours = String(parsedResult.getHours()).padStart(2, "0");
+  const minutes = String(parsedResult.getMinutes()).padStart(2, "0");
+
+  // Format: YYYY-MM-DDTHH:mm (No brackets or offsets)
+  const heroFormat = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+  return parseDateTime(heroFormat);
 }

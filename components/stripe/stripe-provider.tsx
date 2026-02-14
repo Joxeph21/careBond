@@ -51,7 +51,7 @@ function Errored({ retry }: { retry?: () => void }) {
   return (
     <section className="w-full pb-3  flex-center">
       <div className="flex flex-col items-center gap-2">
-        <span className="size-20 rounded-full my-5 flex-center text-danger bg-danger/20">
+        <span className="size-20 rounded-full my-5 flex-center text-danger bg-danger-soft-hover">
           <Icon icon={"solar:card-line-duotone"} fontSize={30} />
         </span>
         <h4 className="text-lg font-medium">Could not initialize card setup</h4>

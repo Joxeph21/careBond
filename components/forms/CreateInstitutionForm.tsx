@@ -6,7 +6,6 @@ import Button from "../common/Button";
 import InputTextArea from "../common/InputTextArea";
 import Skeleton from "../common/Skeleton";
 import { useGetPlans } from "@/hooks/superadmin/usePlans";
-import { useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {

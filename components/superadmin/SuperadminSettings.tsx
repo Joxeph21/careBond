@@ -9,6 +9,10 @@ import useAdminConfig from "@/hooks/superadmin/useAConfig";
 import useAdmin from "@/hooks/auth/useAdmin";
 import { useModifyConfig } from "@/hooks/useModifyConfig";
 import toast from "react-hot-toast";
+import { normalizeDate } from "@/utils/helper-functions";
+import TimeInput from "../common/TimeInput";
+import { useState, useMemo, useEffect } from "react";
+import { debounce } from "lodash";
 
 const tabs = ["general_settings", "user's_settings", "maintenance", "security"];
 
@@ -339,6 +343,23 @@ export function MaintenanceSettings({
     data: Partial<Admin_Config | InstitutionConfig>,
   ) => Promise<void>;
 } & Partial<Admin_Config>) {
+  const timeZ = normalizeDate(maintenance_time ?? "");
+  const [time, setTime] = useState(timeZ);
+
+  const debouncedUpdate = useMemo(
+    () =>
+      debounce((val: string) => {
+        handleUpdate?.({ maintenance_time: val });
+      }, 1000),
+    [handleUpdate],
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdate.cancel();
+    };
+  }, [debouncedUpdate]);
+
   return (
     <section className="w-full flex flex-col border-b-2 border-grey pb-8 gap-4">
       <h3 className="text-[#454D5A] text-lg font-bold">Maintainance</h3>
@@ -390,12 +411,16 @@ export function MaintenanceSettings({
             handleUpdate?.({ maintenance_frequency: newValue })
           }
         />
-        <li className="w-full flex flex-col gap-2">
-          <h3 className="pb-2 text-[#353B45] border-b border-primary">
-            Scheduled Maintenance Time
-          </h3>
-          datenTime
-        </li>
+
+        <TimeInput
+          label="Scheduled Maintenance Time"
+          value={time}
+          onChange={(val) => {
+            if (!val) return;
+            setTime(val);
+            debouncedUpdate(val.toString());
+          }}
+        />
       </ul>
     </section>
   );
