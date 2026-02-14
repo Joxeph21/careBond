@@ -191,10 +191,13 @@ export default function VitalsOverview({ id }: { id: string }) {
           value: val,
           unit: vital?.unit,
           time: format(new Date(item.recorded_at), "hh:mm a"),
+          recorded_by: item.recorded_by,
         };
       }),
     }));
   }, [selected, VitalStats, history]);
+
+  console.log(history);
 
   return (
     <section className="grid max-w-[95%] mx-auto grid-cols-[65%_35%] w-full gap-5">
@@ -341,22 +344,24 @@ export default function VitalsOverview({ id }: { id: string }) {
                       key={item.id}
                       className="w-full p-3 text-[#0A1B39] rounded-xl flex-between bg-white shadow-sm"
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-1 w-[50%]">
                         <p className="font-semibold text-sm">{item.title}</p>
                         <p className="text-[10px] font-medium text-[#646464]">
                           {item.time}
                         </p>
                       </div>
-                      <div className="space-y-1 text-right">
+                      <div className="space-y-1 w-[50%] text-right">
                         <p className="font-bold text-sm text-primary">
                           {item.value}{" "}
                           <span className="text-[10px] font-normal text-[#646464]">
                             {item.unit}
                           </span>
                         </p>
-                        {/* <p className="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full inline-block">
-                          {item.status}
-                        </p> */}
+                        {item.recorded_by && (
+                          <p className="text-[10px] w-full truncate bg-red-200 font-medium text-[#646464]">
+                            Recorded by: <span>{item.recorded_by}</span>
+                          </p>
+                        )}
                       </div>
                     </li>
                   ))}
