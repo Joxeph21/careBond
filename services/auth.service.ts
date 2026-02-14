@@ -65,20 +65,20 @@ export async function AuthLogout(data: { refresh_token: string }) {
   }
 }
 
-export async function GetRefreshToken() {
-  try {
-    const response = await fetch("/api/auth", { method: "GET" });
+// export async function GetRefreshToken() {
+//   try {
+//     const response = await fetch("/api/auth", { method: "GET" });
 
-    const data = await response.json();
+//     const data = await response.json();
 
-    if (response.ok && data.token) {
-      return data?.token;
-    }
-  } catch (error) {
-    console.error("Failed to fetch refresh token:", error);
-    throw error;
-  }
-}
+//     if (response.ok && data.token) {
+//       return data?.token;
+//     }
+//   } catch (error) {
+//     console.error("Failed to fetch refresh token:", error);
+//     throw error;
+//   }
+// }
 
 export async function AuthVerify2FA(data: { otp: string, email: string }) {
   try {

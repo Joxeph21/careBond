@@ -7,7 +7,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useVerify2FA } from "@/hooks/auth/useAuth";
 import { useSearchParams, useRouter } from "next/navigation";
 import { memo } from "react";
-
+import Link from "next/link";
 import { TwoFASchema } from "@/schema/auth-schema";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useResend2FAOTP } from "@/hooks/auth/useAuth";
@@ -146,6 +146,8 @@ export default function Page() {
       >
         Submit
       </Button>
+      <p>Return to <Link className='text-primary hover:underline' href={"/login"}>Login</Link></p>
+
     </FormInput>
   );
 }

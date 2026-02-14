@@ -87,10 +87,17 @@ export const auth_logout_action = async () => {
   const _cookies = await cookies();
   _cookies.delete(CONFIG.REFRESH_TOKEN_IDENTIFIER);
   _cookies.delete(CONFIG.ACCESS_TOKEN_IDENTIFIER);
+  _cookies.delete(CONFIG.ADMIN_TYPE_IDENTIFIER);
 };
 
 export const auth_get_access_server = async () => {
   const _cookies = await cookies();
   const token = _cookies.get(CONFIG.ACCESS_TOKEN_IDENTIFIER);
+  return token?.value;
+};
+
+export const auth_get_refresh_server = async () => {
+  const _cookies = await cookies();
+  const token = _cookies.get(CONFIG.REFRESH_TOKEN_IDENTIFIER);
   return token?.value;
 };

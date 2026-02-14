@@ -80,10 +80,10 @@ export default function Sidebar() {
         <button
           onClick={() =>
             logout(undefined, {
-              onSuccess: () => {
-                sessionStorage.removeItem(CONFIG.ACCESS_TOKEN_IDENTIFIER);
-                router.replace("/login");
-              },
+              // onSuccess: () => {
+              //   sessionStorage.removeItem(CONFIG.ACCESS_TOKEN_IDENTIFIER);
+              //   router.replace("/login");
+              // },
             })
           }
           className="flex py-2 px-2.5 items-center cursor-pointer rounded-sm gap-5 w-full text-[#A9A9A9]"

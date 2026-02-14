@@ -6,13 +6,16 @@ import {
   AuthLogout,
   AuthResetPassword,
   AuthVerify2FA,
-  GetRefreshToken,
   Resend2FAOTP,
 } from "@/services/auth.service";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
-import { auth_logout_action, auth_update_admin } from "@/actions/auth";
+import {
+  auth_get_refresh_server,
+  auth_logout_action,
+  auth_update_admin,
+} from "@/actions/auth";
 import { CONFIG } from "@/utils/config";
 import { auth_login } from "@/adapters/utils";
 
@@ -132,21 +135,27 @@ export function useChangePassword() {
 
 // # 5. Logout Hook
 export function useLogout() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
   const { mutate: logout, isPending } = useMutation({
     mutationFn: async () => {
-      const res = await GetRefreshToken();
+      try {
+        const res = await auth_get_refresh_server();
+        if (res) {
+          await AuthLogout({ refresh_token: res });
+        }
+      } catch (error) {
+        console.error("Logout API call failed", error);
+      } finally {
+        await auth_logout_action();
 
-      if (!res.token) {
-        console.warn("Logout initiated but no refresh token was found.");
-
-        // Take the user back to the login page & Remove the accesstoken from session
         sessionStorage.removeItem(CONFIG.ACCESS_TOKEN_IDENTIFIER);
-        window.location.replace("/login");
-        return;
-      }
 
-      await AuthLogout({ refresh_token: res.token });
-      await auth_logout_action();
+        queryClient.clear();
+
+        router.replace("/login");
+      }
     },
   });
 
