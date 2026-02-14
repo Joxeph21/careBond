@@ -10,19 +10,32 @@ import { memo } from "react";
 
 import { TwoFASchema } from "@/schema/auth-schema";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useResend2FAOTP } from "@/hooks/auth/useAuth";
 
-const ResendTimer = memo(function ResendTimer() {
+const ResendTimer = memo(function ResendTimer({ email }: { email: string }) {
+  const { resend2FAOTP, isPending } = useResend2FAOTP();
   const { resetTimer, timer } = useTimer(30);
+
+  const handleResend = () => {
+    resend2FAOTP(
+      { email },
+      {
+        onSuccess: () => {
+          resetTimer(30);
+        },
+      },
+    );
+  };
 
   return (
     <div className="w-full flex-between">
       <p className="text-grey-dark">
         Didn&apos;t recieve code.{" "}
         <button
-          disabled={timer > 0}
+          disabled={timer > 0 || isPending}
           aria-label="Resend otp code"
-          onClick={() => resetTimer(30)}
-          className="text-primary cursor-pointer disabled:opacity-20 underline"
+          onClick={handleResend}
+          className="text-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-20 underline"
           type="button"
         >
           Resend Code
@@ -37,9 +50,9 @@ const ResendTimer = memo(function ResendTimer() {
 export default function Page() {
   const { verify2FA, isPending } = useVerify2FA();
   const searchParams = useSearchParams();
-  const email = searchParams.get("email");
-  const callbackUrl = searchParams.get("callbackUrl");
-  const router = useRouter()
+  const email = searchParams.get("email") ?? "";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const router = useRouter();
 
   const {
     handleSubmit,
@@ -57,28 +70,33 @@ export default function Page() {
     },
   });
 
- 
-
   const { handleKeyDown, setInputRef, handleKeyUp, values } = useOtpInput(
     4,
     (vals) => {
-      setValue("otp", vals.join(""), { shouldDirty: true, shouldValidate: true, shouldTouch: true });
+      setValue("otp", vals.join(""), {
+        shouldDirty: true,
+        shouldValidate: true,
+        shouldTouch: true,
+      });
     },
   );
 
   const onSubmit: SubmitHandler<{ otp: string; email: string }> = (data) => {
-    verify2FA({
-      otp: data.otp,
-      email: data.email,
-    }, {
-      onSuccess: () => {
-        router.replace(callbackUrl || "/");
+    verify2FA(
+      {
+        otp: data.otp,
+        email: data.email,
       },
-    });
+      {
+        onSuccess: () => {
+          router.replace(callbackUrl || "/");
+        },
+      },
+    );
   };
 
-  if(!email){
-    router.replace("/login")
+  if (!email) {
+    router.replace("/login");
   }
 
   return (
@@ -107,6 +125,7 @@ export default function Page() {
               ref={(el) => setInputRef(el, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               onKeyUp={(e) => handleKeyUp(e, index)}
+              onChange={() => {}}
               value={values[index] || ""}
               className={`size-15 outline-none rounded-md ring focus:ring-[#3F8EF3] flex-center text-center font-bold text-lg ${errors.otp?.message ? "ring-danger" : "ring-grey"}`}
               type="text"
@@ -115,7 +134,7 @@ export default function Page() {
         </div>
       </div>
 
-      <ResendTimer />
+      <ResendTimer email={email} />
 
       <Button
         isLoading={isPending}

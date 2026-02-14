@@ -352,16 +352,16 @@ export default function VitalsOverview({ id }: { id: string }) {
                       </div>
                       <div className="space-y-1 w-[50%] text-right">
                         <p className="font-bold text-sm text-primary">
-                          {item.value}{" "}
+                          {item.value ?? "--"}{" "}
                           <span className="text-[10px] font-normal text-[#646464]">
                             {item.unit}
                           </span>
                         </p>
-                        {item.recorded_by && (
-                          <p className="text-[10px] w-full truncate bg-red-200 font-medium text-[#646464]">
+                        {/* {item.recorded_by && (
+                          <p className="text-[10px] w-full truncate  font-medium text-[#646464]">
                             Recorded by: <span>{item.recorded_by}</span>
                           </p>
-                        )}
+                        )} */}
                       </div>
                     </li>
                   ))}

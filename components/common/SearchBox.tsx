@@ -66,7 +66,6 @@ export default function SearchBox({
     [updateQueryParam],
   );
 
-  // Trigger debounced search when typing
   useEffect(() => {
     debouncedUpdate(query);
 
@@ -75,10 +74,9 @@ export default function SearchBox({
     };
   }, [query, debouncedUpdate]);
 
-  //   Doing this so the users can press enter anythime to trigger the search
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    debouncedUpdate.cancel(); // cancel existing debounce
+    debouncedUpdate.cancel(); 
     updateQueryParam(query);
   };
 
@@ -179,7 +177,7 @@ function QuickLinks({
         },
         { label: "Users", href: "/users", icon: "tabler:users" },
         { label: "Plans", href: "/plans", icon: "tabler:credit-card" },
-        { label: "Settings", href: "/settings", icon: "tabler:settings" },
+        { label: "Configurations", href: "/config", icon: "tabler:settings" },
       ]
     : [
         {
@@ -188,7 +186,7 @@ function QuickLinks({
           icon: "tabler:layout-dashboard",
         },
         { label: "Users", href: "/users", icon: "tabler:users" },
-        { label: "Settings", href: "/settings", icon: "tabler:settings" },
+        { label: "Configurations", href: "/config", icon: "tabler:settings" },
       ];
 
   return (

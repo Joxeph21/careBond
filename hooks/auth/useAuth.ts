@@ -7,6 +7,7 @@ import {
   AuthResetPassword,
   AuthVerify2FA,
   GetRefreshToken,
+  Resend2FAOTP,
 } from "@/services/auth.service";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -170,6 +171,25 @@ export function useVerify2FA() {
 
   return {
     verify2FA,
+    isPending,
+  };
+}
+
+export function useResend2FAOTP() {
+  const { mutate: resend2FAOTP, isPending } = useMutation({
+    mutationFn: Resend2FAOTP,
+
+    onSuccess: () => {
+      toast.success("OTP resent successfully");
+    },
+
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  return {
+    resend2FAOTP,
     isPending,
   };
 }

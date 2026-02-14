@@ -91,3 +91,15 @@ export async function AuthVerify2FA(data: { otp: string, email: string }) {
     ThrowError(err);
   }
 }
+
+export async function Resend2FAOTP(data: { email: string }) {
+  try {
+    const res = await HttpClient.post<BaseBackendResponse>(
+      "/auth/resend-otp/",
+      data,
+    );
+    return res.data;
+  } catch (err) {
+    ThrowError(err);
+  }
+}
