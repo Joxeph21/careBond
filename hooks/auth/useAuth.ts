@@ -5,6 +5,7 @@ import {
   AuthLogin,
   AuthLogout,
   AuthResetPassword,
+  AuthVerify2FA,
   GetRefreshToken,
 } from "@/services/auth.service";
 import { useMutation } from "@tanstack/react-query";
@@ -37,13 +38,26 @@ export function useLogin() {
         await auth_login(tokens.access, tokens.refresh, state.persist);
       }
 
+      console.log(res);
+      console.log(response);
+
       if (user) {
         await auth_update_admin(user.role);
       }
 
-      const callbackUrl = searchParams.get("callbackUrl");
+      const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
-      router.replace(callbackUrl || "/");
+      if (
+        res?.status_code === 202 &&
+        res.message.toLowerCase() ===
+          "2FA verification required. Please check your email for the OTP code.".toLowerCase()
+      ) {
+        router.push(
+          `/2fa?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(state.email)}`,
+        );
+      } else {
+        router.replace(callbackUrl || "/");
+      }
     },
   });
 
@@ -91,17 +105,17 @@ export function useForgotPassword() {
 }
 // # 4. Change Password Hook
 export function useChangePassword() {
-  const router = useRouter()
+  const router = useRouter();
   const { mutate: changePasword, isPending } = useMutation({
     mutationFn: AuthChangePassword,
 
     onSuccess: (data) => {
       toast.success(data?.message ?? "Password changed successfully");
-      
+
       setTimeout(() => {
-        toast.success("Login with your new password to continue")
-        router.replace("/login")
-      }, 1000)
+        toast.success("Login with your new password to continue");
+        router.replace("/login");
+      }, 1000);
     },
 
     onError: (err) => {
@@ -137,6 +151,25 @@ export function useLogout() {
 
   return {
     logout,
+    isPending,
+  };
+}
+
+export function useVerify2FA() {
+  const { mutate: verify2FA, isPending } = useMutation({
+    mutationFn: AuthVerify2FA,
+
+    onSuccess: () => {
+      toast.success("2FA verification successful");
+    },
+
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  return {
+    verify2FA,
     isPending,
   };
 }

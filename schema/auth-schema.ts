@@ -33,3 +33,8 @@ export const ResetPasswordSchema = Yup.object({
 export const VerifyOTPSchema = Yup.object({
   otp: Yup.string().required("OTP code is required").min(4, "Invalid OTP"),
 });
+
+export const TwoFASchema = Yup.object({
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  otp: Yup.string().required("OTP code is required").min(4, "Invalid OTP"),
+});

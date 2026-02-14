@@ -3,28 +3,14 @@ import HttpClient from "@/adapters/http";
 // import { auth_login } from "@/adapters/utils";
 import { ThrowError } from "@/utils/config";
 
-export async function AuthLogin({ email, password, }: AuthLoginData) {
+export async function AuthLogin({ email, password }: AuthLoginData) {
   try {
     const res = await HttpClient.post<BaseBackendResponse<LoginResponseData[]>>(
       "/auth/login/",
-      { email, password }
+      { email, password },
     );
 
     const response = res?.data;
-
-    // const payload = response?.data?.[0];
-
-    // const user = payload?.user
-
-    // const tokens = payload?.tokens;
-
-    // if (tokens) {
-    //   auth_login(tokens.access, tokens.refresh, persist);
-    // }
-
-    // if(user){
-    //   await auth_update_admin(user.role)
-    // }
 
     return response;
   } catch (err) {
@@ -36,7 +22,7 @@ export async function AuthForgotPasswordRequest(data: { email: string }) {
   try {
     const res = await HttpClient.post<BaseBackendResponse<{ message: string }>>(
       "/auth/forgot-password/",
-      data
+      data,
     );
     return res.data;
   } catch (err) {
@@ -48,7 +34,7 @@ export async function AuthChangePassword(data: ChangePasswordRequest) {
   try {
     const res = await HttpClient.post<BaseBackendResponse<{ message: string }>>(
       "/auth/change-password/",
-      data
+      data,
     );
     return res.data;
   } catch (err) {
@@ -59,7 +45,7 @@ export async function AuthResetPassword(data: ResetPasswordData) {
   try {
     const res = await HttpClient.post<BaseBackendResponse<{ message: string }>>(
       "/auth/reset-password/",
-      data
+      data,
     );
     return res.data;
   } catch (err) {
@@ -71,7 +57,7 @@ export async function AuthLogout(data: { refresh_token: string }) {
   try {
     const res = await HttpClient.post<BaseBackendResponse<{ message: string }>>(
       "/auth/logout/",
-      data
+      data,
     );
     return res.data;
   } catch (err) {
@@ -91,5 +77,17 @@ export async function GetRefreshToken() {
   } catch (error) {
     console.error("Failed to fetch refresh token:", error);
     throw error;
+  }
+}
+
+export async function AuthVerify2FA(data: { otp: string, email: string }) {
+  try {
+    const res = await HttpClient.post<BaseBackendResponse>(
+      "/auth/login/verify-2fa/",
+      data,
+    );
+    return res.data;
+  } catch (err) {
+    ThrowError(err);
   }
 }

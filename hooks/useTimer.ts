@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export function useTimer(def?: number) {
   const [timer, setTimer] = useState<number>(def || 0);
 
-  const resetTimer = (val: number) => {
+  const resetTimer = useCallback((val: number) => {
     setTimer(val);
-  };
+  }, []);
 
   useEffect(() => {
     if (timer > 0) {

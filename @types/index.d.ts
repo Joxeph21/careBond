@@ -1,6 +1,7 @@
 declare type BaseBackendResponse<Z = unknown, T = unknown> = {
   message: string;
   data?: Z;
+  status_code: number;
 } & T;
 
 declare type OptionsType<T = unknown, Z = unknown> = {
