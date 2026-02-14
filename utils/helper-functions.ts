@@ -224,7 +224,6 @@ export const getDeviceDetails = (userAgent: string) => {
   return `${browser} on ${os}`;
 };
 
-
 export function formatRelativeTime(date: string | Date) {
   return formatDistanceToNow(new Date(date), {
     addSuffix: true, // "5 minutes ago"

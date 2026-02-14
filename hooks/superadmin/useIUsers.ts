@@ -6,7 +6,10 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 
-export default function useIUsers(isSuperAdmin: boolean, option?: Paginator & {role?: USER_ROLE}) {
+export default function useIUsers(
+  isSuperAdmin: boolean,
+  option?: Paginator & { role?: USER_ROLE },
+) {
   const queryClient = useQueryClient();
   const { data, isLoading, isPlaceholderData, refetch, error } = useQuery({
     queryKey: ["I-Users", option, isSuperAdmin],
@@ -16,17 +19,17 @@ export default function useIUsers(isSuperAdmin: boolean, option?: Paginator & {r
     staleTime: 5000,
   });
 
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
+  const nextPage = data?.next !== null ? (option?.page || 1) + 1 : null;
+  const prevPage = data?.previous !== null ? (option?.page || 1) - 1 : null;
 
   const nextOptions = useMemo(() => {
-    if (!nextPage || !option?.page) return null;
+    if (data?.next === null) return null;
 
     return {
       ...option,
-      page: option?.page + 1,
+      page: (option?.page || 1) + 1,
     };
-  }, [option, nextPage]);
+  }, [option, data?.next]);
 
   useEffect(() => {
     if (!isPlaceholderData && nextOptions && isSuperAdmin) {
@@ -40,7 +43,7 @@ export default function useIUsers(isSuperAdmin: boolean, option?: Paginator & {r
 
   return {
     total_count: data?.count,
-    users: data?.results.filter(el => el.role !== "super_admin") ?? [],
+    users: data?.results.filter((el) => el.role !== "super_admin") ?? [],
     nextPage,
     prevPage,
     isLoading,
@@ -49,5 +52,3 @@ export default function useIUsers(isSuperAdmin: boolean, option?: Paginator & {r
     refetch,
   };
 }
-
-

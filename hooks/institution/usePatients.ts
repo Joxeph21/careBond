@@ -33,7 +33,8 @@ export default function usePatients(isSuperAdmin: boolean, params?: Paginator) {
   } = useInfiniteQuery({
     queryKey: ["patients", params],
     queryFn: ({ pageParam = 1 }) => getPatients({ ...params, page: pageParam }),
-    getNextPageParam: (lastPage) => lastPage?.next ?? undefined,
+    getNextPageParam: (lastPage, _, lastPageParam) =>
+      lastPage?.next ? lastPageParam + 1 : undefined,
     initialPageParam: 1,
   });
 
@@ -149,8 +150,8 @@ export function useGetCameras(params?: Paginator) {
   const cameras = data?.results;
   const total_count = data?.count;
   const active_cameras_count = data?.active_cameras_count;
-  const nextPage = data?.next !== null;
-  const prevPage = data?.previous !== null;
+  const nextPage = data?.next !== null ? (params?.page || 1) + 1 : null;
+  const prevPage = data?.previous !== null ? (params?.page || 1) - 1 : null;
 
   return {
     cameras,
@@ -191,8 +192,6 @@ export function useGetPatientVitals(id: string) {
     queryFn: () => getPatientVitals(id),
     enabled: !!id,
   });
-
-
 
   return {
     vitals: data?.data?.at(0),
@@ -279,7 +278,8 @@ export function useGetPatientsHistory(
     queryKey: ["patients-history", params],
     queryFn: ({ pageParam = 1 }) =>
       getPatientsVitalsHistory({ ...params, page: pageParam }),
-    getNextPageParam: (lastPage) => lastPage?.next ?? undefined,
+    getNextPageParam: (lastPage, allPages, lastPageParam) =>
+      lastPage?.next ? lastPageParam + 1 : undefined,
     initialPageParam: 1,
   });
 

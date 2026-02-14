@@ -10,20 +10,21 @@ export default function useDevices(params?: Paginator) {
     queryFn: () => getDevices(params),
   });
 
+  const nextPage = data?.next !== null ? (params?.page || 1) + 1 : null;
+  const prevPage = data?.previous !== null ? (params?.page || 1) - 1 : null;
+
   useEffect(() => {
-    if (data?.next) {
+    if (data?.next !== null) {
       const nextPage = (params?.page || 1) + 1;
       queryClient.prefetchQuery({
         queryKey: ["devices", { ...params, page: nextPage }],
         queryFn: () => getDevices({ ...params, page: nextPage }),
       });
     }
-  }, [data, params, queryClient]);
+  }, [data?.next, params, queryClient]);
 
   const devices = data?.results;
   const total_count = data?.count;
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
 
   return {
     devices,

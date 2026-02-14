@@ -26,7 +26,8 @@ export default function useNotifications(
     queryKey: ["notifications", params],
     queryFn: ({ pageParam = 1 }) =>
       getNotifications({ ...params, page: pageParam }),
-    getNextPageParam: (lastPage) => lastPage?.next || undefined,
+    getNextPageParam: (lastPage, allPages, lastPageParam) =>
+      lastPage?.next ? lastPageParam + 1 : undefined,
     initialPageParam: 1,
   });
 

@@ -27,11 +27,8 @@ export function useInfiniteQueryGetInstitutions(query?: string) {
     queryKey: ["institutions-infinite", query],
     queryFn: ({ pageParam = 1 }) =>
       getS_Admin_Institutions({ query, page: pageParam as number }),
-    getNextPageParam: (lastPage, allPages) => {
-      if (lastPage?.next) {
-        return allPages.length + 1;
-      }
-      return undefined;
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      return lastPage?.next ? (lastPageParam as number) + 1 : undefined;
     },
     initialPageParam: 1,
   });
@@ -62,14 +59,14 @@ export function useGetInstitutions(params?: Paginator) {
   const total_count = data?.count;
   const institutions = data?.result;
 
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
+  const hasNextPage = data?.next !== null;
+  const hasPrevPage = data?.previous !== null;
 
   return {
     total_count,
     institutions,
-    nextPage,
-    prevPage,
+    nextPage: hasNextPage,
+    prevPage: hasPrevPage,
     isLoading,
     error,
     refetch,

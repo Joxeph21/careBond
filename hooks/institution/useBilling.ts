@@ -34,14 +34,14 @@ export function useBillingHistory(
   const total_count = data?.count;
   const history = data?.results;
 
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
+  const nextPage = data?.next !== null ? (param?.page || 1) + 1 : null;
+  const prevPage = data?.previous !== null ? (param?.page || 1) - 1 : null;
 
   useEffect(() => {
-    if (nextPage && param?.institution_id) {
+    if (data?.next !== null && param?.institution_id) {
       const nextParams = {
         ...param,
-        page: nextPage,
+        page: (param?.page || 1) + 1,
         institution_id: param.institution_id,
       };
       queryClient.prefetchQuery({
@@ -49,7 +49,7 @@ export function useBillingHistory(
         queryFn: () => getBillingHistory(nextParams),
       });
     }
-  }, [nextPage, param, queryClient]);
+  }, [data?.next, param, queryClient]);
 
   return {
     history,
@@ -85,7 +85,9 @@ export function useSetDefaultPaymentMethod() {
     mutationFn: (id: string) => setActivePaymentMethod(id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
-      queryClient.invalidateQueries({ queryKey: ["payment-methods", variables] });
+      queryClient.invalidateQueries({
+        queryKey: ["payment-methods", variables],
+      });
     },
   });
 
@@ -107,7 +109,9 @@ export function useAddPaymentMethod() {
     }) => addPaymentMethod(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
-      queryClient.invalidateQueries({ queryKey: ["payment-methods", variables] });
+      queryClient.invalidateQueries({
+        queryKey: ["payment-methods", variables],
+      });
     },
   });
 

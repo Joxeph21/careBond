@@ -38,17 +38,17 @@ export function useGetIUsers(
   const total_count = data?.count;
   const users = data?.result;
 
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
+  const nextPage = data?.next !== null ? (option?.page || 1) + 1 : null;
+  const prevPage = data?.previous !== null ? (option?.page || 1) - 1 : null;
 
   const nextOptions = useMemo(() => {
-    if (!nextPage || !option?.page) return null;
+    if (data?.next === null) return null;
 
     return {
       ...option,
-      page: option?.page + 1,
+      page: (option?.page || 1) + 1,
     };
-  }, [option, nextPage]);
+  }, [option, data?.next]);
 
   useEffect(() => {
     if (!isPlaceholderData && nextOptions && id) {

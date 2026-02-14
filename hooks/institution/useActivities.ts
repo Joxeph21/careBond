@@ -2,17 +2,22 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getActivities, getActivityById } from "@/services/activities.service";
 import { useEffect } from "react";
 
-export function useGetActivities(params?: Paginator & {institution_id?: string}) {
+export function useGetActivities(
+  params?: Paginator & { institution_id?: string },
+) {
   const queryClient = useQueryClient();
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["activities", params],
     queryFn: () => getActivities(params),
   });
 
+  const nextPage = data?.next !== null ? (params?.page || 1) + 1 : null;
+  const prevPage = data?.previous !== null ? (params?.page || 1) - 1 : null;
+
   useEffect(() => {
     // Prefetch next page
-    if (data?.next) {
-      const nextParams = { ...params, page: data.next };
+    if (data?.next !== null) {
+      const nextParams = { ...params, page: (params?.page || 1) + 1 };
       queryClient.prefetchQuery({
         queryKey: ["activities", nextParams],
         queryFn: () => getActivities(nextParams),
@@ -20,8 +25,8 @@ export function useGetActivities(params?: Paginator & {institution_id?: string})
     }
 
     // Prefetch previous page
-    if (data?.previous) {
-      const prevParams = { ...params, page: data.previous };
+    if (data?.previous !== null && (params?.page || 1) > 1) {
+      const prevParams = { ...params, page: (params?.page || 1) - 1 };
       queryClient.prefetchQuery({
         queryKey: ["activities", prevParams],
         queryFn: () => getActivities(prevParams),
@@ -31,9 +36,6 @@ export function useGetActivities(params?: Paginator & {institution_id?: string})
 
   const total_count = data?.count;
   const activities = data?.result;
-
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
 
   return {
     total_count,
