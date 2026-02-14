@@ -88,7 +88,7 @@ export default function DevicesPage() {
 }
 
 function CameraTable() {
-  const { cameras, isLoading } = useGetCameras();
+  const { cameras, isLoading, total_count, nextPage, prevPage } = useGetCameras();
   const { delete_camera, isPending: isDeleting } = useDeleteCamera();
   const [selectedItem, setSelectedItem] = useState<Camera | null>(null);
 
@@ -165,12 +165,22 @@ function CameraTable() {
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium w-fit capitalize ${
                     item.status === "online"
                       ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-700"
+                      : ["pending", "syncing"].includes(item.status)
+                        ? "bg-yellow-100 text-yellow-700"
+                        : item.status === "error"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700"
                   }`}
                 >
                   <span
                     className={`size-1.5 rounded-full ${
-                      item.status === "online" ? "bg-green-600" : "bg-gray-500"
+                      item.status === "online"
+                        ? "bg-green-600"
+                        : ["pending", "syncing"].includes(item.status)
+                          ? "bg-yellow-600"
+                          : item.status === "error"
+                            ? "bg-red-600"
+                            : "bg-gray-500"
                     }`}
                   />
                   {item.status_display}
@@ -224,6 +234,13 @@ function CameraTable() {
             </Table.Row>
           )}
         />
+        <Table.Footer>
+          <Pagination
+            nextPage={nextPage}
+            prevPage={prevPage}
+            totalCount={total_count}
+          />
+        </Table.Footer>
       </Table>
 
       <Modal.Window
@@ -325,12 +342,22 @@ function Devices() {
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium w-fit capitalize ${
                     item.status === "online"
                       ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-700"
+                      : ["pending", "syncing"].includes(item.status)
+                        ? "bg-yellow-100 text-yellow-700"
+                        : item.status === "error"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700"
                   }`}
                 >
                   <span
                     className={`size-1.5 rounded-full ${
-                      item.status === "online" ? "bg-green-600" : "bg-gray-500"
+                      item.status === "online"
+                        ? "bg-green-600"
+                        : ["pending", "syncing"].includes(item.status)
+                          ? "bg-yellow-600"
+                          : item.status === "error"
+                            ? "bg-red-600"
+                            : "bg-gray-500"
                     }`}
                   />
                   {item.status}
@@ -468,12 +495,22 @@ function DeviceDetails({ device }: { device: Device }) {
               className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium w-fit capitalize ${
                 device.status === "online"
                   ? "bg-green-100 text-green-700"
-                  : "bg-gray-100 text-gray-700"
+                  : ["pending", "syncing"].includes(device.status)
+                    ? "bg-yellow-100 text-yellow-700"
+                    : device.status === "error"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-gray-100 text-gray-700"
               }`}
             >
               <span
                 className={`size-1.5 rounded-full ${
-                  device.status === "online" ? "bg-green-600" : "bg-gray-500"
+                  device.status === "online"
+                    ? "bg-green-600"
+                    : ["pending", "syncing"].includes(device.status)
+                      ? "bg-yellow-600"
+                      : device.status === "error"
+                        ? "bg-red-600"
+                        : "bg-gray-500"
                 }`}
               />
               {device.status}

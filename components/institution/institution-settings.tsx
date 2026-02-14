@@ -40,7 +40,6 @@ import Skeleton from "../common/Skeleton";
 import { useGetPlans } from "@/hooks/superadmin/usePlans";
 import UpgradePlan from "../forms/upgrade-plan-form";
 import { formatDate, formatValue } from "@/utils/helper-functions";
-import ChangePasswordForm from "../forms/Change-password-form";
 
 const tabs = ["general_settings", "billing", "security"];
 
@@ -89,41 +88,7 @@ export default function InstitutionSettings() {
           </>
         );
       case "security":
-        return (
-          <Modal>
-            {/* <SecuritySettings
-              {...config}
-              isLoading={isConfigLoading || isUpdatingConfig}
-              handleUpdate={handleUpdate}
-            /> */}
-            <div className="flex flex-col gap-3">
-              <p className="text-dark font-medium">
-                Change Password
-              </p>
-              <Modal.Trigger name="update-password">
-                <Button
-                  config={{
-                    className: "bg-black!",
-                  }}
-                  icon={ICON.ARROW_RIGHT}
-                >
-                  Update Password
-                </Button>
-              </Modal.Trigger>
-            </div>
-
-            <Modal.Window
-              hasClose
-              title="Update Your Password"
-              textStyle="text-[#4B5563]! font-normal!"
-              text="Create a strong password to keep your account secure"
-              name="update-password"
-              className="w-xl! "
-            >
-         <ChangePasswordForm />
-            </Modal.Window>
-          </Modal>
-        );
+        return <SecuritySettings />;
       default:
         return <div>General Settings</div>;
     }
@@ -382,7 +347,7 @@ function Billing() {
         <header className="w-full flex-between">
           <h3 className="text-[#454D5A] text-lg font-bold">Overview</h3>
           <div className="flex-center gap-3">
-            {billingOverview?.status === "active" && (
+            {billingOverview?.status !== "Inactive" && (
               <Modal.Trigger name="cancel-subscription">
                 <button className="p-2 rounded-full bg-[#0000000A] cursor-pointer hover:shadow-sm ease-in transition-all duration-150 text-black text-xs flex items-center gap-2">
                   Cancel Subscription
@@ -436,7 +401,7 @@ function Billing() {
                 Per Month
               </h4>
               <p className="text-[#00000066]">
-                {billingOverview?.plan?.description}
+                {billingOverview?.plan?.description ?? "--"}
               </p>
             </div>
 
@@ -722,18 +687,20 @@ function BillingHistory() {
   const { history, isLoading } = useBillingHistory({
     institution_id: adminData?.institution_id ?? "",
   });
-  console.log(history);
+
   return (
     <section className="w-full flex flex-col  gap-4">
       <header className="w-full flex-between">
         <h3 className="text-[#454D5A] text-lg font-bold">Billing History</h3>
       </header>
-      <Table columns=".5fr 1fr .5fr .5fr 1fr">
+      <Table columns=".5fr .5fr .7fr .5fr .5fr .5fr 20px">
         <Table.Header className="bg-transparent!">
           <p>Date</p>
+          <p>Plan</p>
           <p>Description</p>
           <p>Amount</p>
-          <p>Invoice</p>
+          <p>Status</p>
+          <p>Payment Method</p>
           <p></p>
         </Table.Header>
         <Table.Body
@@ -742,9 +709,29 @@ function BillingHistory() {
           render={(item) => (
             <Table.Row key={item.id}>
               <p>{item?.created_at ? formatDate(item.created_at) : "--"}</p>
-              <p>{item?.plan_details?.description}</p>
+              <p>{item?.plan_details?.name}</p>
+              <p className="truncate">
+                {item?.plan_details?.description ?? "--"}
+              </p>
               <p>{formatValue(Number(item?.amount ?? 0))}</p>
-              <p>PDF</p>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`px-3 py-1 text-xs font-medium capitalize rounded-full flex items-center gap-1 ${
+                    ["succeeded", "success", "complete", "received"].includes(
+                      item.status?.toLowerCase(),
+                    )
+                      ? "bg-green-100 text-green-700 border border-green-200"
+                      : ["failed", "cancelled"].includes(
+                            item.status?.toLowerCase(),
+                          )
+                        ? "bg-red-100 text-red-700 border border-red-200"
+                        : "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                  }`}
+                >
+                  {item.status}
+                </span>
+              </div>
+              <p>{item.payment_method}</p>
               <p></p>
             </Table.Row>
           )}

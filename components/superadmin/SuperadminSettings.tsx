@@ -13,6 +13,9 @@ import { normalizeDate } from "@/utils/helper-functions";
 import TimeInput from "../common/TimeInput";
 import { useState, useMemo, useEffect } from "react";
 import { debounce } from "lodash";
+import { Modal } from "@/ui/Modal";
+import Button from "../common/Button";
+import ChangePasswordForm from "../forms/Change-password-form";
 
 const tabs = ["general_settings", "user's_settings", "maintenance", "security"];
 
@@ -437,40 +440,73 @@ export function SecuritySettings({
   ) => Promise<void>;
 } & Partial<Admin_Config>) {
   return (
-    <section className="w-full flex flex-col pb-8 gap-4">
-      <h3 className="text-[#454D5A] text-lg font-bold">Security</h3>
-      <ul className="w-full grid grid-cols-3 gap-8">
-        <li className="w-full flex flex-col gap-2">
-          <h3 className="pb-2 text-[#353B45] border-b border-primary">
-            Two Factor Authentication (2FA)
-          </h3>
-          <div className="w-full flex-between">
-            <p className="text-[#667185]">Require Two Factor Authentication</p>
-            <Switch
-              disabled={isLoading}
-              checked={require_2fa}
-              onChange={(newValue) => handleUpdate?.({ require_2fa: newValue })}
+    <Modal>
+      {handleUpdate && (
+        <section className="w-full flex flex-col pb-8 gap-4">
+          <h3 className="text-[#454D5A] text-lg font-bold">Security</h3>
+          <ul className="w-full grid grid-cols-3 gap-8">
+            <li className="w-full flex flex-col gap-2">
+              <h3 className="pb-2 text-[#353B45] border-b border-primary">
+                Two Factor Authentication (2FA)
+              </h3>
+              <div className="w-full flex-between">
+                <p className="text-[#667185]">
+                  Require Two Factor Authentication
+                </p>
+                <Switch
+                  disabled={isLoading}
+                  checked={require_2fa}
+                  onChange={(newValue) =>
+                    handleUpdate?.({ require_2fa: newValue })
+                  }
+                />
+              </div>
+            </li>
+            <Select
+              icon={ICON.CARET_DOWN3}
+              size="full"
+              isLoading={isLoading}
+              defaultValue={max_login_attempts}
+              variant="themed"
+              themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
+              data={[
+                { label: "5", value: 5 },
+                { label: "6", value: 6 },
+                { label: "7", value: 7 },
+              ]}
+              label="Login Attempts before Account Lockout"
+              onChange={(newValue) =>
+                handleUpdate?.({ max_login_attempts: newValue })
+              }
             />
-          </div>
-        </li>
-        <Select
-          icon={ICON.CARET_DOWN3}
-          size="full"
-          isLoading={isLoading}
-          defaultValue={max_login_attempts}
-          variant="themed"
-          themedClass="ring ring-[#BBD2EC] text-[#98A2B3]"
-          data={[
-            { label: "5", value: 5 },
-            { label: "6", value: 6 },
-            { label: "7", value: 7 },
-          ]}
-          label="Login Attempts before Account Lockout"
-          onChange={(newValue) =>
-            handleUpdate?.({ max_login_attempts: newValue })
-          }
-        />
-      </ul>
-    </section>
+          </ul>
+        </section>
+      )}
+
+      <div className="flex flex-col gap-3">
+        <p className="text-dark font-medium">Change Password</p>
+        <Modal.Trigger name="update-password">
+          <Button
+            config={{
+              className: "bg-black!",
+            }}
+            icon={ICON.ARROW_RIGHT}
+          >
+            Update Password
+          </Button>
+        </Modal.Trigger>
+      </div>
+
+      <Modal.Window
+        hasClose
+        title="Update Your Password"
+        textStyle="text-[#4B5563]! font-normal!"
+        text="Create a strong password to keep your account secure"
+        name="update-password"
+        className="w-xl! "
+      >
+        <ChangePasswordForm />
+      </Modal.Window>
+    </Modal>
   );
 }
