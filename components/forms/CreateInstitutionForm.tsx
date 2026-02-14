@@ -17,16 +17,17 @@ import {
   useCreateInstitution,
   useEditInstitution,
 } from "@/hooks/superadmin/useInstitutions";
+import usePaginatorParams from "@/hooks/usePaginatorParams";
 
 export default function CreateInstitutionForm({
   onCloseModal,
   type,
   data,
 }: { type?: "create" | "edit"; data?: Institution } & onCloseModal) {
-  const searchParams = useSearchParams();
+  const params = usePaginatorParams({searchKey: "sq"})
   const { create, isPending } = useCreateInstitution();
   const { edit, isPending: isEditing } = useEditInstitution();
-  const { plans, isLoading } = useGetPlans(searchParams.get("sq") ?? "");
+  const { plans, isLoading } = useGetPlans(params);
 
   const {
     register,

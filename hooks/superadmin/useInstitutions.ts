@@ -13,6 +13,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useEffect } from "react";
 
 export function useInfiniteQueryGetInstitutions(query?: string) {
   const {
@@ -49,6 +50,7 @@ export function useInfiniteQueryGetInstitutions(query?: string) {
 }
 
 export function useGetInstitutions(params?: Paginator) {
+  const queryClient = useQueryClient();
   const { data, isLoading, error, refetch, isRefetching, isFetched } = useQuery(
     {
       queryKey: ["institutions", params],
@@ -59,14 +61,24 @@ export function useGetInstitutions(params?: Paginator) {
   const total_count = data?.count;
   const institutions = data?.result;
 
-  const hasNextPage = data?.next !== null;
-  const hasPrevPage = data?.previous !== null;
+  const nextPage = data?.next !== null ? (params?.page || 1) + 1 : null;
+  const prevPage = data?.previous !== null ? (params?.page || 1) - 1 : null;
+
+  useEffect(() => {
+    if (data?.next !== null) {
+      const nextParams = { ...params, page: (params?.page || 1) + 1 };
+      queryClient.prefetchQuery({
+        queryKey: ["institutions", nextParams],
+        queryFn: () => getS_Admin_Institutions(nextParams),
+      });
+    }
+  }, [data?.next, params, queryClient]);
 
   return {
     total_count,
     institutions,
-    nextPage: hasNextPage,
-    prevPage: hasPrevPage,
+    nextPage,
+    prevPage,
     isLoading,
     error,
     refetch,

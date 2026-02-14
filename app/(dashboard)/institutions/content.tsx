@@ -27,6 +27,8 @@ import ActionPopup from "@/ui/ActionPopup";
 import ActionLoader from "@/ui/ActionLoader";
 import CreateInstitutionAdminForm from "@/components/forms/create-institution-admin";
 
+import usePaginatorParams from "@/hooks/usePaginatorParams";
+
 const FILTER_OPTIONS = [
   { label: "Newest", value: "newest" },
   { label: "Oldest", value: "oldest" },
@@ -35,8 +37,9 @@ const FILTER_OPTIONS = [
 ];
 
 export default function InstitutionContent() {
+  const params = usePaginatorParams();
   const { institutions, isLoading, total_count, prevPage, nextPage } =
-    useGetInstitutions();
+    useGetInstitutions(params);
   const { deleteInst, isPending } = useDeleteInstitution();
   const [selectedItem, setSelectedItem] = useState<Institution | null>(null);
   const { edit, isPending: isSuspending } = useEditInstitution(

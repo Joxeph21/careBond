@@ -1,5 +1,6 @@
 import { getCloudLogs, getCloudStats } from "@/services/superadmin.service";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export default function useCloudLogs(
   option?: Paginator &
@@ -11,7 +12,8 @@ export default function useCloudLogs(
       ordering: string;
     }>,
 ) {
-  const {data, isLoading, refetch, error} = useQuery({
+  const queryClient = useQueryClient();
+  const { data, isLoading, refetch, error } = useQuery({
     queryFn: () => getCloudLogs(option),
     queryKey: ["cloud-logs", option],
   });
@@ -19,8 +21,18 @@ export default function useCloudLogs(
   const total_count = data?.count;
   const logs = data?.results;
 
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
+  const nextPage = data?.next !== null ? (option?.page || 1) + 1 : null;
+  const prevPage = data?.previous !== null ? (option?.page || 1) - 1 : null;
+
+  useEffect(() => {
+    if (data?.next !== null) {
+      const nextParams = { ...option, page: (option?.page || 1) + 1 };
+      queryClient.prefetchQuery({
+        queryKey: ["cloud-logs", nextParams],
+        queryFn: () => getCloudLogs(nextParams),
+      });
+    }
+  }, [data?.next, option, queryClient]);
 
   return {
     logs,
@@ -33,16 +45,16 @@ export default function useCloudLogs(
   };
 }
 
-export function useCloudStats(params?: {range?: string}){
-const {data, isLoading, refetch, error} = useQuery({
-  queryKey: ["cloud-stats", params],
-  queryFn: () => getCloudStats(params),
-})
+export function useCloudStats(params?: { range?: string }) {
+  const { data, isLoading, refetch, error } = useQuery({
+    queryKey: ["cloud-stats", params],
+    queryFn: () => getCloudStats(params),
+  });
 
-return {
-  data,
-  isLoading,
-  refetch,
-  error,
-}
+  return {
+    data,
+    isLoading,
+    refetch,
+    error,
+  };
 }

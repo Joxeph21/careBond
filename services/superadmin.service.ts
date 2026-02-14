@@ -10,10 +10,10 @@ export async function getS_Admin_Stats() {
             mmr: number;
             total_users: number;
             active_institutions: number;
-            total_cameras: number
-            total_revenue: number
-            total_devices: number
-            total_plans: number
+            total_cameras: number;
+            total_revenue: number;
+            total_devices: number;
+            total_plans: number;
           };
           recent_logs: [];
         }[]
@@ -69,13 +69,14 @@ export async function getInstitutionDashboard() {
   }
 }
 
-export async function getPlans(query?: string) {
+export async function getPlans(option?: Paginator) {
   try {
     const res = await HttpClient.get<
       BaseBackendResponse<null, Pagination & { results: Plan[] }>
     >("/plans/", {
       params: {
-        search: query,
+        search: option?.query,
+        page: option?.page ?? 1,
       },
     });
 
@@ -278,10 +279,10 @@ export async function createInstitutionAdmin(data: {
 }) {
   try {
     const res = await HttpClient.post<BaseBackendResponse<IUser>>(
-      "/auth/register-institution/", data,
-
+      "/auth/register-institution/",
+      data,
     );
-    return res.data
+    return res.data;
   } catch (err) {
     ThrowError(err);
   }

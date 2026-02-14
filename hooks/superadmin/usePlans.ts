@@ -1,28 +1,42 @@
 import { EditPlan, createPlan, getPlans } from "@/services/superadmin.service";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-export function useGetPlans(query?: string) {
-  const { data, isLoading, error, refetch, isFetched } = useQuery({
-    queryKey: ["plans", query],
-    queryFn: () => getPlans(query),
+export function useGetPlans(params?: Paginator) {
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    error,
+    isFetched,
+  } = useInfiniteQuery({
+    queryKey: ["plans", params],
+    queryFn: ({ pageParam = 1 }) =>
+      getPlans({ ...params, page: pageParam as number }),
+    getNextPageParam: (lastPage, allPages, lastPageParam) =>
+      lastPage?.next ? (lastPageParam as number) + 1 : undefined,
+    initialPageParam: 1,
   });
 
-  const total_count = data?.count;
-  const plans = data?.results;
-
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
+  const plans = data?.pages.flatMap((page) => page?.results ?? []) ?? [];
+  const total_count = data?.pages[0]?.count ?? 0;
 
   return {
     total_count,
     plans,
-    nextPage,
-    prevPage,
     isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     error,
     refetch,
-
     isFetched,
   };
 }
