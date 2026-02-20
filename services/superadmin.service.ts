@@ -27,6 +27,7 @@ export async function getS_Admin_Stats() {
 }
 
 export async function getS_Admin_Institutions(option?: Paginator) {
+
   try {
     const res = await HttpClient.get<
       BaseBackendResponse<

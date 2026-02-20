@@ -45,7 +45,16 @@ export default function RootLayout({
       <body
         className={`text-pretty ${Utendo.variable} ${outfit.variable} antialiased`}
       >
-        <NextTopLoader color="#3f8ef3" showSpinner={false} />
+        <NextTopLoader
+          color="#4F46E5"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #4F46E5,0 0 5px #4F46E5"
+        />
         <QueryProvider>
           {children}
           <Toaster

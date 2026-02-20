@@ -10,8 +10,9 @@ import Pagination from "../common/Pagination";
 import usePaginatorParams from "@/hooks/usePaginatorParams";
 
 export default function TransactionsTable() {
-  const {query} = usePaginatorParams({searchKey: "table-q"})
-  const { transactions, isLoading, total_count, prevPage, nextPage } = useTransactions({query});
+  const { query } = usePaginatorParams({ searchKey: "table-q" });
+  const { transactions, isLoading, total_count, prevPage, nextPage } =
+    useTransactions({ query });
   const {
     isAllSelected,
     selected,
@@ -20,10 +21,7 @@ export default function TransactionsTable() {
     filteredData,
   } = useTableSelect({
     data: transactions ?? [],
-    
   });
-
-
 
   return (
     <section className="col-start gap-3 h-full w-full">
@@ -54,7 +52,7 @@ export default function TransactionsTable() {
           </Table.Header>
 
           <Table.Body
-          isLoading={isLoading}
+            isLoading={isLoading}
             data={filteredData}
             render={(item, index) => (
               <TransactionList
@@ -67,10 +65,13 @@ export default function TransactionsTable() {
             )}
           />
           <Table.Footer>
-            <Pagination totalCount={total_count} prevPage={prevPage} nextPage={nextPage} />
+            <Pagination
+              totalCount={total_count}
+              prevPage={prevPage}
+              nextPage={nextPage}
+            />
           </Table.Footer>
         </Table>
-
       </section>
     </section>
   );

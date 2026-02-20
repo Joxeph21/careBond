@@ -37,7 +37,9 @@ const FILTER_OPTIONS = [
 ];
 
 export default function InstitutionContent() {
-  const params = usePaginatorParams();
+  const params = usePaginatorParams({
+    searchKey: "table-q"
+  });
   const { institutions, isLoading, total_count, prevPage, nextPage } =
     useGetInstitutions(params);
   const { deleteInst, isPending } = useDeleteInstitution();

@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         hostname: "195.15.222.27",
         port: "9000",
       },
+      {
+        protocol: "https",
+        hostname: "upload.carebond.ch",
+      },
     ],
   },
 };

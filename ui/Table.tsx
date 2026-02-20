@@ -68,7 +68,7 @@ Table.Row = function Row({
     <div
       role="row"
       style={{ display: "grid", gridTemplateColumns: columns }}
-      className={`gap-6 items-center cursor-pointer  px-3 text-[#474747] text-sm py-4 ${
+      className={`gap-6 items-center cursor-pointer  px-3 text-black text-sm py-4 ${
         border && "border-b border-[#E1E1E1]"
       } ${isHighlighted && "bg-[#F9FAFC]!"}`}
       onClick={onClick}

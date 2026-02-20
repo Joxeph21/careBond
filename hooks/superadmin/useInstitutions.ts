@@ -58,6 +58,7 @@ export function useGetInstitutions(params?: Paginator) {
     },
   );
 
+
   const total_count = data?.count;
   const institutions = data?.result;
 

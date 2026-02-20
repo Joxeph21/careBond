@@ -11,7 +11,7 @@ export default function useIUsers(
   option?: Paginator & { role?: USER_ROLE },
 ) {
   const queryClient = useQueryClient();
-  const { data, isLoading, isPlaceholderData, refetch, error } = useQuery({
+  const { data, isLoading, isPlaceholderData, refetch, error, isFetching, isFetched } = useQuery({
     queryKey: ["I-Users", option, isSuperAdmin],
     queryFn: () => getUsers(option),
     enabled: !!isSuperAdmin,
@@ -46,6 +46,8 @@ export default function useIUsers(
     users: data?.results.filter((el) => el.role !== "super_admin") ?? [],
     nextPage,
     prevPage,
+    isFetching,
+    isFetched,
     isLoading,
     isPlaceholderData,
     error,

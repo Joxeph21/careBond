@@ -24,7 +24,7 @@ export function useGetIUsers(
     isLoading,
     error,
     refetch,
-    isRefetching,
+    isFetching,
     isFetched,
     isPlaceholderData,
   } = useQuery({
@@ -71,7 +71,7 @@ export function useGetIUsers(
     isLoading,
     error,
     refetch,
-    isRefetching,
+    isFetching,
     isFetched,
     isPlaceholderData,
   };

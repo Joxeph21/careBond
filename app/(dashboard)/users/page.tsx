@@ -51,10 +51,12 @@ function AllUsersTable({ isSuperAdmin, query, page, role }: Props) {
       role,
     },
   );
+
+
   return (
     <UsersTable
       users={users ?? []}
-      isLoading={isLoading}
+      isLoading={isLoading }
       total_count={total_count ?? 0}
       prevPage={prevPage}
       nextPage={nextPage}
@@ -63,7 +65,7 @@ function AllUsersTable({ isSuperAdmin, query, page, role }: Props) {
 }
 
 function IUsersTable({ data, query, page, role }: Props) {
-  const { users, isLoading, total_count, prevPage, nextPage, } = useGetIUsers(
+  const { users, isLoading, total_count, prevPage, nextPage } = useGetIUsers(
     data?.institution_id,
     { query, page, role },
   );
